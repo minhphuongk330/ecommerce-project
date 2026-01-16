@@ -32,7 +32,7 @@ import { UploadModule } from './modules/upload/upload.module';
       ssl: {
         rejectUnauthorized: false,
       },
-      synchronize: true,
+      synchronize: false,
       autoLoadEntities: true,
     }),
     BannersModule,
