@@ -27,7 +27,12 @@ import { UploadModule } from './modules/upload/upload.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot(databaseConfig()),
+    TypeOrmModule.forRoot({
+      ...(databaseConfig() as any),
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    }),
     BannersModule,
     CategoriesModule,
     ProductsModule,
