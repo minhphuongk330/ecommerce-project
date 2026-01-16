@@ -1,0 +1,10 @@
+{
+  "tabWidth": 2,
+	"useTabs": true,
+	"semi": true,
+	"printWidth": 120,
+	"arrowParens": "avoid",
+	"htmlWhitespaceSensitivity": "ignore",
+	"singleQuote": false,
+	"endOfLine": "auto"
+}

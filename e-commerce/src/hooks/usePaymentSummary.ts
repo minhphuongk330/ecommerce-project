@@ -1,0 +1,63 @@
+import { useMemo } from "react";
+import { useCheckoutContext } from "~/contexts/CheckoutContext";
+import { useCartStore } from "~/stores/cart";
+import { ShippingMethod } from "~/types/shipping";
+
+export interface CartItem {
+	id: number;
+	price?: number | string;
+	quantity?: number;
+	name: string;
+	mainImageUrl: string;
+	selectedColor?: string;
+}
+
+const TAX_AMOUNT = 50;
+
+export const formatPrice = (value: number) => `$${value.toFixed(2)}`;
+
+export const usePaymentSummary = () => {
+	const { selectedAddress, selectedShippingMethod, scheduledDate } = useCheckoutContext();
+	const rawItems = useCartStore(state => state.cartItems) as unknown as CartItem[];
+
+	const { subtotal, itemsWithTotal } = useMemo(() => {
+		return rawItems.reduce(
+			(acc, item) => {
+				const t = Number(item.price ?? 0) * Number(item.quantity ?? 0);
+				acc.subtotal += t;
+				acc.itemsWithTotal.push({ item, total: t });
+				return acc;
+			},
+			{ subtotal: 0, itemsWithTotal: [] as { item: CartItem; total: number }[] }
+		);
+	}, [rawItems]);
+
+	const { shippingCost, total, shipmentLabel } = useMemo(() => {
+		const cost = Number(selectedShippingMethod?.price || 0);
+
+		let label = "Not selected";
+		if (selectedShippingMethod) {
+			if (selectedShippingMethod.type === "schedule") label = "Schedule";
+			else if (selectedShippingMethod.price === 0) label = "Free";
+			else label = formatPrice(selectedShippingMethod.price);
+		}
+
+		return {
+			shippingCost: cost,
+			total: subtotal + TAX_AMOUNT + cost,
+			shipmentLabel: label,
+		};
+	}, [subtotal, selectedShippingMethod]);
+
+	return {
+		itemsWithTotal,
+		selectedAddress,
+		selectedShippingMethod,
+		scheduledDate,
+		shipmentLabel,
+		subtotal,
+		taxAmount: TAX_AMOUNT,
+		shippingCost,
+		total,
+	};
+};
