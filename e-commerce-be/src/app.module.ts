@@ -32,6 +32,8 @@ import { UploadModule } from './modules/upload/upload.module';
       ssl: {
         rejectUnauthorized: false,
       },
+      synchronize: true,
+      autoLoadEntities: true,
     }),
     BannersModule,
     CategoriesModule,
