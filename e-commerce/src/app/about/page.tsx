@@ -34,7 +34,7 @@ const SectionText = ({ children }: { children: React.ReactNode }) => (
 export default function AboutPage() {
 	return (
 		<div className="w-full bg-white min-h-screen">
-			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8 md:py-[80px]">
+			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8 md:py-[40px]">
 				<div className="max-w-4xl mx-auto">
 					<h1 className="text-3xl md:text-4xl font-bold text-black mb-6 md:mb-8">About Us</h1>
 

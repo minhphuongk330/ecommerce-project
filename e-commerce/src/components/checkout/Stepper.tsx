@@ -12,7 +12,7 @@ const CheckoutStepper: React.FC = () => {
 				w-full mx-auto bg-white
 				flex justify-between items-center
 				px-4 py-6
-				lg:max-w-[1440px] lg:px-[160px] lg:py-[72px]
+				lg:max-w-[1440px] lg:px-[160px] lg:py-[40px]
 			"
 		>
 			{CHECKOUT_STEPS.map(step => {
