@@ -39,7 +39,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 	return (
 		<BaseDialog isOpen={isOpen} onClose={onClose} width={450}>
 			<div className="flex flex-col items-center text-center">
-				<h2 className="text-[28px] font-serif font-bold text-black pb-2 leading-tight">{title}</h2>
+				<h2 className="text-[28px] font-bold text-black pb-2 leading-tight">{title}</h2>
 
 				<p className="text-[16px] text-gray-700 mb-8">{message}</p>
 

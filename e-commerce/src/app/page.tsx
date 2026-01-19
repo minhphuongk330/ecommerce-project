@@ -5,6 +5,7 @@ import ProductTabsSection from "~/components/Products/TabsSection";
 import SectionProductList from "~/components/Products/SectionProductList";
 import { useBanners } from "~/hooks/useBanner";
 import { useDiscountProducts } from "~/hooks/useProductDiscount";
+import { router } from "~/utils/router";
 
 const GRID_STYLES = [
 	{ bg: "bg-white", text: "text-black", btn: "dark" as const },
@@ -30,6 +31,7 @@ export default function Home() {
 					contentClass="max-w-[1440px] mx-auto px-4 md:px-40 items-start text-left"
 					titleClass="text-white text-4xl md:text-7xl lg:text-8xl"
 					imageClass="h-[100%] translate-x-0 md:translate-x-150"
+					link={router.product(30)}
 				/>
 			)}
 
@@ -40,7 +42,8 @@ export default function Home() {
 							data={splitBanners[1]} 
 							className="w-full md:w-1/2 h-[300px] md:h-full" 
 							buttonText="" 
-							imageClass="h-full w-full object-cover" 
+							imageClass="h-full w-full object-cover"
+							link={router.product(30)}
 						/>
 					)}
 
@@ -53,6 +56,7 @@ export default function Home() {
 							btnTheme="dark"
 							contentClass="p-6 md:p-10 md:pl-16 items-start text-left h-full justify-center"
 							imageClass="h-full w-full object-contain bottom-0 right-0 translate-x-0 md:translate-x-10"
+							link={router.product(30)}
 						/>
 					)}
 				</div>
@@ -77,6 +81,7 @@ export default function Home() {
 									descClass={`text-sm mb-6 md:mb-10 leading-relaxed font-medium opacity-60 px-3 ${style.text}`}
 									btnTheme={style.btn}
 									imageClass="relative h-[250px] md:h-[350px] w-full object-contain mb-6"
+									link={router.product(30)}
 								/>
 							);
 						})}
@@ -93,6 +98,7 @@ export default function Home() {
 					titleClass="text-white text-3xl md:text-5xl lg:text-7xl"
 					contentClass="justify-center items-center text-center px-4 md:px-20"
 					imageClass="h-[100%]"
+					link={router.product(30)}
 				/>
 			)}
 		</div>

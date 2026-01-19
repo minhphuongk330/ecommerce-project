@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import Button from "~/components/atoms/Button";
 import { BannerProps } from "~/types/banner";
 
@@ -13,10 +15,26 @@ const Banner: React.FC<BannerProps> = ({
 	descClass = "text-gray-500",
 	imageClass = "",
 	btnTheme = "light",
+	link,
 }) => {
+	const router = useRouter();
 	if (!data) return null;
 	const { title, content, imageUrl } = data;
 	const alignClass = contentClass.includes("text-center") ? "items-center" : "items-start";
+
+	const handleClick = () => {
+		if (onClick) {
+			onClick();
+		} else if (link) {
+			router.push(link);
+		}
+	};
+
+	const handleImageClick = () => {
+		if (link) {
+			router.push(link);
+		}
+	};
 
 	return (
 		<div
@@ -24,10 +42,10 @@ const Banner: React.FC<BannerProps> = ({
 			style={
 				bgImage
 					? {
-							backgroundImage: `url('${bgImage}')`,
-							backgroundSize: "cover",
-							backgroundPosition: "center",
-					  }
+						backgroundImage: `url('${bgImage}')`,
+						backgroundSize: "cover",
+						backgroundPosition: "center",
+					}
 					: {}
 			}
 		>
@@ -42,7 +60,7 @@ const Banner: React.FC<BannerProps> = ({
 					{content && <p className={`text-lg mb-8 leading-relaxed w-full whitespace-normal ${descClass}`}>{content}</p>}
 					{buttonText && (
 						<div>
-							<Button theme={btnTheme} onClick={onClick}>
+							<Button theme={btnTheme} onClick={handleClick}>
 								{buttonText}
 							</Button>
 						</div>
@@ -53,7 +71,8 @@ const Banner: React.FC<BannerProps> = ({
 					<img
 						src={imageUrl}
 						alt={title || "Banner Product"}
-						className={`z-[5] object-contain ${imageClass.includes("relative") ? "" : "absolute"} ${imageClass}`}
+						onClick={handleImageClick}
+						className={`z-[5] object-contain ${imageClass.includes("relative") ? "" : "absolute"} ${link ? "cursor-pointer" : ""} ${imageClass}`}
 					/>
 				)}
 			</div>

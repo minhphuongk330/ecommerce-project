@@ -29,9 +29,12 @@ import { UploadModule } from './modules/upload/upload.module';
     }),
     TypeOrmModule.forRoot({
       ...(databaseConfig() as any),
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ssl:
+        process.env.DB_HOST === 'localhost'
+          ? false
+          : {
+              rejectUnauthorized: false,
+            },
       synchronize: false,
       autoLoadEntities: true,
     }),

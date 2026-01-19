@@ -37,7 +37,7 @@ export default function OrderSummary({ order, onCancelOrder }: OrderSummaryProps
 					<StepButton
 						primaryLabel="Cancel Order"
 						onPrimaryClick={() => setIsCancelModalOpen(true)}
-						className="!w-full !bg-white !text-red-600 border-red-200 hover:!bg-red-50"
+						className="!w-full !bg-white !text-red-600 border-red-200"
 					/>
 				</div>
 			)}

@@ -22,7 +22,7 @@ const transformAttributeToFilter = (attr: AttributeDef): FilterCategory => {
 		id: attr.id.toString(),
 		title: attr.name,
 		hasSearch: options.length > 1,
-		defaultOpen: true,
+		defaultOpen: false,
 		options,
 	};
 };

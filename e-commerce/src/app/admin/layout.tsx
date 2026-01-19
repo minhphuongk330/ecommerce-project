@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 			<Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
 			<div className="flex-1 flex flex-col overflow-hidden">
 				<AdminHeader />
-				<main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">{children}</main>
+				<main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-[40px]">{children}</main>
 			</div>
 		</div>
 	);

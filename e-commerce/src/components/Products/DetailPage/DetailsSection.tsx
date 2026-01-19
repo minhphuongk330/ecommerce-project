@@ -29,8 +29,8 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ product }) => {
 
 	if (!product.description && specs.length === 0) return null;
 	return (
-		<div className="w-full bg-[#FAFAFA] flex justify-center py-8 md:py-[80px] px-4 md:px-[40px] lg:px-[160px]">
-			<div className="w-full bg-white rounded-[8px] p-4 md:p-[40px] shadow-sm">
+		<div className="w-full bg-[#FAFAFA] flex justify-center py-8 md:py-[80px] px-4 md:px-[160px]">
+			<div className="w-full max-w-[1440px] mx-auto bg-white rounded-[8px] p-4 md:p-[40px] shadow-sm">
 				<h2 className="text-xl md:text-[24px] font-medium text-black leading-[32px]">Details</h2>
 				{product.description && (
 					<p className="mt-6 md:mt-[32px] text-sm text-[#4E4E4E] font-medium leading-[24px] text-justify whitespace-pre-line">

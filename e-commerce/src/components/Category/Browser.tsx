@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
 import { Typography, CircularProgress } from "@mui/material";
 import CategoryCard from "./Card";
 import ArrowButton from "../atoms/ArrowButton";
@@ -10,6 +10,8 @@ import { useCategories } from "~/hooks/useCategories";
 const CategoryBrowser: React.FC = () => {
 	const router = useRouter();
 	const { categories, isLoading } = useCategories();
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+
 	const handleCategoryClick = (id: number) => {
 		router.push(`${routerPaths.productDetail}?categoryId=${id}`);
 	};
@@ -20,7 +22,7 @@ const CategoryBrowser: React.FC = () => {
 				<Typography variant="h5" className="!font-medium !text-xl md:!text-2xl !text-black !leading-8">
 					Browse By Category
 				</Typography>
-				<ArrowButton />
+				<ArrowButton scrollContainerRef={scrollContainerRef} />
 			</div>
 
 			{isLoading ? (
@@ -29,7 +31,8 @@ const CategoryBrowser: React.FC = () => {
 				</div>
 			) : (
 				<div
-					className="flex space-x-8 overflow-x-auto flex-nowrap pb-5"
+					ref={scrollContainerRef}
+					className="flex space-x-8 overflow-x-auto flex-nowrap pb-5 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
 					style={{
 						display: "flex",
 						flexDirection: "row",
@@ -40,7 +43,7 @@ const CategoryBrowser: React.FC = () => {
 							<div
 								key={category.id}
 								onClick={() => handleCategoryClick(category.id)}
-								className="cursor-pointer transition-transform hover:scale-105"
+								className="cursor-pointer transition-transform hover:scale-105 flex-shrink-0"
 							>
 								<CategoryCard name={category.name} thumbnailUrl={category.thumbnailUrl} />
 							</div>

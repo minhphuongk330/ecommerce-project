@@ -20,4 +20,5 @@ export interface BannerProps {
 	btnTheme?: "light" | "dark";
 	buttonText?: string;
 	onClick?: () => void;
+	link?:string;
 }

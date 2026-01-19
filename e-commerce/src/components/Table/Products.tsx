@@ -56,7 +56,7 @@ export default function ProductsTable({ products, categories, onRefresh }: Props
 		{
 			field: "price",
 			headerName: "Price ($)",
-			width: 180,
+			width: 150,
 			valueFormatter: value => formatPrice(value),
 			cellClassName: "font-semibold text-gray-900",
 		},

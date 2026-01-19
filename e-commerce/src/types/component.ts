@@ -8,6 +8,8 @@ export interface ArrowButtonProps {
 	onPrev?: () => void;
 	onNext?: () => void;
 	className?: string;
+	scrollContainerRef?: React.RefObject<HTMLElement | null> | React.RefObject<HTMLDivElement | null>;
+	scrollAmount?: number;
 }
 
 export interface IconProps {

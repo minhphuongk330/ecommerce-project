@@ -70,7 +70,7 @@ export default function ProfilePage() {
 	if (isLoading || !user) return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
 
 	return (
-		<div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+		<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
 			<div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-6 py-8">
 				<ProfileHeader fullName={user.fullName} />
 				<h3 className="text-lg font-semibold text-gray-900 mb-6 border-b pb-2">My Profile</h3>

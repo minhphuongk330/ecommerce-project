@@ -29,7 +29,7 @@ const ProfileForm = ({ control, email }: Props) => {
 					},
 				}}
 			/>
-			<CommonInput name="fullName" control={control} label="Full Name" />
+			<CommonInput name="fullName" control={control} label="Full Name" required />
 			<CommonInput name="phoneNumber" control={control} label="Phone Number" type="tel" />
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
