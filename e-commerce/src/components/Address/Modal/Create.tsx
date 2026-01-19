@@ -27,7 +27,7 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 		reset,
 		formState: { isSubmitting },
 	} = useForm<AddressFormData>({
-		resolver:zodResolver(addressSchema),
+		resolver: zodResolver(addressSchema),
 		defaultValues: {
 			receiverName: "",
 			phone: "",
@@ -72,18 +72,25 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 				showCloseIcon={true}
 				width={600}
 			>
-				<AddressForm control={control} />
+				<div className="flex flex-col lg:block">
+					<div className="flex-1 overflow-y-auto max-h-[60vh] p-1 lg:max-h-none lg:overflow-visible">
+						<AddressForm control={control} />
+					</div>
 
-				<StepButton
-					layout="full"
-					type="submit"
-					primaryLabel="Save"
-					isLoading={isSubmitting}
-					secondaryLabel="Cancel"
-					onSecondaryClick={() => setIsOpen(false)}
-					className="!h-[48px] "
-					onPrimaryClick={handleSubmit(handleCreate)}
-				/>
+					<div className="mt-4 pt-3 border-t border-gray-100 lg:border-none lg:pt-0 lg:mt-6">
+						<StepButton
+							layout="full"
+							type="submit"
+							primaryLabel="Save"
+							isLoading={isSubmitting}
+							secondaryLabel="Cancel"
+							onSecondaryClick={() => setIsOpen(false)}
+							className="w-full"
+							buttonClassName="!h-[48px]"
+							onPrimaryClick={handleSubmit(handleCreate)}
+						/>
+					</div>
+				</div>
 			</BaseDialog>
 		</>
 	);
