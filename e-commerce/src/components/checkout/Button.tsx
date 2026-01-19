@@ -3,7 +3,7 @@ import React from "react";
 interface StepButtonProps {
 	primaryLabel: string;
 	secondaryLabel?: string;
-	onPrimaryClick?: () => void;
+	onPrimaryClick?: (e?: any) => void | Promise<void>;
 	onSecondaryClick?: () => void;
 	primaryType?: "button" | "submit" | "reset";
 	secondaryType?: "button" | "submit" | "reset";
@@ -13,6 +13,7 @@ interface StepButtonProps {
 	disabled?: boolean;
 	buttonClassName?: string;
 	isLoading?: boolean;
+	type?: "button" | "submit" | "reset";
 }
 
 const StepButton: React.FC<StepButtonProps> = ({
@@ -28,7 +29,10 @@ const StepButton: React.FC<StepButtonProps> = ({
 	disabled = false,
 	buttonClassName = "",
 	isLoading = false,
+	type,
 }) => {
+	const finalPrimaryType = type || primaryType;
+
 	const justifyClass =
 		{
 			start: "justify-start",
@@ -69,7 +73,7 @@ const StepButton: React.FC<StepButtonProps> = ({
 			)}
 
 			<button
-				type={primaryType}
+				type={finalPrimaryType}
 				onClick={onPrimaryClick}
 				disabled={disabled || isLoading}
 				className={`
