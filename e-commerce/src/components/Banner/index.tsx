@@ -42,10 +42,10 @@ const Banner: React.FC<BannerProps> = ({
 			style={
 				bgImage
 					? {
-						backgroundImage: `url('${bgImage}')`,
-						backgroundSize: "cover",
-						backgroundPosition: "center",
-					}
+							backgroundImage: `url('${bgImage}')`,
+							backgroundSize: "cover",
+							backgroundPosition: "center",
+						}
 					: {}
 			}
 		>

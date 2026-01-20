@@ -30,7 +30,7 @@ export default function Home() {
 					className="bg-[#211c24] h-[400px] md:h-[632px]"
 					contentClass="max-w-[1440px] mx-auto px-4 md:px-40 items-start text-left"
 					titleClass="text-white text-4xl md:text-7xl lg:text-8xl"
-					imageClass="h-[100%] translate-x-0 md:translate-x-150"
+					imageClass="absolute bottom-0 right-[-200] h-[47%] md:h-[100%] md:translate-x-150 md:bottom-auto md:right-auto"
 					link={router.product(30)}
 				/>
 			)}
@@ -38,10 +38,10 @@ export default function Home() {
 			{splitBanners && (
 				<div className="flex flex-col md:flex-row w-full h-auto md:h-[600px]">
 					{splitBanners[1] && (
-						<Banner 
-							data={splitBanners[1]} 
-							className="w-full md:w-1/2 h-[300px] md:h-full" 
-							buttonText="" 
+						<Banner
+							data={splitBanners[1]}
+							className="w-full md:w-1/2 h-[300px] md:h-full"
+							buttonText=""
 							imageClass="h-full w-full object-cover"
 							link={router.product(30)}
 						/>

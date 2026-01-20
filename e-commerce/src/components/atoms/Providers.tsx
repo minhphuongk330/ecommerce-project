@@ -7,6 +7,7 @@ import Footer from "~/components/atoms/layout/Footer";
 import { NotificationProvider } from "~/contexts/Notification";
 import { useAuthStore } from "~/stores/useAuth";
 import { useFavoriteStore } from "~/stores/useFavorite";
+import BackToTop from "./layout/BackToTop";
 
 const customTheme = createTheme({
 	palette: {
@@ -47,6 +48,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 				<Header />
 				<main style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
 				<Footer />
+				<BackToTop/>
 			</NotificationProvider>
 		</ThemeProvider>
 	);

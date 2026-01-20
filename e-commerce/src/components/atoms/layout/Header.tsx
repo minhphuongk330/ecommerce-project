@@ -14,6 +14,7 @@ import { useFromStore } from "~/hooks/useFromStore";
 import { routerPaths } from "~/utils/router";
 import { authService } from "~/services/auth";
 import ProductSearch from "~/components/Products/Search";
+import { useScrollDirection } from "~/hooks/useScrollDirection";
 
 const ACTION_ICONS = [
 	{ name: "Favorite", icon: FavoriteBorderOutlined, href: routerPaths.favorite, hasBadge: true },
@@ -31,8 +32,9 @@ const NAV_LINKS = [
 const Header: React.FC = () => {
 	const currentPath = usePathname();
 	const router = useRouter();
-	const [searchValue, setSearchValue] = useState("");
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const scrollDirection = useScrollDirection();
+	const isHidden = scrollDirection === "down";
 	const cartItems = useFromStore(useCartStore, state => state.cartItems);
 	const favorites = useFromStore(useFavoriteStore, state => state.favorites);
 	const user = useFromStore(useAuthStore, state => state.user);
@@ -69,27 +71,28 @@ const Header: React.FC = () => {
 		logout();
 		router.push(routerPaths.login);
 	};
+
 	const badgeCountMap: Record<string, number> = {
 		ShoppingCart: totalCartItems,
 		Favorite: totalFavoriteItems,
 	};
 
 	const renderNavItems = (isMobile = false) => (
-		<Box 
-			sx={{ 
-				display: "flex", 
-				alignItems: isMobile ? "flex-start" : "center", 
+		<Box
+			sx={{
+				display: "flex",
+				alignItems: isMobile ? "flex-start" : "center",
 				gap: isMobile ? 2 : 3,
 				flexDirection: isMobile ? "column" : "row",
-				width: isMobile ? "100%" : "auto"
+				width: isMobile ? "100%" : "auto",
 			}}
 		>
 			{NAV_LINKS.map(link => {
 				const isActive = currentPath === link.href;
 				return (
-					<Link 
-						key={link.name} 
-						href={link.href} 
+					<Link
+						key={link.name}
+						href={link.href}
 						style={{ textDecoration: "none", width: isMobile ? "100%" : "auto" }}
 						onClick={() => isMobile && setMobileMenuOpen(false)}
 					>
@@ -116,7 +119,19 @@ const Header: React.FC = () => {
 		<>
 			<Box
 				component="header"
-				sx={{ position: "sticky", top: 0, zIndex: 10, bgcolor: "white", borderBottom: "1px solid #eee" }}
+				sx={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					right: 0,
+					width: "100%",
+					zIndex: 50,
+					bgcolor: "white",
+					borderBottom: "1px solid #eee",
+					transition: "transform 0.3s ease-in-out",
+					transform: isHidden ? "translateY(-100%)" : "translateY(0)",
+					boxShadow: isHidden ? "none" : "0 2px 4px rgba(0,0,0,0.02)",
+				}}
 			>
 				<Box
 					sx={{
@@ -142,21 +157,20 @@ const Header: React.FC = () => {
 					</Box>
 
 					<Box sx={{ display: { xs: "none", md: "block" }, flex: 1, maxWidth: 400, mx: 2 }}>
-						<ProductSearch/>
+						<ProductSearch />
 					</Box>
 
-					<Box sx={{ display: { xs: "none", md: "flex" } }}>
-						{renderNavItems()}
-					</Box>
+					<Box sx={{ display: { xs: "none", md: "flex" } }}>{renderNavItems()}</Box>
 
 					<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, md: 3 } }}>
 						<Box sx={{ display: { xs: "block", md: "none" } }}>
-							<ProductSearch/>
+							<ProductSearch />
 						</Box>
 						{ACTION_ICONS.map(item => {
 							const IconComponent = item.icon;
 							let iconElement = <IconComponent sx={{ fontSize: { xs: 24, md: 28 } }} />;
 							const badgeCount = badgeCountMap[item.name] ?? 0;
+
 							if (item.hasBadge && badgeCount > 0) {
 								iconElement = (
 									<Badge badgeContent={badgeCount} color="error" max={99}>
@@ -164,6 +178,7 @@ const Header: React.FC = () => {
 									</Badge>
 								);
 							}
+
 							if (item.name === "Person" && user) {
 								return <UserMenu key={item.name} user={user} icon={iconElement} onLogout={handleLogout} />;
 							}
@@ -178,7 +193,8 @@ const Header: React.FC = () => {
 				</Box>
 			</Box>
 
-			{/* Mobile Drawer */}
+			<Box sx={{ height: { xs: "64px", md: "88px" } }} />
+
 			<Drawer
 				anchor="left"
 				open={mobileMenuOpen}
@@ -205,4 +221,5 @@ const Header: React.FC = () => {
 		</>
 	);
 };
+
 export default Header;

@@ -6,7 +6,7 @@ export default function AdminHeader() {
 	const { user } = useAuthStore();
 
 	return (
-		<div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm flex-shrink-0">
+		<div className="h-25 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm flex-shrink-0">
 			<h2 className="text-lg font-semibold text-gray-800">Management System</h2>
 			<div className="flex items-center gap-4">
 				<div className="text-right">

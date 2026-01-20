@@ -26,7 +26,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 				isCollapsed ? "w-20" : "w-64"
 			}`}
 		>
-			<div className="h-16 flex items-center justify-between px-4 border-b border-gray-800">
+			<div className="h-25 flex items-center justify-between px-4 border-b border-gray-800">
 				{!isCollapsed && <span className="text-xl font-bold tracking-wider">ADMIN</span>}
 				<CommonIconButton
 					onClick={toggleSidebar}

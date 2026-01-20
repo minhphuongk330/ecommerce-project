@@ -7,7 +7,7 @@ import { useAuthStore } from "~/stores/useAuth";
 import { routerPaths } from "~/utils/router";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 	const { user, isAuthenticated, logout } = useAuthStore();
 	const router = useRouter();
 	const [isClient, setIsClient] = useState(false);

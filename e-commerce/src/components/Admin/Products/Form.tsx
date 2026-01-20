@@ -1,5 +1,5 @@
 "use client";
-import { Control, UseFormSetValue, useFieldArray, Controller, useWatch } from "react-hook-form";
+import { Control, UseFormSetValue, useFieldArray, Controller } from "react-hook-form";
 import { MenuItem, IconButton } from "@mui/material";
 import { Add, DeleteOutline } from "@mui/icons-material";
 import CommonInput from "~/components/atoms/Input";
@@ -19,8 +19,6 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 		control,
 		name: "colors",
 	});
-
-	const watchedColors = useWatch({ control, name: "colors" });
 
 	return (
 		<div className="space-y-6 py-2">
@@ -55,8 +53,6 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 
 				<div className="space-y-3">
 					{fields.map((field, index) => {
-						const currentColorHex = watchedColors?.[index]?.colorHex || "#000000";
-
 						return (
 							<div key={field.id} className="flex items-start gap-3 p-3 border rounded-lg bg-gray-50">
 								<div className="flex-1">
@@ -69,8 +65,8 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 								</div>
 
 								<div className="flex flex-col gap-1">
-									<label className="text-xs font-medium text-gray-600 ml-1">Color code</label>
-									<div className="flex items-center gap-2 h-[56px] px-2 border rounded-md bg-white border-gray-300">
+									<label className="text-xs font-medium text-gray-600 ">Preview</label>
+									<div className="flex items-center justify-center p-2 w-fit border rounded-md bg-white border-gray-300">
 										<Controller
 											control={control}
 											name={`colors.${index}.colorHex`}
@@ -78,21 +74,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 												<input
 													type="color"
 													className="w-8 h-8 p-0 border-none cursor-pointer bg-transparent"
-													value={value || "#000000"}
-													onChange={onChange}
-												/>
-											)}
-										/>
-										<Controller
-											control={control}
-											name={`colors.${index}.colorHex`}
-											render={({ field: { onChange, value } }) => (
-												<input
-													type="text"
-													className="w-24 text-sm uppercase border-none focus:ring-0 outline-none"
-													placeholder="#000000"
-													maxLength={7}
-													value={value || "#000000"}
+													value={value}
 													onChange={onChange}
 												/>
 											)}
@@ -100,7 +82,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 									</div>
 								</div>
 
-								<div className="mt-2">
+								<div className="mt-6">
 									<IconButton onClick={() => remove(index)} color="error">
 										<DeleteOutline />
 									</IconButton>
