@@ -40,3 +40,9 @@ export interface UpdateProfilePayload {
 	gender?: "MALE" | "FEMALE" | "OTHER";
 	dateOfBirth?: string;
 }
+
+export interface ChangePasswordForm {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+}

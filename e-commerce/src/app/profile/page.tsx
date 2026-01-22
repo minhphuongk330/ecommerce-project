@@ -12,6 +12,7 @@ import { updateProfileSchema } from "~/utils/validator/auth";
 import Button from "~/components/atoms/Button";
 import ProfileHeader from "~/components/Profile/Header";
 import ProfileForm from "~/components/Profile/Form";
+import ChangePasswordModal from "~/components/Profile/Modal/ChangePassword";
 
 export default function ProfilePage() {
 	const router = useRouter();
@@ -73,7 +74,12 @@ export default function ProfilePage() {
 		<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
 			<div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-6 py-8">
 				<ProfileHeader fullName={user.fullName} />
-				<h3 className="text-lg font-semibold text-gray-900 mb-6 border-b pb-2">My Profile</h3>
+
+				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
+					<h3 className="text-lg font-semibold text-gray-900">My Profile</h3>
+					<ChangePasswordModal />
+				</div>
+
 				<div className="space-y-6">
 					<ProfileForm control={control} email={user.email} />
 					<div className="mt-10 flex justify-end gap-3 pt-4">

@@ -4,6 +4,7 @@ import { UserProfile } from "~/types/auth";
 import { LoginPayload } from "~/types/auth";
 import { RegisterPayload } from "~/types/auth";
 import { UpdateProfilePayload } from "~/types/auth";
+import { ChangePasswordForm } from "~/types/auth";
 
 export const authService = {
 	login(payload: LoginPayload): Promise<LoginResponse> {
@@ -20,5 +21,9 @@ export const authService = {
 
 	updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
 		return axiosClient.patch("/auth/profile", payload);
+	},
+
+	changePassword(payload: ChangePasswordForm): Promise<any> {
+		return axiosClient.put("/auth/change-password", payload);
 	},
 };

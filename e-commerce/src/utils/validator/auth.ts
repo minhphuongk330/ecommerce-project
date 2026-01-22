@@ -36,3 +36,20 @@ export const updateProfileSchema = z.object({
 		.nullable()
 		.transform(val => (val === "" || val === null ? undefined : val)),
 });
+
+export const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().min(6, { message: "Current password must be at least 6 characters" }),
+		newPassword: z.string().min(6, { message: "New password must be at least 6 characters" }),
+		confirmPassword: z.string().min(6, { message: "Confirm password must be at least 6 characters" }),
+	})
+	.refine(data => data.newPassword === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	})
+	.refine(data => data.currentPassword !== data.newPassword, {
+		message: "New password must be different from current password",
+		path: ["newPassword"],
+	});
+
+export type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
