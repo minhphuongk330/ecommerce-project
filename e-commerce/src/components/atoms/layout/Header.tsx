@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
@@ -168,14 +168,18 @@ const Header: React.FC = () => {
 					</Box>
 
 					<Box sx={{ display: { xs: "none", md: "block" }, flex: 1, maxWidth: 400, mx: 2 }}>
-						<ProductSearch />
+						<Suspense fallback={<div className="w-full h-10 bg-gray-100 rounded-lg animate-pulse" />}>
+							<ProductSearch />
+						</Suspense>
 					</Box>
 
 					<Box sx={{ display: { xs: "none", md: "flex" } }}>{renderNavItems()}</Box>
 
 					<Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, md: 3 } }}>
 						<Box sx={{ display: { xs: "block", md: "none" } }}>
-							<ProductSearch />
+							<Suspense fallback={<div className="w-8 h-8 bg-gray-100 rounded-full" />}>
+								<ProductSearch />
+							</Suspense>
 						</Box>
 						{ACTION_ICONS.map(item => {
 							const IconComponent = item.icon;
