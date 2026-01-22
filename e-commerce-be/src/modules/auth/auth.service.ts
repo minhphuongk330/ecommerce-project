@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +17,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { Role } from '../../entities/customer.entity';
 
 @Injectable()
@@ -143,7 +145,7 @@ export class AuthService {
       id: customer.id,
       email: customer.email,
       fullName: customer.fullName,
-      role:customer.role,
+      role: customer.role,
       phoneNumber: customer.profile?.phoneNumber || null,
       gender: customer.profile?.gender || null,
       dateOfBirth: customer.profile?.dateOfBirth || null,
@@ -179,5 +181,35 @@ export class AuthService {
     await this.profileRepository.save(customer.profile);
 
     return this.getProfile(customerId);
+  }
+
+  async changePassword(customerId: number, dto: ChangePasswordDto) {
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    const customer = await this.customerRepository.findOne({
+      where: { id: customerId },
+    });
+
+    if (!customer) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      customer.passwordHash,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    customer.passwordHash = passwordHash;
+
+    await this.customerRepository.save(customer);
+
+    return { message: 'Password changed successfully' };
   }
 }
