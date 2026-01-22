@@ -14,6 +14,7 @@ import { ProductColor } from './product-color.entity';
 import { OrderItem } from './order-item.entity';
 import { ProductReview } from './product-review.entity';
 import { Favorite } from './favorite.entity';
+import { CartItem } from './cart-item.entity';
 
 @Entity('products')
 export class Product {
@@ -68,8 +69,8 @@ export class Product {
   @OneToMany(() => ProductImage, (productImage) => productImage.product)
   productImages: ProductImage[];
 
-  @OneToMany(() => ProductColor, (productColor) => productColor.product,{
-    cascade:true,
+  @OneToMany(() => ProductColor, (productColor) => productColor.product, {
+    cascade: true,
   })
   productColors: ProductColor[];
 
@@ -87,4 +88,7 @@ export class Product {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
+  cartItems: CartItem[];
 }

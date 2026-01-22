@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import Button from "~/components/atoms/Button";
 import { BannerProps } from "~/types/banner";
 
-const Banner: React.FC<BannerProps> = ({
+interface ExtendedBannerProps extends BannerProps {
+	buttonClass?: string;
+}
+
+const Banner: React.FC<ExtendedBannerProps> = ({
 	data,
 	buttonText = "Shop Now",
 	onClick,
@@ -16,6 +20,7 @@ const Banner: React.FC<BannerProps> = ({
 	imageClass = "",
 	btnTheme = "light",
 	link,
+	buttonClass = "",
 }) => {
 	const router = useRouter();
 	if (!data) return null;
@@ -60,7 +65,7 @@ const Banner: React.FC<BannerProps> = ({
 					{content && <p className={`text-lg mb-8 leading-relaxed w-full whitespace-normal ${descClass}`}>{content}</p>}
 					{buttonText && (
 						<div>
-							<Button theme={btnTheme} onClick={handleClick}>
+							<Button theme={btnTheme} onClick={handleClick} className={buttonClass}>
 								{buttonText}
 							</Button>
 						</div>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { IconButton } from "@mui/material";
-import { DeleteOutlined } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
+import DeleteOutlined from "@mui/icons-material/DeleteOutline";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { adminService } from "~/services/admin";
 import { useNotification } from "~/contexts/Notification";

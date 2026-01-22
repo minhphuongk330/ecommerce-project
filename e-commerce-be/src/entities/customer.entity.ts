@@ -12,6 +12,7 @@ import { Order } from './order.entity';
 import { ProductReview } from './product-review.entity';
 import { Favorite } from './favorite.entity';
 import { Profile } from './profile.entity';
+import { CartItem } from './cart-item.entity';
 
 export enum Role {
   ADMIN = 'ADMIN',
@@ -64,4 +65,7 @@ export class Customer {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.customer)
+  cartItems: CartItem[];
 }

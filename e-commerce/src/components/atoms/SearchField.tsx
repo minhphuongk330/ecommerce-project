@@ -1,42 +1,40 @@
 import React from "react";
-import { TextField, InputAdornment, Box, useTheme, InputBase } from "@mui/material";
-import { Search } from "@mui/icons-material";
+import { SxProps, Theme, InputAdornment } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Search from "@mui/icons-material/Search";
 import { SearchFieldProps } from "~/types/common";
 
-const SearchField: React.FC<SearchFieldProps> = ({ value, onChange, className }) => {
-	const theme = useTheme();
+interface ExtendedSearchFieldProps extends SearchFieldProps {
+	onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+	sx?: SxProps<Theme>;
+}
+
+const SearchField: React.FC<ExtendedSearchFieldProps> = ({
+	value,
+	onChange,
+	className,
+	placeholder,
+	onKeyDown,
+	sx,
+}) => {
 	return (
 		<Box
 			className={className}
 			sx={{
-				flexGrow: 1,
-				maxWidth: 400,
+				width: "100%",
 				display: "flex",
 				alignItems: "center",
 			}}
 		>
 			<TextField
 				fullWidth
-				placeholder="Search"
+				placeholder={placeholder || "Search"}
 				variant="outlined"
-				size="medium"
+				size="small"
 				value={value}
 				onChange={onChange}
-				sx={{
-					"& .MuiOutlinedInput-root": {
-						borderRadius: "10px",
-						bgcolor: theme.palette.grey[100],
-						"& fieldset": {
-							borderColor: "transparent",
-						},
-						"&:hover fieldset": {
-							borderColor: "transparent",
-						},
-						"&.Mui-focused fieldset": {
-							borderColor: "transparent",
-						},
-					},
-				}}
+				onKeyDown={onKeyDown}
 				slotProps={{
 					input: {
 						startAdornment: (
@@ -44,8 +42,21 @@ const SearchField: React.FC<SearchFieldProps> = ({ value, onChange, className })
 								<Search sx={{ color: "gray" }} />
 							</InputAdornment>
 						),
-						style: {},
 					},
+				}}
+				sx={{
+					"& .MuiOutlinedInput-root": {
+						bgcolor: "#F5F5F5",
+						borderRadius: "8px",
+						"& fieldset": { borderColor: "transparent" },
+						"&:hover fieldset": { borderColor: "#ccc" },
+						"&.Mui-focused fieldset": { borderColor: "transparent" },
+						"& input": {
+							padding: "10px 12px 10px 0",
+							fontSize: "0.875rem",
+						},
+					},
+					...sx,
 				}}
 			/>
 		</Box>

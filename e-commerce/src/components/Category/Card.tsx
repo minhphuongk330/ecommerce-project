@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { CategoryCardProps } from "~/types/category";
-import { BrokenImageOutlined } from "@mui/icons-material";
+import BrokenImageOutlined from "@mui/icons-material/BrokenImageOutlined";
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ name, IconComponent, thumbnailUrl }) => {
 	return (

@@ -1,5 +1,7 @@
 "use client";
+import { useState, useEffect } from "react";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import TablePagination from "@mui/material/TablePagination";
 import { AdminOrder } from "~/types/admin";
 import { formatDate, formatPrice } from "~/utils/format";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
@@ -26,6 +28,21 @@ interface Props {
 }
 
 export default function OrdersTable({ orders, onStatusChange }: Props) {
+	const [mobilePage, setMobilePage] = useState(0);
+	const MOBILE_ROWS_PER_PAGE = 5;
+	const [isDesktop, setIsDesktop] = useState(false);
+
+	useEffect(() => {
+		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+		handleResize();
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
+
+	const handleMobilePageChange = (event: unknown, newPage: number) => {
+		setMobilePage(newPage);
+	};
+
 	const columns: GridColDef[] = [
 		{
 			field: "id",
@@ -105,5 +122,101 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 		},
 	];
 
-	return <DataTable rows={orders} columns={columns} rowHeight={60} noRowsLabel="No orders yet." />;
+	return (
+		<>
+			{isDesktop && (
+				<div className="hidden md:block w-full h-[600px]">
+					<DataTable rows={orders} columns={columns} rowHeight={60} noRowsLabel="No orders yet." />
+				</div>
+			)}
+
+			<div className="md:hidden flex flex-col pb-20">
+				<div className="flex flex-col gap-4">
+					{orders.length === 0 ? (
+						<div className="text-center text-gray-500 py-10">No orders yet.</div>
+					) : (
+						orders
+							.slice(mobilePage * MOBILE_ROWS_PER_PAGE, mobilePage * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
+							.map(order => {
+								const isFinalStatus = ["Completed", "Cancelled"].includes(order.status);
+
+								return (
+									<div
+										key={order.id}
+										className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3"
+									>
+										<div className="flex justify-between items-center border-b border-gray-50 pb-2">
+											<span className="text-xs font-bold text-gray-400">#{order.orderNo || order.id}</span>
+											<span className="text-xs text-gray-500">{formatDate(order.createdAt)}</span>
+										</div>
+
+										<div className="flex flex-col gap-1">
+											<div className="flex justify-between items-center">
+												<span className="text-sm font-bold text-gray-900 truncate">
+													{order.customer?.fullName || "Retail customer"}
+												</span>
+											</div>
+											<span className="text-xs text-gray-500 truncate">{order.customer?.email || "---"}</span>
+										</div>
+
+										<div className="flex items-center justify-between pt-2 mt-1 border-t border-gray-50">
+											<span className="text-lg font-bold text-black">{formatPrice(order.totalAmount)}</span>
+
+											<div className={`w-[130px] ${isFinalStatus ? "pointer-events-none opacity-60" : ""}`}>
+												<Dropdown
+													value={order.status}
+													options={STATUS_OPTIONS}
+													onChange={val => onStatusChange(order.id, val)}
+													className="!w-full !h-[36px] text-xs shadow-sm !border-gray-200"
+												/>
+											</div>
+										</div>
+									</div>
+								);
+							})
+					)}
+				</div>
+
+				{orders.length > 0 && (
+					<div className="flex justify-center mt-6">
+						<div className="bg-white rounded-full shadow-sm border border-gray-200 px-2 py-1">
+							<TablePagination
+								component="div"
+								count={orders.length}
+								page={mobilePage}
+								onPageChange={handleMobilePageChange}
+								rowsPerPage={MOBILE_ROWS_PER_PAGE}
+								rowsPerPageOptions={[]}
+								onRowsPerPageChange={() => {}}
+								sx={{
+									".MuiToolbar-root": { padding: 0, minHeight: "40px", width: "auto" },
+									".MuiTablePagination-spacer": { display: "none" },
+									".MuiTablePagination-selectLabel, .MuiInputBase-root": { display: "none" },
+									".MuiTablePagination-displayedRows": {
+										margin: 0,
+										fontSize: "14px",
+										fontWeight: 600,
+										color: "#111827",
+										fontFamily: "inherit",
+									},
+									".MuiTablePagination-actions": {
+										marginLeft: 1,
+										marginRight: 0,
+										"& button": {
+											padding: "6px",
+											borderRadius: "50%",
+											color: "#4b5563",
+											transition: "all 0.2s",
+											"&:hover": { backgroundColor: "#f3f4f6", color: "#000" },
+											"&.Mui-disabled": { opacity: 0.3 },
+										},
+									},
+								}}
+							/>
+						</div>
+					</div>
+				)}
+			</div>
+		</>
+	);
 }

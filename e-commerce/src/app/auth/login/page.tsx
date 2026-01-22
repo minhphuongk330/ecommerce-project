@@ -1,13 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Box from "@mui/material/Box";
+import MuiLink from "@mui/material/Link";
 import CommonButton from "~/components/atoms/Button";
 import CommonInput from "~/components/atoms/Input";
-import { Box, Link as MuiLink } from "@mui/material";
 import AuthHeader from "~/components/atoms/AuthHeader";
-import { useForm } from "react-hook-form";
 import { LoginForm } from "~/types/auth";
 import { loginSchema } from "~/utils/validator/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "~/stores/useAuth";
 import { routerPaths } from "~/utils/router";
 import { useNotification } from "~/contexts/Notification";
@@ -17,7 +18,7 @@ const REGISTER_BENEFITS = ["Check out faster", "Keep more than one address", "Tr
 
 export default function LoginPage() {
 	const router = useRouter();
-	const { logout, setAuthSuccess } = useAuthStore();
+	const { setAuthSuccess } = useAuthStore();
 	const { showNotification } = useNotification();
 
 	const {

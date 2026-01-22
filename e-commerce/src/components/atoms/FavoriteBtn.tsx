@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Favorite from "@mui/icons-material/Favorite";
 import CommonIconButton from "~/components/atoms/IconButton";
 import { useNotification } from "~/contexts/Notification";
 import { useAuthStore } from "~/stores/useAuth";

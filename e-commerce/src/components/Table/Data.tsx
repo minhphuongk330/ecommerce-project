@@ -45,7 +45,7 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 						outline: "none",
 					},
 
-					"& .MuiTablePagination-selectLabel, & .MuiTablePagination-input": {
+					"& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
 						display: "none",
 					},
 					"& .MuiTablePagination-displayedRows": {

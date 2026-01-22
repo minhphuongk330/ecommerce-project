@@ -1,4 +1,4 @@
-import { Avatar } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
 
 interface UserAvatarProps {
 	src?: string | null;

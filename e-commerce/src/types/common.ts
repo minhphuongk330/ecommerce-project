@@ -20,6 +20,7 @@ export interface SearchFieldProps {
 	value: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	className?: string;
+	placeholder?:string;
 }
 export interface OptionDropDown {
 	value: string;

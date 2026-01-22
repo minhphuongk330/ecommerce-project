@@ -16,7 +16,7 @@ export default function FavoritesPage() {
 				{isEmpty ? (
 					<EmptyState title="Your wishlist is empty" description="You haven't added any items to your favorites yet." />
 				) : (
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-[16px] w-full">
+					<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-[16px] w-full">
 						{favorites?.map(item => (
 							<div key={item.id} className="h-full">
 								<ProductCard product={item.product} />

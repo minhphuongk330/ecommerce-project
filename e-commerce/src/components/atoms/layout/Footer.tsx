@@ -1,7 +1,13 @@
 "use client";
 import React from "react";
-import { Box, Typography, Link, IconButton } from "@mui/material";
-import { Facebook, Twitter, Instagram, YouTube } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
+import IconButton from "@mui/material/IconButton";
+import Facebook from "@mui/icons-material/Facebook";
+import Twitter from "@mui/icons-material/Twitter";
+import Instagram from "@mui/icons-material/Instagram";
+import YouTube from "@mui/icons-material/YouTube";
 import CyberLogo from "../CyberLogo";
 
 const SOCIAL_ICONS = [
@@ -57,7 +63,15 @@ const Footer: React.FC = () => {
 			>
 				<Box sx={{ width: { xs: "100%", md: "30%" } }}>
 					<CyberLogo color="white" />
-					<Typography variant="body2" sx={{ color: "gray", mb: { xs: 2, md: 3 }, mt: { xs: 1, md: 0 }, fontSize: { xs: "0.875rem", md: "inherit" } }}>
+					<Typography
+						variant="body2"
+						sx={{
+							color: "gray",
+							mb: { xs: 2, md: 3 },
+							mt: { xs: 1, md: 0 },
+							fontSize: { xs: "0.875rem", md: "inherit" },
+						}}
+					>
 						We are a residential interior design firm located in Portland. Our boutique-studio offers more than.
 					</Typography>
 					<Box sx={{ display: "flex", height: 1, gap: { xs: 3, md: 5 } }}>
@@ -81,34 +95,34 @@ const Footer: React.FC = () => {
 					}}
 				>
 					{FOOTER_LINK_SECTIONS.map(section => (
-						<Box 
-							key={section.title} 
+						<Box
+							key={section.title}
 							sx={{
 								...section.containerSx,
 								width: { xs: "100%", md: section.containerSx.width.md },
 							}}
 						>
-							<Typography 
-								variant="subtitle1" 
-								sx={{ 
-									fontWeight: "medium", 
+							<Typography
+								variant="subtitle1"
+								sx={{
+									fontWeight: "medium",
 									mb: { xs: 1.5, md: 2 },
-									fontSize: { xs: "1rem", md: "inherit" }
+									fontSize: { xs: "1rem", md: "inherit" },
 								}}
 							>
 								{section.title}
 							</Typography>
 							<Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, md: 1 } }}>
 								{section.items.map(item => (
-									<Link 
-										href="#" 
-										key={item} 
-										color="inherit" 
-										underline="hover" 
-										variant="body2" 
-										sx={{ 
+									<Link
+										href="#"
+										key={item}
+										color="inherit"
+										underline="hover"
+										variant="body2"
+										sx={{
 											color: "gray",
-											fontSize: { xs: "0.813rem", md: "inherit" }
+											fontSize: { xs: "0.813rem", md: "inherit" },
 										}}
 									>
 										{item}

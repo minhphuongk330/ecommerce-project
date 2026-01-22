@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Pagination } from "@mui/material";
+import Pagination from "@mui/material/Pagination";
 import { PaginationProps } from "~/types/catalog";
 
 const PaginationComponent: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {

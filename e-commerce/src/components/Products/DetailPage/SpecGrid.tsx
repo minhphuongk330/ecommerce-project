@@ -1,14 +1,13 @@
 "use client";
 import React, { useMemo } from "react";
-import {
-	ScreenLockPortrait,
-	Memory,
-	SettingsInputComponent,
-	CameraAlt,
-	FlipCameraIos,
-	BatteryStd,
-	InfoOutlined,
-} from "@mui/icons-material";
+import ScreenLockPortrait from "@mui/icons-material/ScreenLockPortrait";
+import Memory from "@mui/icons-material/Memory";
+import SettingsInputComponent from "@mui/icons-material/SettingsInputComponent";
+import CameraAlt from "@mui/icons-material/CameraAlt";
+import FlipCameraIos from "@mui/icons-material/FlipCameraIos";
+import BatteryStd from "@mui/icons-material/BatteryStd";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
+
 import { SpecsGridProps } from "~/types/component";
 
 const SPEC_MAPPING: Record<string, { label: string; icon: React.ReactNode }> = {
@@ -54,7 +53,7 @@ const SpecsGrid: React.FC<SpecsGridProps> = ({ specs, className = "" }) => {
 							{value}
 						</span>
 					</div>
-				</div>
+				</div>,
 			);
 		}
 

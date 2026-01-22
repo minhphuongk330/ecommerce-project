@@ -2,9 +2,7 @@ import { Product } from "./product";
 
 export interface CartItemType extends Product {
 	quantity: number;
-	sku?: string;
 	selectedColor?: string;
-	selectedCapacity?: string;
 }
 
 export interface CartItemProps {
@@ -29,7 +27,7 @@ export interface CartListProps {
 }
 export interface CartContextType {
 	cartItems: CartItemType[];
-	addToCart: (product: Product, color: string, capacity: string) => void;
+	addToCart: (product: Product, color: string) => void;
 	removeFromCart: (id: number) => void;
 	increaseQuantity: (id: number) => void;
 	decreaseQuantity: (id: number) => void;

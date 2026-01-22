@@ -11,18 +11,18 @@ import SpecsGrid from "./SpecGrid";
 import DeliveryInfo from "./DeliveryInfo";
 import { routerPaths } from "~/utils/router";
 import { MainInfoProps } from "~/types/component";
+import { useAuthStore } from "~/stores/useAuth";
 
 const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
-
 	const [isExpanded, setIsExpanded] = useState(false);
-
 	const addToCart = useCartStore(state => state.addToCart);
 	const favorites = useFavoriteStore(state => state.favorites);
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
 	const isLiked = favorites.some(item => Number(item.productId) === Number(product.id));
+	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
 	const imageUrls = useMemo(() => {
 		const images = [
@@ -54,7 +54,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 			params.set(name, value);
 			return params.toString();
 		},
-		[searchParams]
+		[searchParams],
 	);
 
 	const handleSelectColor = (colorName: string) => {
@@ -66,7 +66,11 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	};
 
 	const handleAddToCart = async () => {
-		await addToCart(product, activeColorName, activeCapacity);
+		if (!isAuthenticated) {
+			router.push(routerPaths.login);
+			return;
+		}
+		await addToCart(product, activeColorName);
 		router.push(routerPaths.cart);
 	};
 

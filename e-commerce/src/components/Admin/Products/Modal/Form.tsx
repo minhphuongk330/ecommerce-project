@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useForm, DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircularProgress } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import Button from "~/components/atoms/Button";
 import BaseDialog from "~/components/atoms/Dialog";
 import ProductForm from "../Form";

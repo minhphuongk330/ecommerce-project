@@ -1,8 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Menu, MenuItem, Divider, Typography, ListItemIcon } from "@mui/material";
-import { Logout, ShoppingBagOutlined, PersonOutline, Dashboard } from "@mui/icons-material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import { PersonOutline, Dashboard } from "@mui/icons-material";
+import Logout from "@mui/icons-material/Logout";
+import ShoppingBagOutlined from "@mui/icons-material/ShoppingBagOutlined";
 import CommonIconButton from "~/components/atoms/IconButton";
 import { User, UserProfile } from "~/types/auth";
 import { routerPaths } from "~/utils/router";

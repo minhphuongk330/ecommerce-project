@@ -21,6 +21,7 @@ export class OrdersService {
     return await this.orderRepository.find({
       relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
       order: { createdAt: 'DESC' },
+      withDeleted: true,
     });
   }
 
@@ -29,6 +30,7 @@ export class OrdersService {
       where: { customerId },
       relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
       order: { createdAt: 'DESC' },
+      withDeleted: true,
     });
   }
 
@@ -36,6 +38,7 @@ export class OrdersService {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
+      withDeleted: true,
     });
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found`);

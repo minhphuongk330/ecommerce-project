@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { memo } from "react";
 import { Address } from "~/types/address";
 import DeleteAddress from "./Modal/Delete";
 import UpdateAddress from "./Modal/Update";
@@ -11,7 +11,7 @@ interface AddressItemProps {
 	onRefresh: () => void;
 }
 
-const AddressItem: React.FC<AddressItemProps> = ({ addr, isSelected, onSelect, onRefresh }) => {
+const AddressItem = memo(({ addr, isSelected, onSelect, onRefresh }: AddressItemProps) => {
 	const containerClass = isSelected ? "bg-[#F4F4F4] border-transparent" : "bg-white border-gray-200";
 	const radioBorderClass = isSelected ? "border-black" : "border-[#9F9F9F]";
 
@@ -54,12 +54,13 @@ const AddressItem: React.FC<AddressItemProps> = ({ addr, isSelected, onSelect, o
 				</div>
 			</div>
 
+			{/* Actions */}
 			<div
 				className="
-          flex gap-4 pt-3 mt-2 border-t border-gray-200
-          justify-end w-full
-          md:pt-0 md:mt-0 md:border-t-0
-          md:self-start md:justify-start md:w-auto
+        flex gap-4 pt-3 mt-2 border-t border-gray-200
+        justify-end w-full
+        md:pt-0 md:mt-0 md:border-t-0
+        md:self-start md:justify-start md:w-auto
         "
 				onClick={e => e.stopPropagation()}
 			>
@@ -68,6 +69,7 @@ const AddressItem: React.FC<AddressItemProps> = ({ addr, isSelected, onSelect, o
 			</div>
 		</div>
 	);
-};
+});
 
+AddressItem.displayName = "AddressItem";
 export default AddressItem;

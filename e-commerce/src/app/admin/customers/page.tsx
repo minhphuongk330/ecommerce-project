@@ -19,6 +19,7 @@ export default function CustomersPage() {
 			setLoading(false);
 		}
 	};
+
 	useEffect(() => {
 		fetchCustomers();
 	}, []);

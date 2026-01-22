@@ -20,6 +20,7 @@ import { ProductImagesModule } from './modules/product-images/product-images.mod
 import { ProductReviewsModule } from './modules/product-reviews/product-reviews.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { UploadModule } from './modules/upload/upload.module';
           : {
               rejectUnauthorized: false,
             },
-      synchronize: false,
+      synchronize: true,
       autoLoadEntities: true,
     }),
     BannersModule,
@@ -54,6 +55,7 @@ import { UploadModule } from './modules/upload/upload.module';
     ProductReviewsModule,
     FavoritesModule,
     AdminModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

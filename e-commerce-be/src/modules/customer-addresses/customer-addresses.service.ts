@@ -58,7 +58,7 @@ export class CustomerAddressesService {
 
   async remove(id: number): Promise<void> {
     const customerAddress = await this.findOne(id);
-    await this.customerAddressRepository.remove(customerAddress);
+    await this.customerAddressRepository.softRemove(customerAddress);
   }
 }
 

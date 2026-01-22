@@ -1,7 +1,7 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import BaseDialog from "~/components/atoms/Dialog";
 import StepButton from "~/components/checkout/Button";
 import { useNotification } from "~/contexts/Notification";
@@ -42,7 +42,7 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 
 	const handleCreate = async (data: AddressFormData) => {
 		try {
-			if (!user || !user.id) {
+			if (!user?.id) {
 				showNotification("Please log in again to proceed.", "error");
 				return;
 			}

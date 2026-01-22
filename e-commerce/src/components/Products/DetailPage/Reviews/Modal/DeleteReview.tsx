@@ -1,5 +1,5 @@
 "use client";
-import { DeleteOutline } from "@mui/icons-material";
+import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import { useState } from "react";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { useNotification } from "~/contexts/Notification";

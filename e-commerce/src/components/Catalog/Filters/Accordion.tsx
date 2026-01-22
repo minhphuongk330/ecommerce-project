@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
+import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import { AccordionProps } from "~/types/catalog";
 
 const FiltersAccordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = false }) => {

@@ -8,8 +8,8 @@ import {
 import { Customer } from './customer.entity';
 import { Product } from './product.entity';
 
-@Entity('favorites')
-export class Favorite {
+@Entity('cart_items')
+export class CartItem {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,13 +19,19 @@ export class Favorite {
   @Column()
   productId: number;
 
-  @ManyToOne(() => Customer, (customer) => customer.favorites, {
+  @Column({ default: 1 })
+  quantity: number;
+
+  @Column({ nullable: true })
+  color: string;
+
+  @ManyToOne(() => Customer, (customer) => customer.cartItems, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 
-  @ManyToOne(() => Product, (product) => product.favorites, {
+  @ManyToOne(() => Product, (product) => product.cartItems, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'productId' })

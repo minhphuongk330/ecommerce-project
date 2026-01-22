@@ -1,5 +1,6 @@
 import React from "react";
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
+import Image from "next/image";
 
 interface LogoProps {
 	color?: string;
@@ -19,7 +20,7 @@ const CyberLogo: React.FC<LogoProps> = ({ color = "black", onClick, sx }) => {
 				...sx,
 			}}
 		>
-			<img src={src} alt="Cyber Logo" width="120" height="48" style={{ display: "block" }} />
+			<Image src={src} alt="Cyber Logo" width={120} height={48} style={{ display: "block" }} priority />
 		</Box>
 	);
 };

@@ -47,9 +47,9 @@ export default function ProductsPage() {
 	}
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-4">
 			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold text-gray-800">Product Management</h1>
+				<h1 className="text-2xl md:text-2xl font-bold text-gray-800">Product Management</h1>
 				<CreateProduct categories={categories} onSuccess={fetchProducts} />
 			</div>
 			<ProductsTable products={products} categories={categories} onRefresh={fetchProducts} />

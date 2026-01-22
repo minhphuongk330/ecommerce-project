@@ -18,7 +18,7 @@ const ProductListArea: React.FC<ProductListAreaProps> = ({
 				<ListHeader count={totalCount} />
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-[16px] mb-6 md:mb-[40px]">
+			<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-[16px] mb-6 md:mb-[40px]">
 				{products.map((product, index) => (
 					<div key={`${product.id}-${index}`} className="w-full">
 						<ProductCard product={product} />

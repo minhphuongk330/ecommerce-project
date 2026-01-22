@@ -1,7 +1,7 @@
 "use client";
-import { useState, useMemo } from "react";
-import { IconButton } from "@mui/material";
-import { EditOutlined } from "@mui/icons-material";
+import { useState } from "react";
+import IconButton from "@mui/material/IconButton";
+import EditOutlined from "@mui/icons-material/EditOutlined";
 import { adminService } from "~/services/admin";
 import { useNotification } from "~/contexts/Notification";
 import { AdminCategory, AdminProduct } from "~/types/admin";

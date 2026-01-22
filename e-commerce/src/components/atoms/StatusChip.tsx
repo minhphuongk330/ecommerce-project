@@ -1,4 +1,4 @@
-import { Chip } from "@mui/material";
+import Chip from "@mui/material/Chip";
 
 export type ChipColor = "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning";
 

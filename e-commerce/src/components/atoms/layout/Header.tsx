@@ -2,8 +2,16 @@
 import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Box, Typography, Badge, Drawer, IconButton as MuiIconButton } from "@mui/material";
-import { FavoriteBorderOutlined, ShoppingCartOutlined, PersonOutline, Menu, Close } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Badge from "@mui/material/Badge";
+import Drawer from "@mui/material/Drawer";
+import MuiIconButton from "@mui/material/IconButton";
+import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
+import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
+import PersonOutline from "@mui/icons-material/PersonOutline";
+import Menu from "@mui/icons-material/Menu";
+import Close from "@mui/icons-material/Close";
 import CommonIconButton from "~/components/atoms/IconButton";
 import CyberLogo from "../CyberLogo";
 import UserMenu from "../UserMenu";
@@ -151,9 +159,12 @@ const Header: React.FC = () => {
 						>
 							<Menu />
 						</MuiIconButton>
-						<Link href={routerPaths.index}>
-							<CyberLogo color="black" />
-						</Link>
+
+						<Box sx={{ display: { xs: "none", md: "block" } }}>
+							<Link href={routerPaths.index}>
+								<CyberLogo color="black" />
+							</Link>
+						</Box>
 					</Box>
 
 					<Box sx={{ display: { xs: "none", md: "block" }, flex: 1, maxWidth: 400, mx: 2 }}>
@@ -205,6 +216,8 @@ const Header: React.FC = () => {
 						width: "80%",
 						maxWidth: 300,
 						padding: 2,
+						display: "flex",
+						flexDirection: "column",
 					},
 				}}
 			>

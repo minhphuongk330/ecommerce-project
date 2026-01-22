@@ -1,8 +1,8 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EditOutlined } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import EditOutlined from "@mui/icons-material/EditOutlined";
 import BaseDialog from "~/components/atoms/Dialog";
 import StepButton from "~/components/checkout/Button";
 import { useNotification } from "~/contexts/Notification";
@@ -77,18 +77,24 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 			</button>
 
 			<BaseDialog isOpen={isOpen} onClose={closeDialog} title="Update Address" showCloseIcon={true} width={600}>
-				<AddressForm control={control} />
+				<div className="flex flex-col lg:block">
+					<div className="flex-1 overflow-y-auto max-h-[60vh] p-1 lg:max-h-none lg:overflow-visible">
+						<AddressForm control={control} />
+					</div>
 
-				<StepButton
-					layout="full"
-					type="submit"
-					primaryLabel="Update"
-					isLoading={isSubmitting}
-					secondaryLabel="Cancel"
-					onSecondaryClick={closeDialog}
-					className="!h-[48px]"
-					onPrimaryClick={handleSubmit(handleUpdate)}
-				/>
+					<div className="mt-4 pt-3 border-t border-gray-100 lg:border-none lg:pt-0 lg:mt-6">
+						<StepButton
+							layout="full"
+							type="submit"
+							primaryLabel="Update"
+							isLoading={isSubmitting}
+							secondaryLabel="Cancel"
+							onSecondaryClick={closeDialog}
+							className="!h-[48px]"
+							onPrimaryClick={handleSubmit(handleUpdate)}
+						/>
+					</div>
+				</div>
 			</BaseDialog>
 		</>
 	);

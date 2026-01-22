@@ -59,11 +59,8 @@ export default function ProductDetailsPage() {
 	return (
 		<div className="w-full bg-white min-h-screen flex flex-col items-center px-4 md:px-0">
 			<MainInfo product={uiProduct} />
-
 			<DetailsSection product={product} />
-
 			<ProductReviews productId={Number(product.id)} />
-
 			<SectionProductList title="Related Products" products={relatedProducts} />
 		</div>
 	);

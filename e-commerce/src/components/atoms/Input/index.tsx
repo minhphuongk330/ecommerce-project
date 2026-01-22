@@ -1,6 +1,12 @@
 "use client";
+import { useState } from "react";
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
-import { Box, TextField } from "@mui/material";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 type Props<T extends FieldValues = FieldValues> = {
 	name?: Path<T>;
@@ -31,6 +37,14 @@ const CommonInput = <T extends FieldValues>({
 	value,
 	...restProps
 }: Props<T>) => {
+	const [showPassword, setShowPassword] = useState(false);
+	const isPasswordType = type === "password";
+
+	const handleTogglePassword = () => setShowPassword(prev => !prev);
+	const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+	};
+
 	const displayLabel = label.trim();
 
 	const labelMarkup = (
@@ -39,6 +53,30 @@ const CommonInput = <T extends FieldValues>({
 			{required && REQUIRED_MARK}
 		</p>
 	);
+
+	const passwordInputProps = isPasswordType
+		? {
+				endAdornment: (
+					<InputAdornment position="end">
+						<IconButton
+							aria-label="toggle password visibility"
+							onClick={handleTogglePassword}
+							onMouseDown={handleMouseDownPassword}
+							edge="end"
+							size="small"
+						>
+							{showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+						</IconButton>
+					</InputAdornment>
+				),
+			}
+		: null;
+
+	const commonSx = {
+		"& input::-ms-reveal, & input::-ms-clear": {
+			display: "none",
+		},
+	};
 
 	if (control && name) {
 		return (
@@ -53,12 +91,17 @@ const CommonInput = <T extends FieldValues>({
 							value={field.value ?? ""}
 							label=""
 							placeholder={placeholder}
-							type={type}
+							type={isPasswordType && showPassword ? "text" : type}
 							variant="outlined"
 							size="small"
 							fullWidth
 							error={!!error}
 							helperText={error?.message}
+							sx={commonSx}
+							InputProps={{
+								...restProps.InputProps,
+								...passwordInputProps,
+							}}
 							{...restProps}
 						/>
 					)}
@@ -74,10 +117,15 @@ const CommonInput = <T extends FieldValues>({
 				value={value ?? ""}
 				label=""
 				placeholder={placeholder}
-				type={type}
+				type={isPasswordType && showPassword ? "text" : type}
 				variant="outlined"
 				size="small"
 				fullWidth
+				sx={commonSx}
+				InputProps={{
+					...restProps.InputProps,
+					...passwordInputProps,
+				}}
 				{...restProps}
 			/>
 		</div>

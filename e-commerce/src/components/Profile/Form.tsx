@@ -1,6 +1,6 @@
 "use client";
 import { Control } from "react-hook-form";
-import { MenuItem } from "@mui/material";
+import MenuItem from "@mui/material/MenuItem";
 import { UpdateProfilePayload } from "~/types/auth";
 import CommonInput from "~/components/atoms/Input";
 

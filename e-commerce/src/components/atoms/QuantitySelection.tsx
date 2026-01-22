@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { Add, Remove } from "@mui/icons-material";
+import Remove from "@mui/icons-material/Remove";
+import Add from "@mui/icons-material/Add";
 import { QuantitySelectorProps } from "~/types/component";
 import CommonIconButton from "./IconButton";
 

@@ -1,4 +1,6 @@
 "use client";
+import { useMemo } from "react";
+import BannerSlider, { SliderItem } from "~/components/Banner/Slider";
 import Banner from "~/components/Banner";
 import CategoryBrowser from "~/components/Category/Browser";
 import ProductTabsSection from "~/components/Products/TabsSection";
@@ -18,45 +20,60 @@ export default function Home() {
 	const { heroBanner, splitBanners, gridBanners, bottomBanner, isLoading } = useBanners();
 	const { discountData } = useDiscountProducts();
 
-	if (isLoading && !heroBanner) {
+	const mainSliderItems = useMemo(() => {
+		const list: SliderItem[] = [];
+		if (heroBanner) list.push({ type: "hero", data: heroBanner });
+		if (splitBanners && splitBanners.length >= 2) list.push({ type: "split", data: splitBanners });
+		if (bottomBanner) list.push({ type: "bottom", data: bottomBanner });
+		return list;
+	}, [heroBanner, splitBanners, bottomBanner]);
+
+	const gridSliderItems = useMemo(() => {
+		const list: SliderItem[] = [];
+		if (gridBanners && gridBanners.length > 0) {
+			gridBanners.forEach((banner, index) => {
+				list.push({
+					type: "grid",
+					data: banner,
+					index: index,
+				});
+			});
+		}
+		return list;
+	}, [gridBanners]);
+
+	if (isLoading) {
 		return <div className="w-full h-screen flex justify-center items-center">Loading...</div>;
 	}
 
 	return (
 		<div className="w-full bg-white">
-			{heroBanner && (
-				<Banner
-					data={heroBanner}
-					className="bg-[#211c24] h-[400px] md:h-[632px]"
-					contentClass="max-w-[1440px] mx-auto px-4 md:px-40 items-start text-left"
-					titleClass="text-white text-4xl md:text-7xl lg:text-8xl"
-					imageClass="absolute bottom-0 right-[-200] h-[47%] md:h-[100%] md:translate-x-150 md:bottom-auto md:right-auto"
-					link={router.product(30)}
-				/>
-			)}
+			<BannerSlider items={mainSliderItems} />
 
 			{splitBanners && (
 				<div className="flex flex-col md:flex-row w-full h-auto md:h-[600px]">
 					{splitBanners[1] && (
 						<Banner
 							data={splitBanners[1]}
-							className="w-full md:w-1/2 h-[300px] md:h-full"
+							className="hidden md:block md:w-1/2 h-full relative overflow-hidden"
 							buttonText=""
 							imageClass="h-full w-full object-cover"
 							link={router.product(30)}
 						/>
 					)}
-
 					{splitBanners[0] && (
 						<Banner
 							data={splitBanners[0]}
-							className="w-full md:w-1/2 bg-[#EDEDED] h-[400px] md:h-full"
-							titleClass="text-black text-4xl md:text-7xl lg:text-8xl whitespace-normal w-full md:w-min"
-							descClass="max-w-full md:max-w-sm"
+							className="w-full md:w-1/2 bg-[#EDEDED] h-full relative overflow-hidden"
+							titleClass="text-black text-3xl md:text-6xl lg:text-7xl font-medium whitespace-normal w-[60%] md:w-full"
+							descClass="max-w-[300px] md:max-w-sm line-clamp-3 text-sm md:text-base font-medium text-[#555]"
 							btnTheme="dark"
-							contentClass="p-6 md:p-10 md:pl-16 items-start text-left h-full justify-center"
-							imageClass="h-full w-full object-contain bottom-0 right-0 translate-x-0 md:translate-x-10"
+							contentClass="p-6 md:p-10 items-start text-left h-full justify-center flex flex-col relative z-10"
+							imageClass="absolute bottom-0 right-[-20px] h-[75%] w-[70%] object-contain 
+                            md:right-0 md:h-full md:w-full md:translate-x-10 md:scale-90 
+                            pointer-events-none"
 							link={router.product(30)}
+							buttonClass="w-[190px] h-[56px] flex items-center justify-center text-base font-medium !p-0 mt-6 md:mt-8"
 						/>
 					)}
 				</div>
@@ -65,26 +82,31 @@ export default function Home() {
 			<CategoryBrowser />
 			<ProductTabsSection />
 
-			{gridBanners && (
+			{gridBanners && gridBanners.length > 0 && (
 				<div className="w-full pb-8 md:pb-16">
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-						{gridBanners.map((banner, index) => {
-							const style = GRID_STYLES[index] || GRID_STYLES[0];
+					<div className="block md:hidden">
+						<BannerSlider items={gridSliderItems} />
+					</div>
 
-							return (
-								<Banner
-									key={banner.id}
-									data={banner}
-									className={`${style.bg} col-span-1 h-auto`}
-									contentClass="flex flex-col-reverse h-full justify-end px-4 md:px-8 py-8 md:py-16"
-									titleClass={`${style.text} text-2xl md:text-3xl font-light mb-4 px-3`}
-									descClass={`text-sm mb-6 md:mb-10 leading-relaxed font-medium opacity-60 px-3 ${style.text}`}
-									btnTheme={style.btn}
-									imageClass="relative h-[250px] md:h-[350px] w-full object-contain mb-6"
-									link={router.product(30)}
-								/>
-							);
-						})}
+					<div className="hidden md:block">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+							{gridBanners.map((banner, index) => {
+								const style = GRID_STYLES[index] || GRID_STYLES[0];
+								return (
+									<Banner
+										key={banner.id}
+										data={banner}
+										className={`${style.bg} col-span-1 h-auto`}
+										contentClass="flex flex-col-reverse h-full justify-end px-4 md:px-8 py-8 md:py-16"
+										titleClass={`${style.text} text-2xl md:text-3xl font-light mb-4 px-3`}
+										descClass={`text-sm mb-6 md:mb-10 leading-relaxed font-medium opacity-60 px-3 ${style.text}`}
+										btnTheme={style.btn}
+										imageClass="relative h-[250px] md:h-[350px] w-full object-contain mb-6"
+										link={router.product(30)}
+									/>
+								);
+							})}
+						</div>
 					</div>
 				</div>
 			)}
@@ -97,7 +119,6 @@ export default function Home() {
 					className="h-[300px] md:h-[448px] bg-[#2C2C2C]"
 					titleClass="text-white text-3xl md:text-5xl lg:text-7xl"
 					contentClass="justify-center items-center text-center px-4 md:px-20"
-					imageClass="h-[100%]"
 					link={router.product(30)}
 				/>
 			)}

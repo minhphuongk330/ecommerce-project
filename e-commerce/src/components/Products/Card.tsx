@@ -17,7 +17,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 				<FavoriteBtn productId={product.id} iconSize="medium" />
 			</div>
 
-			<div className="h-[140px] md:h-[160px] w-full flex justify-center items-center mb-3 md:mb-4 cursor-pointer" onClick={handleBuyNow}>
+			<div
+				className="h-[140px] md:h-[160px] w-full flex justify-center items-center mb-3 md:mb-4 cursor-pointer"
+				onClick={handleBuyNow}
+			>
 				<img
 					src={product.mainImageUrl}
 					alt={product.name}
@@ -32,7 +35,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 				<p className="text-xl md:text-2xl font-semibold text-black tracking-wide">${product.price}</p>
 			</div>
 
-			<Button theme="dark" onClick={handleBuyNow} className="!px-4 md:!px-5 !py-2.5 md:!py-3 !w-full !rounded-lg !bg-black !text-white !text-sm md:!text-base">
+			<Button
+				theme="dark"
+				onClick={handleBuyNow}
+				className="!px-4 md:!px-5 !py-2.5 md:!py-3 !w-full !rounded-lg !bg-black !text-white !text-sm md:!text-base"
+			>
 				Buy Now
 			</Button>
 		</div>

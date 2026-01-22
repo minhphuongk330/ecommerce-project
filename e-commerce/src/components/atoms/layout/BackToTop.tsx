@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { KeyboardArrowUp } from "@mui/icons-material";
+import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import CommonIconButton from "~/components/atoms/IconButton";
 
 export default function BackToTop() {

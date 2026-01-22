@@ -1,6 +1,8 @@
 import React from "react";
-import { Typography, Box } from "@mui/material";
-import { ListItem, List } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import ListItem from "@mui/material/ListItem";
+import List from "@mui/material/List";
 
 interface AuthHeaderProps {
 	title: string;

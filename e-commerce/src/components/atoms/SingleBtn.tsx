@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import Icon from "./Icon";
 import { SingleBtnProps } from "~/types/component";
 

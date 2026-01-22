@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Add } from "@mui/icons-material";
+import Add from "@mui/icons-material/Add";
 import { adminService } from "~/services/admin";
 import { useNotification } from "~/contexts/Notification";
 import { AdminCategory } from "~/types/admin";
@@ -31,9 +31,15 @@ export default function CreateProduct({ categories, onSuccess }: Props) {
 
 	return (
 		<>
-			<Button variant="solid" theme="dark" className="flex items-center gap-2" onClick={() => setIsOpen(true)}>
+			<Button
+				variant="solid"
+				theme="dark"
+				className="!w-10 !h-10 !p-0 md:!w-auto md:!h-auto md:!px-4 flex items-center justify-center md:gap-2 min-w-0 flex-shrink-0"
+				onClick={() => setIsOpen(true)}
+			>
 				<Add fontSize="small" />
-				Add Product
+
+				<span className="hidden md:inline">Add Product</span>
 			</Button>
 
 			<ProductFormModal

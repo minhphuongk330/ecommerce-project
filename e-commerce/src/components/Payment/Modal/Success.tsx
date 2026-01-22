@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { CheckCircleOutline } from "@mui/icons-material";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
 import BaseDialog from "~/components/atoms/Dialog";
 import Button from "~/components/atoms/Button";
 

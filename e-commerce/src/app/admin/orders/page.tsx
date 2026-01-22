@@ -60,13 +60,14 @@ export default function OrdersPage() {
 		try {
 			await adminService.updateOrderStatus(orderId, newStatus);
 			setOrders(prevOrders =>
-				prevOrders.map(order => (order.id === orderId ? { ...order, status: newStatus } : order))
+				prevOrders.map(order => (order.id === orderId ? { ...order, status: newStatus } : order)),
 			);
 			showNotification("Status updated successfully!", "success");
 		} catch (error) {
 			console.error("Update status failed:", error);
 			showNotification("Update failed. Please try again.", "error");
 		} finally {
+			closeConfirmModal();
 		}
 	};
 

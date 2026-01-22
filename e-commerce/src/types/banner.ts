@@ -3,7 +3,7 @@ export interface BannerData {
 	title: string;
 	content: string;
 	imageUrl: string;
-	displayType: "1" | "2" | "3" | "4";
+	displayType: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
 	isActive: boolean;
 	createdAt?: string;
 	updatedAt?: string;
@@ -20,5 +20,5 @@ export interface BannerProps {
 	btnTheme?: "light" | "dark";
 	buttonText?: string;
 	onClick?: () => void;
-	link?:string;
+	link?: string;
 }

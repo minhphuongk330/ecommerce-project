@@ -35,7 +35,7 @@ export default function OrderDetailPage() {
 
 	useEffect(() => {
 		fetchOrder();
-	}, []);
+	}, [orderId]);
 
 	const handleCancelOrder = async () => {
 		if (!orderId) return;
@@ -71,7 +71,6 @@ export default function OrderDetailPage() {
 
 				<div className="w-full lg:w-[360px] flex flex-col gap-6">
 					<OrderAddress address={order.address} />
-
 					<OrderSummary order={order} onCancelOrder={handleCancelOrder} />
 				</div>
 			</div>

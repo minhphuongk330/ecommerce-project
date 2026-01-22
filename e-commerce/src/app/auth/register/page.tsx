@@ -1,15 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import MuiLink from "@mui/material/Link";
 import CommonButton from "~/components/atoms/Button";
 import CommonInput from "~/components/atoms/Input";
-import { Box, Typography, Link as MuiLink } from "@mui/material";
 import AuthHeader from "~/components/atoms/AuthHeader";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "~/utils/validator/auth";
-import { RegisterForm } from "~/types/auth";
-import { useForm } from "react-hook-form";
+import { RegisterForm, RegisterPayload } from "~/types/auth";
 import { routerPaths } from "~/utils/router";
-import { RegisterPayload } from "~/types/auth";
 import { useNotification } from "~/contexts/Notification";
 import { authService } from "~/services/auth";
 

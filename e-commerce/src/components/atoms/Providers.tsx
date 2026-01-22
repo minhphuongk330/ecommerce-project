@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
-import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme } from "@mui/material/styles";
 import Header from "~/components/atoms/layout/Header";
 import Footer from "~/components/atoms/layout/Footer";
@@ -48,7 +49,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 				<Header />
 				<main style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
 				<Footer />
-				<BackToTop/>
+				<BackToTop />
 			</NotificationProvider>
 		</ThemeProvider>
 	);

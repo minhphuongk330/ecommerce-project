@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AttachMoney, ShoppingCartOutlined, Inventory2Outlined, TrendingUp, PeopleOutline } from "@mui/icons-material";
+import AttachMoney from "@mui/icons-material/AttachMoney";
+import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
+import Inventory2Outlined from "@mui/icons-material/Inventory2Outlined";
+import TrendingUp from "@mui/icons-material/TrendingUp";
+import PeopleOutline from "@mui/icons-material/PeopleOutline";
 import { adminService } from "~/services/admin";
 import { DashboardStats } from "~/types/admin";
 import StatCard from "~/components/atoms/StatCard";
@@ -87,20 +91,12 @@ export default function DashboardPage() {
 
 	return (
 		<div>
-			<h1 className="text-2xl font-bold text-gray-800 mb-[40px]">System Overview</h1>
+			<h1 className="text-2xl font-bold text-gray-800 mb-[20px]">System Overview</h1>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-[40px]">
 				{statItems.map((item, index) => (
 					<StatCard key={index} {...item} />
 				))}
-			</div>
-
-			<div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-				<h3 className="text-lg font-bold text-gray-800 mb-4">Status</h3>
-				<div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-3 rounded-lg border border-green-200 w-fit">
-					<div className="w-2.5 h-2.5 rounded-full bg-green-600 animate-pulse"></div>
-					<span className="font-medium text-sm">The system is connecting stably.</span>
-				</div>
 			</div>
 		</div>
 	);

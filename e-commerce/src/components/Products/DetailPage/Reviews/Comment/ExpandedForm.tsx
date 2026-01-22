@@ -53,7 +53,7 @@ const ExpandedForm = ({
 			/>
 
 			<div className="flex justify-end">
-				<div className="w-[250px]">
+				<div className="w-full md:w-[250px]">
 					<StepButton
 						layout="full"
 						primaryLabel={submitLabel}
@@ -61,7 +61,7 @@ const ExpandedForm = ({
 						onPrimaryClick={onSubmit}
 						secondaryLabel="Cancel"
 						onSecondaryClick={onCancel}
-						className="!h-[48px] text-sm"
+						className="!h-auto md:!h-[48px] text-sm"
 					/>
 				</div>
 			</div>

@@ -1,4 +1,6 @@
-import { LocationOn, LocalShipping, Payment } from "@mui/icons-material";
+import LocationOn from "@mui/icons-material/LocationOn";
+import LocalShipping from "@mui/icons-material/LocalShipping";
+import Payment from "@mui/icons-material/Payment";
 import { SvgIconComponent } from "@mui/icons-material";
 
 export interface CheckoutStep {

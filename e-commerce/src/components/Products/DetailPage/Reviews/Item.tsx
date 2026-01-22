@@ -30,8 +30,9 @@ const ReviewItem = memo(({ data, currentUserId, onRefresh }: ReviewItemProps) =>
 				</div>
 				<div className="flex flex-col items-end gap-1">
 					<span className="text-gray-400 text-sm">{dayjs(data.createdAt).format("D MMMM YYYY")}</span>
+
 					{isOwner && (
-						<div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+						<div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
 							<UpdateReview data={data} onSuccess={onRefresh} />
 							<DeleteReview id={data.id} onSuccess={onRefresh} />
 						</div>

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import { ViewMoreBtnProps } from "~/types/component";
 
 const ViewMoreBtn: React.FC<ViewMoreBtnProps> = ({ isExpanded, onClick, className = "" }) => {

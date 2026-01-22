@@ -1,5 +1,5 @@
 "use client";
-import { EditOutlined } from "@mui/icons-material";
+import EditOutlined from "@mui/icons-material/EditOutlined";
 import { useState } from "react";
 import BaseDialog from "~/components/atoms/Dialog";
 import { useNotification } from "~/contexts/Notification";

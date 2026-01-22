@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { KeyboardArrowDown } from "@mui/icons-material";
+import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 
 export interface DropdownOption {
 	value: string | number;

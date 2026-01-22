@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { OrderItem } from "~/types/order";
 import { router } from "~/utils/router";
 import { formatPrice } from "~/utils/format";
@@ -18,10 +19,16 @@ export default function OrderItems({ items }: OrderItemsProps) {
 					<div key={item.id} className="flex gap-4 py-2">
 						<Link
 							href={router.product(item.productId)}
-							className="w-20 h-20 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden border border-gray-200 block hover:opacity-80 transition-opacity"
+							className="relative w-20 h-20 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden border border-gray-200 block hover:opacity-80 transition-opacity"
 						>
 							{item.product?.mainImageUrl ? (
-								<img src={item.product.mainImageUrl} alt={item.product.name} className="w-full h-full object-cover" />
+								<Image
+									src={item.product.mainImageUrl}
+									alt={item.product.name}
+									fill
+									sizes="80px"
+									className="object-cover"
+								/>
 							) : (
 								<div className="w-full h-full flex items-center justify-center text-xs text-gray-400">No Image</div>
 							)}

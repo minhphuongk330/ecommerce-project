@@ -2,7 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { OrderSummaryProps } from "~/types/cart";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 import { routerPaths } from "~/utils/router";
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, shipping, total }) => {

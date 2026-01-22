@@ -1,7 +1,7 @@
 "use client";
 import NextLink from "next/link";
 import { Breadcrumbs as MuiBreadcrumbs } from "@mui/material";
-import { KeyboardArrowRight } from "@mui/icons-material";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
 
 const Breadcrumb = () => {
