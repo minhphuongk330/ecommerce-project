@@ -9,8 +9,8 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (config: ConfigService) => ({
         transport: {
           host: 'smtp.gmail.com',
-          port: 587,
-          secure: false,
+          port: 465,
+          secure: true,
           auth: {
             user: config.get('MAIL_USER'),
             pass: config.get('MAIL_PASS'),
