@@ -8,16 +8,16 @@ import { ConfigService } from '@nestjs/config';
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
+          host: 'smtp-relay.brevo.com',
+          port: 587,
+          secure: false,
           auth: {
             user: config.get('MAIL_USER'),
             pass: config.get('MAIL_PASS'),
           },
         },
         defaults: {
-          from: `"No Reply" <${config.get('MAIL_USER')}>`,
+          from: `"Support Team" <${config.get('MAIL_USER')}>`,
         },
       }),
       inject: [ConfigService],
