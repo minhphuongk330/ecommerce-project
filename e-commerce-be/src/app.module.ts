@@ -38,7 +38,7 @@ import { MailModule } from './modules/mail/mail.module';
           : {
               rejectUnauthorized: false,
             },
-      synchronize: false,
+      synchronize: process.env.DB_SYNCHRONIZE === 'true',
       autoLoadEntities: true,
     }),
 
