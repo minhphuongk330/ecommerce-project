@@ -21,6 +21,7 @@ import { ProductReviewsModule } from './modules/product-reviews/product-reviews.
 import { ProductsModule } from './modules/products/products.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { CartModule } from './modules/cart/cart.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CartModule } from './modules/cart/cart.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    MailModule,
     TypeOrmModule.forRoot({
       ...(databaseConfig() as any),
       ssl:
@@ -39,6 +41,7 @@ import { CartModule } from './modules/cart/cart.module';
       synchronize: true,
       autoLoadEntities: true,
     }),
+
     BannersModule,
     CategoriesModule,
     ProductsModule,

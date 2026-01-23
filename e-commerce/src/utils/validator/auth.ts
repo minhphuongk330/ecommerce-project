@@ -52,4 +52,21 @@ export const changePasswordSchema = z
 		path: ["newPassword"],
 	});
 
+export const forgotPasswordSchema = z.object({
+	email: z.string().min(1, "Email is required").email("Invalid email format"),
+});
+
+export const resetPasswordSchema = z
+	.object({
+		otp: z.string().length(6, "OTP must be exactly 6 digits"),
+		newPassword: z.string().min(6, "Password must be at least 6 characters"),
+		confirmPassword: z.string().min(1, "Confirm Password is required"),
+	})
+	.refine(data => data.newPassword === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	});
+
 export type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
+export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;

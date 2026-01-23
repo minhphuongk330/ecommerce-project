@@ -6,6 +6,17 @@ import { RegisterPayload } from "~/types/auth";
 import { UpdateProfilePayload } from "~/types/auth";
 import { ChangePasswordForm } from "~/types/auth";
 
+export interface ForgotPasswordPayload {
+	email: string;
+}
+
+export interface ResetPasswordPayload {
+	email: string;
+	otp: string;
+	newPassword: string;
+	confirmPassword: string;
+}
+
 export const authService = {
 	login(payload: LoginPayload): Promise<LoginResponse> {
 		return axiosClient.post("/auth/login", payload);
@@ -25,5 +36,13 @@ export const authService = {
 
 	changePassword(payload: ChangePasswordForm): Promise<any> {
 		return axiosClient.put("/auth/change-password", payload);
+	},
+
+	forgotPassword(payload: ForgotPasswordPayload): Promise<any> {
+		return axiosClient.post("/auth/forgot-password", payload);
+	},
+
+	resetPassword(payload: ResetPasswordPayload): Promise<any> {
+		return axiosClient.post("/auth/reset-password", payload);
 	},
 };

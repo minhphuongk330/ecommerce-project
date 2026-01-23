@@ -68,4 +68,10 @@ export class Customer {
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.customer)
   cartItems: CartItem[];
+
+  @Column({ type:'varchar',nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type:'varchar',nullable: true })
+  resetPasswordExpires: Date | null;
 }

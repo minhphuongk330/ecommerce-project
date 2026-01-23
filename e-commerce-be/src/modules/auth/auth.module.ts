@@ -11,7 +11,7 @@ import { Profile } from 'src/entities/profile.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Customer,Profile]),
+    TypeOrmModule.forFeature([Customer, Profile]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

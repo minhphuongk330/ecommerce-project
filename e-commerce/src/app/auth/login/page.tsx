@@ -13,6 +13,8 @@ import { useAuthStore } from "~/stores/useAuth";
 import { routerPaths } from "~/utils/router";
 import { useNotification } from "~/contexts/Notification";
 import { authService } from "~/services/auth";
+import ForgotPasswordModal from "~/components/Auth/ForgotPasswordModal";
+import { useState } from "react";
 
 const REGISTER_BENEFITS = ["Check out faster", "Keep more than one address", "Track orders and more"];
 
@@ -20,6 +22,7 @@ export default function LoginPage() {
 	const router = useRouter();
 	const { setAuthSuccess } = useAuthStore();
 	const { showNotification } = useNotification();
+	const [isForgotModalOpen, setForgotModalOpen] = useState(false);
 
 	const {
 		control,
@@ -56,6 +59,7 @@ export default function LoginPage() {
 
 	return (
 		<Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
+			<ForgotPasswordModal open={isForgotModalOpen} onClose={() => setForgotModalOpen(false)} />
 			<Box
 				sx={{
 					maxWidth: 1200,
@@ -111,12 +115,17 @@ export default function LoginPage() {
 							{isSubmitting ? "Logging in..." : "Sign In"}
 						</CommonButton>
 						<MuiLink
-							href="#"
+							component="button"
+							type="button"
+							onClick={() => setForgotModalOpen(true)}
 							variant="body2"
 							sx={{
 								color: "primary.main",
 								fontWeight: "medium",
 								textDecoration: "underline",
+								cursor: "pointer",
+								border: "none",
+								bgcolor: "transparent",
 							}}
 						>
 							Forgot Your Password?
