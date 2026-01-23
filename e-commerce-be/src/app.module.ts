@@ -38,7 +38,7 @@ import { MailModule } from './modules/mail/mail.module';
           : {
               rejectUnauthorized: false,
             },
-      synchronize: true,
+      synchronize: false,
       autoLoadEntities: true,
     }),
 
