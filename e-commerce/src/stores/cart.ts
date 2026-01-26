@@ -75,11 +75,27 @@ export const useCartStore = create<CartState>()(
 				const item = cartItems.find(i => i.id === productId);
 
 				if (item && item.cartItemId) {
+					if (item.stock && item.quantity >= item.stock) {
+						const errorObj = {
+							response: {
+								data: {
+									message: `Only ${item.stock} items available in stock. Cannot add more.`,
+								},
+							},
+						};
+						throw errorObj;
+					}
+					const oldQuantity = item.quantity;
+					const optimisticItems = cartItems.map(i => (i.id === productId ? { ...i, quantity: i.quantity + 1 } : i));
+					set({ cartItems: optimisticItems });
+
 					try {
 						await cartService.update(item.cartItemId, item.quantity + 1);
 						await fetchCart();
 					} catch (error) {
 						console.error("Increase failed:", error);
+						const rollbackItems = cartItems.map(i => (i.id === productId ? { ...i, quantity: oldQuantity } : i));
+						set({ cartItems: rollbackItems });
 						throw error;
 					}
 				}
