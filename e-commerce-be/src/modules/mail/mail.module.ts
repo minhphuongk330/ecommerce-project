@@ -7,49 +7,20 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
   imports: [
     MailerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => {
-        const debugUser = config.get<string>('MAIL_USER');
-        const debugPass = config.get<string>('MAIL_PASS');
-        console.log('=============================================');
-        console.log(
-          '🔍 [DEBUG EMAIL CONFIG] Đang kiểm tra cấu hình trên Render:',
-        );
-        console.log(`- Host: smtp-relay.brevo.com`);
-        console.log(`- Port: 465 (SSL)`);
-        console.log(`- User (Mail): '${debugUser}'`);
-
-        if (!debugPass) {
-          console.log(
-            '- Pass (Key): ❌ NULL/UNDEFINED (Chưa nhận được biến môi trường)',
-          );
-        } else {
-          console.log(
-            `- Pass (Key): ✅ Đã nhận (Độ dài: ${debugPass.length} ký tự)`,
-          );
-
-          if (debugPass.length < 50) {
-            console.log(
-              '   ⚠️ CẢNH BÁO: Key này quá ngắn! Có thể bạn đang nhập sai mật khẩu web thay vì SMTP Key.',
-            );
-          }
-        }
-        console.log('=============================================');
-
-        return {
-          transport: {
-            host: 'smtp-relay.brevo.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user: debugUser,
-              pass: debugPass,
-            },
+      useFactory: async (config: ConfigService) => ({
+        transport: {
+          host: 'smtp-relay.brevo.com',
+          port: 587,
+          secure: false,
+          auth: {
+            user: config.get<string>('MAIL_USER'),
+            pass: config.get<string>('MAIL_PASS'),
           },
-          defaults: {
-            from: `"Support Team" <${debugUser}>`,
-          },
-        };
-      },
+        },
+        defaults: {
+          from: `"Support Team" <minhphuongk330@gmail.com>`,
+        },
+      }),
       inject: [ConfigService],
     }),
   ],
