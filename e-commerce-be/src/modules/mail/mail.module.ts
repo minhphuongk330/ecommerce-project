@@ -10,12 +10,16 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
       useFactory: async (config: ConfigService) => ({
         transport: {
           host: 'smtp-relay.brevo.com',
-          port: 587,
+
+          port: 2525,
           secure: false,
           auth: {
             user: config.get<string>('MAIL_USER'),
             pass: config.get<string>('MAIL_PASS'),
           },
+
+          logger: true,
+          debug: true,
         },
         defaults: {
           from: `"Support Team" <minhphuongk330@gmail.com>`,
