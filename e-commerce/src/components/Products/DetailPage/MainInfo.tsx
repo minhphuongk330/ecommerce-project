@@ -12,6 +12,7 @@ import DeliveryInfo from "./DeliveryInfo";
 import { routerPaths } from "~/utils/router";
 import { MainInfoProps } from "~/types/component";
 import { useAuthStore } from "~/stores/useAuth";
+import { useNotification } from "~/contexts/Notification";
 
 const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const router = useRouter();
@@ -23,6 +24,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
 	const isLiked = favorites.some(item => Number(item.productId) === Number(product.id));
 	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+	const { showNotification } = useNotification();
 
 	const imageUrls = useMemo(() => {
 		const images = [
@@ -70,8 +72,14 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 			router.push(routerPaths.login);
 			return;
 		}
-		await addToCart(product, activeColorName);
-		router.push(routerPaths.cart);
+		try {
+			await addToCart(product, activeColorName);
+			showNotification("Added to cart successfully!", "success");
+			router.push(routerPaths.cart);
+		} catch (error: any) {
+			const message = error?.response?.data?.message || "Failed to add to cart";
+			showNotification(message, "error");
+		}
 	};
 
 	const displayPrice =
@@ -134,8 +142,9 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 
 					<StepButton
 						layout="full"
-						primaryLabel="Add to Cart"
+						primaryLabel={product.stock > 0 ? "Add to Cart" : "Out of Stock"}
 						onPrimaryClick={handleAddToCart}
+						disabled={product.stock === 0}
 						secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
 						onSecondaryClick={() => toggleFavorite(Number(product.id))}
 						className="mb-6"

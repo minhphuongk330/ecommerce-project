@@ -51,6 +51,7 @@ export const useCartStore = create<CartState>()(
 					await fetchCart();
 				} catch (error) {
 					console.error("Add to cart failed:", error);
+					throw error;
 				}
 			},
 
@@ -64,6 +65,7 @@ export const useCartStore = create<CartState>()(
 						await fetchCart();
 					} catch (error) {
 						console.error("Remove failed:", error);
+						throw error;
 					}
 				}
 			},
@@ -78,6 +80,7 @@ export const useCartStore = create<CartState>()(
 						await fetchCart();
 					} catch (error) {
 						console.error("Increase failed:", error);
+						throw error;
 					}
 				}
 			},
@@ -92,6 +95,7 @@ export const useCartStore = create<CartState>()(
 						await fetchCart();
 					} catch (error) {
 						console.error("Decrease failed:", error);
+						throw error;
 					}
 				}
 			},
@@ -102,6 +106,7 @@ export const useCartStore = create<CartState>()(
 					set({ cartItems: [] });
 				} catch (error) {
 					console.error("Clear failed", error);
+					throw error;
 				}
 			},
 
