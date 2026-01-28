@@ -40,14 +40,16 @@ export default function ProductsTable({ products, categories, onRefresh }: Props
 			width: 100,
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
-				<div className="relative w-10 h-10 rounded overflow-hidden border border-gray-200">
-					<Image
-						src={params.value || "/placeholder.png"}
-						alt="Product Img"
-						fill
-						sizes="40px"
-						className="object-cover"
-					/>
+				<div className="flex items-center justify-center h-full w-full">
+					<div className="relative w-16 h-16 rounded overflow-hidden border border-gray-200 bg-white">
+						<Image
+							src={params.value || "/placeholder.png"}
+							alt="Product Img"
+							fill
+							sizes="64px"
+							className="object-contain p-1"
+						/>
+					</div>
 				</div>
 			),
 		},

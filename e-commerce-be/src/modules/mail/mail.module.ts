@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService, ConfigModule } from '@nestjs/config';
+import { MailService } from './mail.service';
 
 @Global()
 @Module({
@@ -10,24 +11,23 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
       useFactory: async (config: ConfigService) => ({
         transport: {
           host: 'smtp-relay.brevo.com',
-
           port: 2525,
           secure: false,
           auth: {
             user: config.get<string>('MAIL_USER'),
             pass: config.get<string>('MAIL_PASS'),
           },
-
           logger: true,
           debug: true,
         },
         defaults: {
-          from: `"Support Team" <minhphuongk330@gmail.com>`,
+          from: `"Support Team" <${config.get<string>('MAIL_FROM') || 'minhphuongk330@gmail.com'}>`,
         },
       }),
       inject: [ConfigService],
     }),
   ],
-  exports: [MailerModule],
+  providers: [MailService],
+  exports: [MailerModule, MailService],
 })
 export class MailModule {}

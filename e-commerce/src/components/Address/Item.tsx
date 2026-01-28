@@ -48,13 +48,12 @@ const AddressItem = memo(({ addr, isSelected, onSelect, onRefresh }: AddressItem
 					</div>
 
 					<div className="flex flex-col text-xs md:text-[14px] text-[#4E4E4E] leading-relaxed text-left items-start">
-						<span className="break-words text-left">{addr.address}</span>
-						<span className="text-left">{addr.phone}</span>
+						<span className="break-words text-left">Address : {addr.address}</span>
+						<span className="text-left">Phone : {addr.phone}</span>
 					</div>
 				</div>
 			</div>
 
-			{/* Actions */}
 			<div
 				className="
         flex gap-4 pt-3 mt-2 border-t border-gray-200

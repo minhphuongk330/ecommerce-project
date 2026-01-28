@@ -10,9 +10,9 @@ export default function OrderAddress({ address }: OrderAddressProps) {
 			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Shipping Address</h3>
 			{address ? (
 				<div className="text-sm text-gray-600 space-y-2">
-					<p className="font-bold text-black">{address.receiverName}</p>
-					<p>{address.phone}</p>
-					<p>{address.address}</p>
+					<p className="font-bold text-black">Name : {address.receiverName}</p>
+					<p>Address : {address.address}</p>
+					<p>Phone : {address.phone}</p>
 				</div>
 			) : (
 				<p className="text-sm text-gray-400 italic">Address info not available</p>

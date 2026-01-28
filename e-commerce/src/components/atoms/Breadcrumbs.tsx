@@ -8,7 +8,7 @@ const Breadcrumb = () => {
 	const { items } = useBreadcrumb();
 
 	return (
-		<div className="w-full bg-white py-[40px] px-[160px]">
+		<div className="w-full bg-white pt-[40px] md:py-[40px] px-[160px]">
 			<MuiBreadcrumbs
 				separator={<KeyboardArrowRight sx={{ color: "#A0A0A0" }} fontSize="small" />}
 				aria-label="breadcrumb"

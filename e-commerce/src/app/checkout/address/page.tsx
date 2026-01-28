@@ -16,6 +16,13 @@ export default function AddressPage() {
 	const { selectedAddress, setSelectedAddress } = useCheckoutContext();
 	const [selectedId, setSelectedId] = useState<number | null>(selectedAddress?.id ? Number(selectedAddress.id) : null);
 
+	const handleCreateSuccess = async (newAddress?: any) => {
+		await refresh();
+		if (newAddress && (addresses.length === 0 || newAddress.isDefault)) {
+			setSelectedId(newAddress.id);
+		}
+	};
+
 	const handleNext = () => {
 		if (!selectedId) {
 			showNotification("Please select an address to continue.", "error");
@@ -37,7 +44,7 @@ export default function AddressPage() {
 			<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-[24px]">
 				<AddressList addresses={addresses} selectedId={selectedId} onSelect={setSelectedId} onRefresh={refresh} />
 
-				<CreateAddress onSuccess={refresh} />
+				<CreateAddress onSuccess={handleCreateSuccess} />
 
 				<StepButton
 					layout="fixed"

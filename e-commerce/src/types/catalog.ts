@@ -1,5 +1,4 @@
 import React from "react";
-import { Product } from "./product";
 export interface AccordionProps {
 	title: string;
 	children: React.ReactNode;

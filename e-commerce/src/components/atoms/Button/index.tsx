@@ -36,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
 			onClick={onClick}
 			disabled={disabled}
 			className={`
-        w-[190px] h-14            
+        w-[190px] h-9 md:h-14           
         px-5 py-3 
         border 
         rounded-md               

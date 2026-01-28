@@ -65,9 +65,16 @@ export const orderService = {
 				colorId: item.selectedColor || undefined,
 				unitPrice: Number(item.price),
 				quantity: item.quantity,
-			})
+			}),
 		);
 		await Promise.all(createItemPromises);
+
+		try {
+			await axiosClient.post(`/orders/${newOrder.id}/confirmation`);
+		} catch (error) {
+			console.error("Failed to trigger email confirmation:", error);
+		}
+
 		return newOrder;
 	},
 };

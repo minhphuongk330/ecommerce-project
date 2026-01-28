@@ -23,12 +23,15 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 	};
 
 	return (
-		<div className="w-full h-[40px] flex justify-between items-center">
+		<div className="w-full min-h-[40px] flex justify-between items-center relative z-20">
 			<div className="text-sm text-gray-500 font-normal">
 				Selected Products:
 				<span className="ml-1 text-base font-bold text-gray-900">{count}</span>
 			</div>
-			<Dropdown value={currentSort} options={SORT_OPTIONS} onChange={handleSortChange} className="w-[200px]" />
+
+			<div className="hidden md:block w-[200px]">
+				<Dropdown value={currentSort} options={SORT_OPTIONS} onChange={handleSortChange} className="w-full" />
+			</div>
 		</div>
 	);
 };

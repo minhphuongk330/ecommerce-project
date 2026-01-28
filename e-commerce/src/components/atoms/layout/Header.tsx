@@ -208,7 +208,7 @@ const Header: React.FC = () => {
 				</Box>
 			</Box>
 
-			<Box sx={{ height: { xs: "64px", md: "88px" } }} />
+			<Box sx={{ height: { xs: "64px", md: "81px" } }} />
 
 			<Drawer
 				anchor="left"

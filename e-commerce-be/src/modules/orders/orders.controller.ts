@@ -54,4 +54,10 @@ export class OrdersController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.ordersService.remove(id);
   }
+
+  @Post(':id/confirmation')
+  async sendConfirmation(@Param('id', ParseIntPipe) id: number) {
+    await this.ordersService.sendEmailConfirmation(id);
+    return { message: 'Confirmation email sent' };
+  }
 }
