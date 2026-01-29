@@ -188,7 +188,21 @@ const Header: React.FC = () => {
 
 							if (item.hasBadge && badgeCount > 0) {
 								iconElement = (
-									<Badge badgeContent={badgeCount} color="error" max={99}>
+									<Badge
+										badgeContent={badgeCount}
+										color="error"
+										max={99}
+										sx={{
+											"& .MuiBadge-badge": {
+												fontSize: { xs: "9px", md: "12px" },
+												height: { xs: "15px", md: "20px" },
+												minWidth: { xs: "15px", md: "20px" },
+												padding: { xs: "0 2px", md: "0 4px" },
+												right: { xs: 1, md: 4 },
+												top: { xs: 1, md: 4 },
+											},
+										}}
+									>
 										{iconElement}
 									</Badge>
 								);

@@ -1,12 +1,12 @@
 "use client";
-import React, { useRef } from "react";
-import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import CategoryCard from "./Card";
-import ArrowButton from "../atoms/ArrowButton";
+import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
-import { routerPaths } from "~/utils/router";
+import React, { useRef } from "react";
 import { useCategories } from "~/hooks/useCategories";
+import { routerPaths } from "~/utils/router";
+import ArrowButton from "../atoms/ArrowButton";
+import CategoryCard from "./Card";
 
 const CategoryBrowser: React.FC = () => {
 	const router = useRouter();
@@ -18,7 +18,7 @@ const CategoryBrowser: React.FC = () => {
 	};
 
 	return (
-		<div className="flex flex-col w-full max-w-[1440px] mx-auto py-10 md:py-10 px-4 md:px-40 gap-4 md:gap-8">
+		<div className="flex flex-col w-full max-w-[1440px] mx-auto pt-10 pd-5 md:py-10 px-4 md:px-40 gap-4 md:gap-8">
 			<div className="flex justify-between items-center w-full h-auto">
 				<Typography variant="h5" className="!font-medium !text-xl md:!text-2xl !text-black !leading-8">
 					Browse By Category
@@ -33,7 +33,7 @@ const CategoryBrowser: React.FC = () => {
 			) : (
 				<div
 					ref={scrollContainerRef}
-					className="flex space-x-8 overflow-x-auto flex-nowrap pb-5 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+					className="flex space-x-4 md:space-x-8 overflow-x-auto flex-nowrap pb-5 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
 					style={{
 						display: "flex",
 						flexDirection: "row",

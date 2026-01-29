@@ -1,13 +1,13 @@
 "use client";
+import BrokenImageOutlined from "@mui/icons-material/BrokenImageOutlined";
 import React from "react";
 import { CategoryCardProps } from "~/types/category";
-import BrokenImageOutlined from "@mui/icons-material/BrokenImageOutlined";
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ name, IconComponent, thumbnailUrl }) => {
 	return (
-		<div className="flex-shrink-0 w-[160px] h-[128px] bg-[#EDEDED] rounded-[15px] gap-[8px] flex flex-col items-center justify-center cursor-pointer transition duration-300 hover:shadow-lg hover:bg-white py-[24px]">
+		<div className="flex-shrink-0 w-[120px] md:w-[160px] h-[100px] md:h-[128px] bg-[#EDEDED] rounded-[15px] gap-[8px] flex flex-col items-center justify-center cursor-pointer transition duration-300 hover:shadow-lg hover:bg-white py-[16px] md:py-[24px]">
 			{thumbnailUrl ? (
-				<img src={thumbnailUrl} alt={name} className="w-[30px] h-[30px] object-contain mb-0" />
+				<img src={thumbnailUrl} alt={name} className="w-[24px] md:w-[30px] h-[24px] md:h-[30px] object-contain mb-0" />
 			) : IconComponent ? (
 				<IconComponent className="!text-3xl text-black mb-0" />
 			) : (

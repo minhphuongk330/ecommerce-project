@@ -10,7 +10,7 @@ const CommonTabs: React.FC<TabsProps> = ({ options, value, onChange, className =
 					key={option}
 					onClick={() => onChange(option)}
 					className={`
-                        text-lg font-medium pb-1 border-b-2 transition-all duration-300
+                        md:text-lg font-medium pb-1 border-b-2 transition-all duration-300
                         ${
 													value === option
 														? "text-black border-black"

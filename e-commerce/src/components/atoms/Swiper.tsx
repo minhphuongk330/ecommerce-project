@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 interface SwiperProps<T> {
 	data: T[];
@@ -53,13 +53,36 @@ export default function CommonSwiper<T>({
 					.swiper-button-next,
 					.swiper-button-prev {
 						color: white !important;
-						background: rgba(0, 0, 0, 0.3);
-						width: 44px;
-						height: 44px;
-						border-radius: 50%;
-						backdrop-filter: blur(4px);
+						background: transparent !important;
+						width: 30 !important;
+						height: 30 !important;
+						border-radius: 0;
 						opacity: 0;
 						transition: all 0.3s;
+						display: none !important;
+						align-items: center;
+						justify-content: center;
+						margin-top: 0 !important;
+					}
+					@media (min-width: 768px) {
+						.swiper-button-next,
+						.swiper-button-prev {
+							display: flex !important;
+						}
+					}
+					.swiper-button-next::after,
+					.swiper-button-prev::after {
+						font-size: 40px !important;
+						font-weight: 700;
+						transform: scale(0.25);
+						transform-origin: center;
+					}
+					@media (min-width: 768px) {
+						.swiper-button-next::after,
+						.swiper-button-prev::after {
+							font-size: 50px !important;
+							transform: scale(0.65);
+						}
 					}
 					.group:hover .swiper-button-next,
 					.group:hover .swiper-button-prev {
@@ -67,7 +90,7 @@ export default function CommonSwiper<T>({
 					}
 					.swiper-button-next:hover,
 					.swiper-button-prev:hover {
-						background: rgba(255, 255, 255, 0.3);
+						background: rgba(0, 0, 0, 0.6);
 					}
 					.swiper-pagination-bullet {
 						background: white !important;

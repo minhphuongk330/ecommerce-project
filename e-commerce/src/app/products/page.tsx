@@ -9,20 +9,20 @@ import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
 import { useProductFilter } from "~/hooks/useProductFilter";
 import { useProducts } from "~/hooks/useProducts";
 import { routerPaths } from "~/utils/router";
+import { MobileFilterProvider } from "~/contexts/MobileFilterContext";
 
 function ProductsContent() {
 	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+	const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 	const searchParams = useSearchParams();
 	const categoryIdParam = searchParams.get("categoryId");
 	const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;
 	const nameParam = searchParams.get("name");
-
 	const { products: allProducts, isLoading } = useProducts();
 	const { setBreadcrumbs } = useBreadcrumb();
 
 	const filteredProducts = useMemo(() => {
-		let result = allProducts;
+		let result = allProducts || [];
 		if (categoryId) {
 			result = result.filter(p => Number(p.categoryId) === categoryId);
 		}
@@ -56,21 +56,23 @@ function ProductsContent() {
 	}
 
 	return (
-		<div className="w-full max-w-[1440px] mx-auto">
-			<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
-				<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
-					<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
-				</div>
+		<MobileFilterProvider>
+			<div className="w-full max-w-[1440px] mx-auto">
+				<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
+					<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
+						<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
+					</div>
 
-				<ProductListArea
-					products={paginatedProducts}
-					totalCount={totalCount}
-					totalPages={totalPages}
-					currentPage={currentPage}
-					onPageChange={handleChangePage}
-				/>
+					<ProductListArea
+						products={paginatedProducts}
+						totalCount={totalCount}
+						totalPages={totalPages}
+						currentPage={currentPage}
+						onPageChange={handleChangePage}
+					/>
+				</div>
 			</div>
-		</div>
+		</MobileFilterProvider>
 	);
 }
 

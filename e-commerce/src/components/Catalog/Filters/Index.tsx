@@ -33,14 +33,14 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 	const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
 	const [loading, setLoading] = useState(true);
-	const mobileContext = useMobileFilter();
-	const isMobileOpen = mobileContext?.isMobileDrawerOpen;
+
+	const { isMobileDrawerOpen, tempFilters, setTempFilters, toggleTempFilter } = useMobileFilter();
 
 	useEffect(() => {
-		if (isMobileOpen && mobileContext) {
-			mobileContext.setTempFilters(selectedFilters);
+		if (isMobileDrawerOpen) {
+			setTempFilters(selectedFilters);
 		}
-	}, [isMobileOpen]);
+	}, [isMobileDrawerOpen, selectedFilters, setTempFilters]);
 
 	const fetchAttributes = async () => {
 		try {
@@ -96,13 +96,13 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 
 						<div className="flex flex-col gap-[8px]">
 							{category.options.map(option => {
-								const isChecked = isMobileOpen
-									? mobileContext?.tempFilters[category.id]?.includes(option.name) || false
+								const isChecked = isMobileDrawerOpen
+									? tempFilters[category.id]?.includes(option.name) || false
 									: selectedFilters[category.id]?.includes(option.name) || false;
 
 								const handleClick = () => {
-									if (isMobileOpen && mobileContext) {
-										mobileContext.toggleTempFilter(category.id, option.name);
+									if (isMobileDrawerOpen) {
+										toggleTempFilter(category.id, option.name);
 									} else {
 										toggleFilter(category.id, option.name);
 									}
