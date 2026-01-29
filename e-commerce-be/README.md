@@ -24,9 +24,13 @@ Backend API đầy đủ cho hệ thống E-Commerce được xây dựng bằng
   - [Orders](#12-orders)
   - [Order Items](#13-order-items)
   - [Upload](#14-upload)
+  - [Admin](#15-admin)
 - [Validation Rules](#validation-rules)
 - [Error Handling](#error-handling)
 - [Workflow Examples](#workflow-examples)
+- [Testing](#testing)
+- [Performance Optimization](#performance-optimization)
+- [Security Considerations](#security-considerations)
 - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
 
@@ -59,16 +63,19 @@ npm install
 ### Bước 3: Cấu hình database
 
 1. Tạo database MySQL:
+
 ```sql
 CREATE DATABASE `e-commerce` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 2. Tạo file `.env` từ `.env.example`:
+
 ```bash
 cp .env.example .env
 ```
 
 3. Cập nhật thông tin trong `.env`:
+
 ```env
 DB_HOST=localhost
 DB_PORT=3306
@@ -95,6 +102,7 @@ npm run seed
 ```
 
 Sau khi seed, bạn sẽ có:
+
 - 5 Categories
 - 8 Products
 - 3 Banners
@@ -229,141 +237,153 @@ customer_addresses (1) ──< (N) orders
 ### Bảng chi tiết
 
 #### 1. **banners**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| title | VARCHAR(255) | Tiêu đề banner |
-| content | TEXT | Nội dung banner |
-| image_url | TEXT | URL hình ảnh |
-| is_active | BOOLEAN | Trạng thái hoạt động |
-| display_type | VARCHAR(50) | Loại hiển thị (carousel/banner) |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field        | Type         | Description                     |
+| ------------ | ------------ | ------------------------------- |
+| id           | BIGINT       | Primary key                     |
+| title        | VARCHAR(255) | Tiêu đề banner                  |
+| content      | TEXT         | Nội dung banner                 |
+| image_url    | TEXT         | URL hình ảnh                    |
+| is_active    | BOOLEAN      | Trạng thái hoạt động            |
+| display_type | VARCHAR(50)  | Loại hiển thị (carousel/banner) |
+| created_at   | TIMESTAMP    | Ngày tạo                        |
+| updated_at   | TIMESTAMP    | Ngày cập nhật                   |
 
 #### 2. **categories**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| name | VARCHAR(255) | Tên danh mục |
-| thumbnail_url | TEXT | URL thumbnail |
-| configs | TEXT | Cấu hình danh mục (JSON string) |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field         | Type         | Description                     |
+| ------------- | ------------ | ------------------------------- |
+| id            | BIGINT       | Primary key                     |
+| name          | VARCHAR(255) | Tên danh mục                    |
+| thumbnail_url | TEXT         | URL thumbnail                   |
+| configs       | TEXT         | Cấu hình danh mục (JSON string) |
+| created_at    | TIMESTAMP    | Ngày tạo                        |
+| updated_at    | TIMESTAMP    | Ngày cập nhật                   |
 
 #### 3. **products**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| name | VARCHAR(255) | Tên sản phẩm |
-| category_id | BIGINT | FK → categories.id |
-| short_description | TEXT | Mô tả ngắn |
-| description | TEXT | Mô tả chi tiết |
-| price | DECIMAL(12,2) | Giá sản phẩm |
-| stock | INT | Số lượng tồn kho |
-| main_image_url | TEXT | Hình ảnh chính |
-| extra_image_1-4 | TEXT | Hình ảnh phụ |
-| is_active | BOOLEAN | Trạng thái hoạt động |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field             | Type          | Description          |
+| ----------------- | ------------- | -------------------- |
+| id                | BIGINT        | Primary key          |
+| name              | VARCHAR(255)  | Tên sản phẩm         |
+| category_id       | BIGINT        | FK → categories.id   |
+| short_description | TEXT          | Mô tả ngắn           |
+| description       | TEXT          | Mô tả chi tiết       |
+| price             | DECIMAL(12,2) | Giá sản phẩm         |
+| stock             | INT           | Số lượng tồn kho     |
+| main_image_url    | TEXT          | Hình ảnh chính       |
+| extra_image_1-4   | TEXT          | Hình ảnh phụ         |
+| is_active         | BOOLEAN       | Trạng thái hoạt động |
+| created_at        | TIMESTAMP     | Ngày tạo             |
+| updated_at        | TIMESTAMP     | Ngày cập nhật        |
 
 #### 4. **product_reviews**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| product_id | BIGINT | FK → products.id |
-| customer_id | BIGINT | FK → customers.id |
-| rating | INT | Đánh giá từ 1-5 sao |
-| comment | TEXT | Bình luận (nullable) |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field       | Type      | Description          |
+| ----------- | --------- | -------------------- |
+| id          | BIGINT    | Primary key          |
+| product_id  | BIGINT    | FK → products.id     |
+| customer_id | BIGINT    | FK → customers.id    |
+| rating      | INT       | Đánh giá từ 1-5 sao  |
+| comment     | TEXT      | Bình luận (nullable) |
+| created_at  | TIMESTAMP | Ngày tạo             |
+| updated_at  | TIMESTAMP | Ngày cập nhật        |
 
 **Unique Constraint:** `(product_id, customer_id)` - Mỗi khách hàng chỉ được review một lần cho mỗi sản phẩm.
 
 #### 5. **favorites**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| customer_id | BIGINT | FK → customers.id |
-| product_id | BIGINT | FK → products.id |
-| created_at | TIMESTAMP | Ngày tạo (auto) |
+
+| Field       | Type      | Description       |
+| ----------- | --------- | ----------------- |
+| id          | BIGINT    | Primary key       |
+| customer_id | BIGINT    | FK → customers.id |
+| product_id  | BIGINT    | FK → products.id  |
+| created_at  | TIMESTAMP | Ngày tạo (auto)   |
 
 **Unique Constraint:** `(customer_id, product_id)` - Mỗi khách hàng chỉ có thể thêm một sản phẩm vào danh sách yêu thích một lần.
 
 #### 6. **product_images**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| product_id | BIGINT | FK → products.id |
-| url | TEXT | URL hình ảnh |
-| ordinal | INT | Thứ tự hiển thị |
-| is_primary | BOOLEAN | Hình ảnh chính |
-| created_at | TIMESTAMP | Ngày tạo |
+
+| Field      | Type      | Description      |
+| ---------- | --------- | ---------------- |
+| id         | BIGINT    | Primary key      |
+| product_id | BIGINT    | FK → products.id |
+| url        | TEXT      | URL hình ảnh     |
+| ordinal    | INT       | Thứ tự hiển thị  |
+| is_primary | BOOLEAN   | Hình ảnh chính   |
+| created_at | TIMESTAMP | Ngày tạo         |
 
 #### 7. **product_colors**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| product_id | BIGINT | FK → products.id |
-| color_name | VARCHAR(50) | Tên màu |
-| color_hex | VARCHAR(7) | Mã màu hex (nullable) |
-| created_at | TIMESTAMP | Ngày tạo |
+
+| Field      | Type        | Description           |
+| ---------- | ----------- | --------------------- |
+| id         | BIGINT      | Primary key           |
+| product_id | BIGINT      | FK → products.id      |
+| color_name | VARCHAR(50) | Tên màu               |
+| color_hex  | VARCHAR(7)  | Mã màu hex (nullable) |
+| created_at | TIMESTAMP   | Ngày tạo              |
 
 #### 8. **attribute_defs**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| name | VARCHAR(150) | Tên thuộc tính |
-| category_id | BIGINT | FK → categories.id (nullable) |
-| value | TEXT | Giá trị thuộc tính (nullable) |
-| created_at | TIMESTAMP | Ngày tạo |
+
+| Field       | Type         | Description                   |
+| ----------- | ------------ | ----------------------------- |
+| id          | BIGINT       | Primary key                   |
+| name        | VARCHAR(150) | Tên thuộc tính                |
+| category_id | BIGINT       | FK → categories.id (nullable) |
+| value       | TEXT         | Giá trị thuộc tính (nullable) |
+| created_at  | TIMESTAMP    | Ngày tạo                      |
 
 #### 9. **customers**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| email | VARCHAR(255) | Email (unique) |
-| password_hash | VARCHAR(255) | Mật khẩu đã hash |
-| full_name | VARCHAR(255) | Tên đầy đủ (nullable) |
-| is_active | BOOLEAN | Trạng thái hoạt động |
-| role | ENUM | Vai trò (CUSTOMER/ADMIN) |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field         | Type         | Description              |
+| ------------- | ------------ | ------------------------ |
+| id            | BIGINT       | Primary key              |
+| email         | VARCHAR(255) | Email (unique)           |
+| password_hash | VARCHAR(255) | Mật khẩu đã hash         |
+| full_name     | VARCHAR(255) | Tên đầy đủ (nullable)    |
+| is_active     | BOOLEAN      | Trạng thái hoạt động     |
+| role          | ENUM         | Vai trò (CUSTOMER/ADMIN) |
+| created_at    | TIMESTAMP    | Ngày tạo                 |
+| updated_at    | TIMESTAMP    | Ngày cập nhật            |
 
 #### 10. **customer_addresses**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| customer_id | BIGINT | FK → customers.id |
+
+| Field         | Type         | Description               |
+| ------------- | ------------ | ------------------------- |
+| id            | BIGINT       | Primary key               |
+| customer_id   | BIGINT       | FK → customers.id         |
 | receiver_name | VARCHAR(255) | Tên người nhận (nullable) |
-| phone | VARCHAR(50) | Số điện thoại (nullable) |
-| address | TEXT | Địa chỉ |
-| is_default | BOOLEAN | Địa chỉ mặc định |
-| created_at | TIMESTAMP | Ngày tạo |
+| phone         | VARCHAR(50)  | Số điện thoại (nullable)  |
+| address       | TEXT         | Địa chỉ                   |
+| is_default    | BOOLEAN      | Địa chỉ mặc định          |
+| created_at    | TIMESTAMP    | Ngày tạo                  |
 
 #### 11. **orders**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| order_no | VARCHAR(50) | Mã đơn hàng (unique) |
-| customer_id | BIGINT | FK → customers.id (nullable) |
-| address_id | BIGINT | FK → customer_addresses.id |
-| status | VARCHAR(50) | Trạng thái (pending/shipped/completed/cancelled) |
-| discount | DECIMAL(12,2) | Giảm giá |
-| total_amount | DECIMAL(12,2) | Tổng tiền |
-| note | TEXT | Ghi chú |
-| created_at | TIMESTAMP | Ngày tạo |
-| updated_at | TIMESTAMP | Ngày cập nhật |
+
+| Field        | Type          | Description                                      |
+| ------------ | ------------- | ------------------------------------------------ |
+| id           | BIGINT        | Primary key                                      |
+| order_no     | VARCHAR(50)   | Mã đơn hàng (unique)                             |
+| customer_id  | BIGINT        | FK → customers.id (nullable)                     |
+| address_id   | BIGINT        | FK → customer_addresses.id                       |
+| status       | VARCHAR(50)   | Trạng thái (pending/shipped/completed/cancelled) |
+| discount     | DECIMAL(12,2) | Giảm giá                                         |
+| total_amount | DECIMAL(12,2) | Tổng tiền                                        |
+| note         | TEXT          | Ghi chú                                          |
+| created_at   | TIMESTAMP     | Ngày tạo                                         |
+| updated_at   | TIMESTAMP     | Ngày cập nhật                                    |
 
 #### 12. **order_items**
-| Field | Type | Description |
-|-------|------|-------------|
-| id | BIGINT | Primary key |
-| order_id | BIGINT | FK → orders.id |
-| product_id | BIGINT | FK → products.id (nullable) |
-| color_id | VARCHAR(150) | ID màu sắc (nullable) |
-| unit_price | DECIMAL(12,2) | Giá đơn vị |
-| quantity | INT | Số lượng |
-| created_at | TIMESTAMP | Ngày tạo |
+
+| Field      | Type          | Description                 |
+| ---------- | ------------- | --------------------------- |
+| id         | BIGINT        | Primary key                 |
+| order_id   | BIGINT        | FK → orders.id              |
+| product_id | BIGINT        | FK → products.id (nullable) |
+| color_id   | VARCHAR(150)  | ID màu sắc (nullable)       |
+| unit_price | DECIMAL(12,2) | Giá đơn vị                  |
+| quantity   | INT           | Số lượng                    |
+| created_at | TIMESTAMP     | Ngày tạo                    |
 
 ---
 
@@ -385,6 +405,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -394,11 +415,13 @@ Content-Type: application/json
 ```
 
 **Validation:**
+
 - `email`: Required, valid email format, unique
 - `password`: Required, min 6 characters
 - `fullName`: Optional
 
 **Success Response (201):**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTYxNjIzOTAyMiwiZXhwIjoxNjE2ODQzODIyfQ...",
@@ -411,7 +434,9 @@ Content-Type: application/json
 ```
 
 **Error Responses:**
+
 - `409 Conflict`: Email already exists
+
 ```json
 {
   "statusCode": 409,
@@ -421,6 +446,7 @@ Content-Type: application/json
 ```
 
 - `400 Bad Request`: Validation error
+
 ```json
 {
   "statusCode": 400,
@@ -433,6 +459,7 @@ Content-Type: application/json
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
@@ -453,6 +480,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -461,6 +489,7 @@ Content-Type: application/json
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -473,7 +502,9 @@ Content-Type: application/json
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized`: Invalid credentials
+
 ```json
 {
   "statusCode": 401,
@@ -483,6 +514,7 @@ Content-Type: application/json
 ```
 
 - `401 Unauthorized`: Account inactive
+
 ```json
 {
   "statusCode": 401,
@@ -492,6 +524,7 @@ Content-Type: application/json
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
@@ -511,11 +544,13 @@ Authorization: Bearer <accessToken>
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "id": 1,
@@ -525,7 +560,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized`: Invalid or missing token
+
 ```json
 {
   "statusCode": 401,
@@ -534,6 +571,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X GET http://localhost:3000/auth/profile \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
@@ -543,171 +581,160 @@ curl -X GET http://localhost:3000/auth/profile \
 
 ### 2. Banners
 
-  #### 2.1. Lấy tất cả banners
+#### 2.1. Lấy tất cả banners
 
-  ```http
-  GET /banners
-  ```
+```http
+GET /banners
+```
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "Khuyến mãi mùa hè",
-      "content": "Giảm giá lên đến 50% cho tất cả sản phẩm điện tử",
-      "imageUrl": "https://example.com/banner.jpg",
-      "isActive": true,
-      "displayType": "carousel",
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
+**Success Response (200):**
 
-  ---
-
-  #### 2.2. Lấy banner theo ID
-
-  ```http
-  GET /banners/:id
-  ```
-
-  **Path Parameters:**
-  - `id` (number): ID của banner
-
-  **Success Response (200):**
-  ```json
+```json
+[
   {
     "id": 1,
     "title": "Khuyến mãi mùa hè",
-    "content": "Giảm giá lên đến 50%",
+    "content": "Giảm giá lên đến 50% cho tất cả sản phẩm điện tử",
     "imageUrl": "https://example.com/banner.jpg",
     "isActive": true,
     "displayType": "carousel",
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Banner with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+---
 
-  ---
+#### 2.2. Lấy banner theo ID
 
-  #### 2.3. Tạo banner mới
+```http
+GET /banners/:id
+```
 
-  ```http
-  POST /banners
-  Content-Type: application/json
-  ```
+**Path Parameters:**
 
-  **Request Body:**
-  ```json
-  {
-    "title": "Khuyến mãi mùa hè",
-    "content": "Giảm giá lên đến 50%",
-    "imageUrl": "https://example.com/banner.jpg",
-    "isActive": true,
-    "displayType": "carousel"
-  }
-  ```
+- `id` (number): ID của banner
 
-  **Validation:**
-  - `title`: Required, string, max 255 characters
-  - `content`: Optional, string
-  - `imageUrl`: Required, string (URL)
-  - `isActive`: Optional, boolean (default: true)
-  - `displayType`: Optional, string (default: "carousel")
+**Success Response (200):**
 
-  **Success Response (201):**
-  ```json
-  {
-    "id": 1,
-    "title": "Khuyến mãi mùa hè",
-    "content": "Giảm giá lên đến 50%",
-    "imageUrl": "https://example.com/banner.jpg",
-    "isActive": true,
-    "displayType": "carousel",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
+```json
+{
+  "id": 1,
+  "title": "Khuyến mãi mùa hè",
+  "content": "Giảm giá lên đến 50%",
+  "imageUrl": "https://example.com/banner.jpg",
+  "isActive": true,
+  "displayType": "carousel",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  ---
+**Error Response (404):**
 
-  #### 2.4. Cập nhật banner
+```json
+{
+  "statusCode": 404,
+  "message": "Banner with ID 999 not found",
+  "error": "Not Found"
+}
+```
 
-  ```http
-  PATCH /banners/:id
-  Content-Type: application/json
-  ```
+---
 
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "title": "Khuyến mãi mới",
-    "isActive": false
-  }
-  ```
+#### 2.3. Tạo banner mới
 
-  **Success Response (200):** (Trả về banner đã cập nhật)
+```http
+POST /banners
+Content-Type: application/json
+```
 
-  ---
+**Request Body:**
 
-  #### 2.5. Xóa banner
+```json
+{
+  "title": "Khuyến mãi mùa hè",
+  "content": "Giảm giá lên đến 50%",
+  "imageUrl": "https://example.com/banner.jpg",
+  "isActive": true,
+  "displayType": "carousel"
+}
+```
 
-  ```http
-  DELETE /banners/:id
-  ```
+**Validation:**
 
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Banner deleted successfully"
-  }
-  ```
+- `title`: Required, string, max 255 characters
+- `content`: Optional, string
+- `imageUrl`: Required, string (URL)
+- `isActive`: Optional, boolean (default: true)
+- `displayType`: Optional, string (default: "carousel")
 
-  ---
+**Success Response (201):**
 
-  ### 3. Categories
+```json
+{
+  "id": 1,
+  "title": "Khuyến mãi mùa hè",
+  "content": "Giảm giá lên đến 50%",
+  "imageUrl": "https://example.com/banner.jpg",
+  "isActive": true,
+  "displayType": "carousel",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  #### 3.1. Lấy tất cả categories
+---
 
-  ```http
-  GET /categories
-  ```
+#### 2.4. Cập nhật banner
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "name": "Điện thoại",
-      "thumbnailUrl": "https://example.com/thumbnail.jpg",
-      "configs": "{\"displayOrder\": 1, \"showOnHomepage\": true}",
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
+```http
+PATCH /banners/:id
+Content-Type: application/json
+```
 
-  ---
+**Request Body:** (Tất cả fields đều optional)
 
-  #### 3.2. Lấy category theo ID
+```json
+{
+  "title": "Khuyến mãi mới",
+  "isActive": false
+}
+```
 
-  ```http
-  GET /categories/:id
-  ```
+**Success Response (200):** (Trả về banner đã cập nhật)
 
-  **Success Response (200):**
-  ```json
+---
+
+#### 2.5. Xóa banner
+
+```http
+DELETE /banners/:id
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Banner deleted successfully"
+}
+```
+
+---
+
+### 3. Categories
+
+#### 3.1. Lấy tất cả categories
+
+```http
+GET /categories
+```
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "name": "Điện thoại",
@@ -716,132 +743,111 @@ curl -X GET http://localhost:3000/auth/profile \
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  ---
+---
 
-  #### 3.3. Tạo category mới
+#### 3.2. Lấy category theo ID
 
-  ```http
-  POST /categories
-  Content-Type: application/json
-  ```
+```http
+GET /categories/:id
+```
 
-  **Request Body:**
-  ```json
-  {
-    "name": "Điện thoại",
-    "thumbnailUrl": "https://example.com/thumbnail.jpg",
-    "configs": "{\"displayOrder\": 1, \"showOnHomepage\": true, \"maxProducts\": 20}"
-  }
-  ```
+**Success Response (200):**
 
-  **Validation:**
-  - `name`: Required, string, max 255 characters
-  - `thumbnailUrl`: Optional, string (URL)
-  - `configs`: Optional, string (thường là JSON string để lưu cấu hình tùy chỉnh)
+```json
+{
+  "id": 1,
+  "name": "Điện thoại",
+  "thumbnailUrl": "https://example.com/thumbnail.jpg",
+  "configs": "{\"displayOrder\": 1, \"showOnHomepage\": true}",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  **Success Response (201):** (Trả về category đã tạo)
+---
 
-  ---
+#### 3.3. Tạo category mới
 
-  #### 3.4. Cập nhật category
+```http
+POST /categories
+Content-Type: application/json
+```
 
-  ```http
-  PATCH /categories/:id
-  Content-Type: application/json
-  ```
+**Request Body:**
 
-  **Request Body:**
-  ```json
-  {
-    "name": "Smartphone",
-    "thumbnailUrl": "https://example.com/new-thumbnail.jpg",
-    "configs": "{\"displayOrder\": 2, \"showOnHomepage\": false}"
-  }
-  ```
+```json
+{
+  "name": "Điện thoại",
+  "thumbnailUrl": "https://example.com/thumbnail.jpg",
+  "configs": "{\"displayOrder\": 1, \"showOnHomepage\": true, \"maxProducts\": 20}"
+}
+```
 
-  ---
+**Validation:**
 
-  #### 3.5. Xóa category
+- `name`: Required, string, max 255 characters
+- `thumbnailUrl`: Optional, string (URL)
+- `configs`: Optional, string (thường là JSON string để lưu cấu hình tùy chỉnh)
 
-  ```http
-  DELETE /categories/:id
-  ```
+**Success Response (201):** (Trả về category đã tạo)
 
-  **Lưu ý:** Khi xóa category, các products liên quan sẽ có `categoryId` = null (SET NULL).
+---
 
-  ---
+#### 3.4. Cập nhật category
 
-  ### 4. Products
+```http
+PATCH /categories/:id
+Content-Type: application/json
+```
 
-  #### 4.1. Lấy tất cả products
+**Request Body:**
 
-  ```http
-  GET /products
-  ```
+```json
+{
+  "name": "Smartphone",
+  "thumbnailUrl": "https://example.com/new-thumbnail.jpg",
+  "configs": "{\"displayOrder\": 2, \"showOnHomepage\": false}"
+}
+```
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "name": "iPhone 15 Pro Max",
-      "categoryId": 1,
-      "category": {
-        "id": 1,
-        "name": "Điện thoại",
-        "thumbnailUrl": "https://example.com/thumbnail.jpg"
-      },
-      "shortDescription": "iPhone mới nhất với chip A17 Pro",
-      "description": "iPhone 15 Pro Max với màn hình 6.7 inch...",
-      "price": "29990000.00",
-      "stock": 50,
-      "mainImageUrl": "https://example.com/image.jpg",
-      "extraImage1": "https://example.com/image2.jpg",
-      "extraImage2": "https://example.com/image3.jpg",
-      "extraImage3": "https://example.com/image4.jpg",
-      "extraImage4": "https://example.com/image5.jpg",
-      "isActive": true,
-      "reviews": [
-        {
-          "id": 1,
-          "rating": 5,
-          "comment": "Sản phẩm tuyệt vời!",
-          "createdAt": "2024-01-01T00:00:00.000Z",
-          "customer": {
-            "id": 1,
-            "email": "customer@example.com",
-            "fullName": "Nguyễn Văn A"
-          }
-        }
-      ],
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
+---
 
-  ---
+#### 3.5. Xóa category
 
-  #### 4.2. Lấy product theo ID
+```http
+DELETE /categories/:id
+```
 
-  ```http
-  GET /products/:id
-  ```
+**Lưu ý:** Khi xóa category, các products liên quan sẽ có `categoryId` = null (SET NULL).
 
-  **Success Response (200):**
-  ```json
+---
+
+### 4. Products
+
+#### 4.1. Lấy tất cả products
+
+```http
+GET /products
+```
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "name": "iPhone 15 Pro Max",
     "categoryId": 1,
     "category": {
       "id": 1,
-      "name": "Điện thoại"
+      "name": "Điện thoại",
+      "thumbnailUrl": "https://example.com/thumbnail.jpg"
     },
     "shortDescription": "iPhone mới nhất với chip A17 Pro",
-    "description": "Chi tiết sản phẩm...",
+    "description": "iPhone 15 Pro Max với màn hình 6.7 inch...",
     "price": "29990000.00",
     "stock": 50,
     "mainImageUrl": "https://example.com/image.jpg",
@@ -850,253 +856,74 @@ curl -X GET http://localhost:3000/auth/profile \
     "extraImage3": "https://example.com/image4.jpg",
     "extraImage4": "https://example.com/image5.jpg",
     "isActive": true,
-    "productImages": [
+    "reviews": [
       {
         "id": 1,
-        "url": "https://example.com/image.jpg",
-        "ordinal": 0,
-        "isPrimary": true
+        "rating": 5,
+        "comment": "Sản phẩm tuyệt vời!",
+        "createdAt": "2024-01-01T00:00:00.000Z",
+        "customer": {
+          "id": 1,
+          "email": "customer@example.com",
+          "fullName": "Nguyễn Văn A"
+        }
       }
     ],
-      "productColors": [
-        {
-          "id": 1,
-          "colorName": "Đen",
-          "colorHex": "#000000"
-        }
-      ],
-      "reviews": [
-        {
-          "id": 1,
-          "rating": 5,
-          "comment": "Sản phẩm tuyệt vời!",
-          "createdAt": "2024-01-01T00:00:00.000Z",
-          "updatedAt": "2024-01-01T00:00:00.000Z",
-          "customer": {
-            "id": 1,
-            "email": "customer@example.com",
-            "fullName": "Nguyễn Văn A"
-          }
-        }
-      ],
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ```
-
-  ---
-
-  #### 4.3. Tạo product mới
-
-  ```http
-  POST /products
-  Content-Type: application/json
-  ```
-
-  **Request Body:**
-  ```json
-  {
-    "name": "iPhone 15 Pro Max",
-    "categoryId": 1,
-    "shortDescription": "iPhone mới nhất với chip A17 Pro",
-    "description": "iPhone 15 Pro Max với màn hình 6.7 inch, chip A17 Pro mạnh mẽ, camera 48MP và pin lâu dài.",
-    "price": 29990000,
-    "stock": 50,
-    "mainImageUrl": "https://example.com/image.jpg",
-    "extraImage1": "https://example.com/image2.jpg",
-    "extraImage2": "https://example.com/image3.jpg",
-    "extraImage3": "https://example.com/image4.jpg",
-    "extraImage4": "https://example.com/image5.jpg",
-    "isActive": true
-  }
-  ```
-
-  **Validation:**
-  - `name`: Required, string, max 255 characters
-  - `categoryId`: Optional, number (must exist in categories table)
-  - `shortDescription`: Optional, string
-  - `description`: Optional, string
-  - `price`: Required, number, > 0
-  - `stock`: Optional, number, >= 0 (default: 0)
-  - `mainImageUrl`: Required, string (URL)
-  - `extraImage1-4`: Optional, string (URL)
-  - `isActive`: Optional, boolean (default: true)
-
-  **Success Response (201):** (Trả về product đã tạo)
-
-  ---
-
-  #### 4.4. Cập nhật product
-
-  ```http
-  PATCH /products/:id
-  Content-Type: application/json
-  ```
-
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "name": "iPhone 15 Pro Max (Updated)",
-    "price": 27990000,
-    "stock": 30
-  }
-  ```
-
-  ---
-
-  #### 4.5. Xóa product
-
-  ```http
-  DELETE /products/:id
-  ```
-
-  **Lưu ý:** Khi xóa product, các order_items liên quan sẽ có `productId` = null (SET NULL).
-
-  ---
-
-  ### 5. Product Reviews
-
-  API quản lý đánh giá và bình luận sản phẩm. Mỗi khách hàng chỉ được đánh giá một lần cho mỗi sản phẩm.
-
-  #### 5.1. Tạo review mới
-
-  ```http
-  POST /product-reviews
-  Authorization: Bearer <accessToken>
-  Content-Type: application/json
-  ```
-
-  **Request Body:**
-  ```json
-  {
-    "productId": 1,
-    "rating": 5,
-    "comment": "Sản phẩm rất tốt, đáng mua!"
-  }
-  ```
-
-  **Validation:**
-  - `productId`: Required, number (must exist in products table)
-  - `rating`: Required, number, must be between 1-5
-  - `comment`: Optional, string
-
-  **Success Response (201):**
-  ```json
-  {
-    "id": 1,
-    "productId": 1,
-    "customerId": 1,
-    "rating": 5,
-    "comment": "Sản phẩm rất tốt, đáng mua!",
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Error Responses:**
-  - `409 Conflict`: Customer đã review sản phẩm này rồi
-  ```json
-  {
-    "statusCode": 409,
-    "message": "You have already reviewed this product. Each customer can only review a product once.",
-    "error": "Conflict"
-  }
-  ```
+---
 
-  - `400 Bad Request`: Rating không hợp lệ
-  ```json
-  {
-    "statusCode": 400,
-    "message": "Rating must be between 1 and 5 stars",
-    "error": "Bad Request"
-  }
-  ```
+#### 4.2. Lấy product theo ID
 
-  - `401 Unauthorized`: Chưa đăng nhập
-  ```json
-  {
-    "statusCode": 401,
-    "message": "Unauthorized",
-    "error": "Unauthorized"
-  }
-  ```
+```http
+GET /products/:id
+```
 
-  **cURL Example:**
-  ```bash
-  curl -X POST http://localhost:3000/product-reviews \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "productId": 1,
-      "rating": 5,
-      "comment": "Sản phẩm rất tốt!"
-    }'
-  ```
+**Success Response (200):**
 
-  ---
-
-  #### 5.2. Lấy tất cả reviews
-
-  ```http
-  GET /product-reviews
-  ```
-
-  **Query Parameters:**
-  - `productId` (optional): Filter reviews theo product ID
-
-  **Success Response (200):**
-  ```json
-  [
+```json
+{
+  "id": 1,
+  "name": "iPhone 15 Pro Max",
+  "categoryId": 1,
+  "category": {
+    "id": 1,
+    "name": "Điện thoại"
+  },
+  "shortDescription": "iPhone mới nhất với chip A17 Pro",
+  "description": "Chi tiết sản phẩm...",
+  "price": "29990000.00",
+  "stock": 50,
+  "mainImageUrl": "https://example.com/image.jpg",
+  "extraImage1": "https://example.com/image2.jpg",
+  "extraImage2": "https://example.com/image3.jpg",
+  "extraImage3": "https://example.com/image4.jpg",
+  "extraImage4": "https://example.com/image5.jpg",
+  "isActive": true,
+  "productImages": [
     {
       "id": 1,
-      "productId": 1,
-      "customerId": 1,
-      "rating": 5,
-      "comment": "Sản phẩm rất tốt!",
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z",
-      "customer": {
-        "id": 1,
-        "email": "customer@example.com",
-        "fullName": "Nguyễn Văn A"
-      },
-      "product": {
-        "id": 1,
-        "name": "iPhone 15 Pro Max"
-      }
+      "url": "https://example.com/image.jpg",
+      "ordinal": 0,
+      "isPrimary": true
     }
-  ]
-  ```
-
-  **cURL Example:**
-  ```bash
-  # Lấy tất cả reviews
-  curl -X GET http://localhost:3000/product-reviews
-
-  # Lấy reviews của một sản phẩm cụ thể
-  curl -X GET "http://localhost:3000/product-reviews?productId=1"
-  ```
-
-  ---
-
-  #### 5.3. Lấy reviews theo product ID
-
-  ```http
-  GET /product-reviews/product/:productId
-  ```
-
-  **Path Parameters:**
-  - `productId` (number): ID của sản phẩm
-
-  **Success Response (200):**
-  ```json
-  [
+  ],
+  "productColors": [
     {
       "id": 1,
-      "productId": 1,
-      "customerId": 1,
+      "colorName": "Đen",
+      "colorHex": "#000000"
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
       "rating": 5,
-      "comment": "Sản phẩm rất tốt!",
+      "comment": "Sản phẩm tuyệt vời!",
       "createdAt": "2024-01-01T00:00:00.000Z",
       "updatedAt": "2024-01-01T00:00:00.000Z",
       "customer": {
@@ -1105,27 +932,188 @@ curl -X GET http://localhost:3000/auth/profile \
         "fullName": "Nguyễn Văn A"
       }
     }
-  ]
-  ```
+  ],
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  **cURL Example:**
-  ```bash
-  curl -X GET http://localhost:3000/product-reviews/product/1
-  ```
+---
 
-  ---
+#### 4.3. Tạo product mới
 
-  #### 5.4. Lấy review theo ID
+```http
+POST /products
+Content-Type: application/json
+```
 
-  ```http
-  GET /product-reviews/:id
-  ```
+**Request Body:**
 
-  **Path Parameters:**
-  - `id` (number): ID của review
+```json
+{
+  "name": "iPhone 15 Pro Max",
+  "categoryId": 1,
+  "shortDescription": "iPhone mới nhất với chip A17 Pro",
+  "description": "iPhone 15 Pro Max với màn hình 6.7 inch, chip A17 Pro mạnh mẽ, camera 48MP và pin lâu dài.",
+  "price": 29990000,
+  "stock": 50,
+  "mainImageUrl": "https://example.com/image.jpg",
+  "extraImage1": "https://example.com/image2.jpg",
+  "extraImage2": "https://example.com/image3.jpg",
+  "extraImage3": "https://example.com/image4.jpg",
+  "extraImage4": "https://example.com/image5.jpg",
+  "isActive": true
+}
+```
 
-  **Success Response (200):**
-  ```json
+**Validation:**
+
+- `name`: Required, string, max 255 characters
+- `categoryId`: Optional, number (must exist in categories table)
+- `shortDescription`: Optional, string
+- `description`: Optional, string
+- `price`: Required, number, > 0
+- `stock`: Optional, number, >= 0 (default: 0)
+- `mainImageUrl`: Required, string (URL)
+- `extraImage1-4`: Optional, string (URL)
+- `isActive`: Optional, boolean (default: true)
+
+**Success Response (201):** (Trả về product đã tạo)
+
+---
+
+#### 4.4. Cập nhật product
+
+```http
+PATCH /products/:id
+Content-Type: application/json
+```
+
+**Request Body:** (Tất cả fields đều optional)
+
+```json
+{
+  "name": "iPhone 15 Pro Max (Updated)",
+  "price": 27990000,
+  "stock": 30
+}
+```
+
+---
+
+#### 4.5. Xóa product
+
+```http
+DELETE /products/:id
+```
+
+**Lưu ý:** Khi xóa product, các order_items liên quan sẽ có `productId` = null (SET NULL).
+
+---
+
+### 5. Product Reviews
+
+API quản lý đánh giá và bình luận sản phẩm. Mỗi khách hàng chỉ được đánh giá một lần cho mỗi sản phẩm.
+
+#### 5.1. Tạo review mới
+
+```http
+POST /product-reviews
+Authorization: Bearer <accessToken>
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "productId": 1,
+  "rating": 5,
+  "comment": "Sản phẩm rất tốt, đáng mua!"
+}
+```
+
+**Validation:**
+
+- `productId`: Required, number (must exist in products table)
+- `rating`: Required, number, must be between 1-5
+- `comment`: Optional, string
+
+**Success Response (201):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "customerId": 1,
+  "rating": 5,
+  "comment": "Sản phẩm rất tốt, đáng mua!",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+- `409 Conflict`: Customer đã review sản phẩm này rồi
+
+```json
+{
+  "statusCode": 409,
+  "message": "You have already reviewed this product. Each customer can only review a product once.",
+  "error": "Conflict"
+}
+```
+
+- `400 Bad Request`: Rating không hợp lệ
+
+```json
+{
+  "statusCode": 400,
+  "message": "Rating must be between 1 and 5 stars",
+  "error": "Bad Request"
+}
+```
+
+- `401 Unauthorized`: Chưa đăng nhập
+
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X POST http://localhost:3000/product-reviews \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": 1,
+    "rating": 5,
+    "comment": "Sản phẩm rất tốt!"
+  }'
+```
+
+---
+
+#### 5.2. Lấy tất cả reviews
+
+```http
+GET /product-reviews
+```
+
+**Query Parameters:**
+
+- `productId` (optional): Filter reviews theo product ID
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "productId": 1,
@@ -1144,647 +1132,761 @@ curl -X GET http://localhost:3000/auth/profile \
       "name": "iPhone 15 Pro Max"
     }
   }
-  ```
+]
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product review with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+**cURL Example:**
 
-  ---
+```bash
+# Lấy tất cả reviews
+curl -X GET http://localhost:3000/product-reviews
 
-  #### 5.5. Cập nhật review
+# Lấy reviews của một sản phẩm cụ thể
+curl -X GET "http://localhost:3000/product-reviews?productId=1"
+```
 
-  ```http
-  PATCH /product-reviews/:id
-  Authorization: Bearer <accessToken>
-  Content-Type: application/json
-  ```
+---
 
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "rating": 4,
-    "comment": "Sản phẩm tốt nhưng giá hơi cao"
-  }
-  ```
+#### 5.3. Lấy reviews theo product ID
 
-  **Validation:**
-  - `rating`: Optional, number, must be between 1-5 (nếu có)
-  - `comment`: Optional, string
+```http
+GET /product-reviews/product/:productId
+```
 
-  **Success Response (200):** (Trả về review đã cập nhật)
+**Path Parameters:**
 
-  **Error Responses:**
-  - `403 Forbidden`: Không phải owner của review
-  ```json
-  {
-    "statusCode": 403,
-    "message": "You can only update your own reviews",
-    "error": "Forbidden"
-  }
-  ```
+- `productId` (number): ID của sản phẩm
 
-  - `400 Bad Request`: Rating không hợp lệ
-  ```json
-  {
-    "statusCode": 400,
-    "message": "Rating must be between 1 and 5 stars",
-    "error": "Bad Request"
-  }
-  ```
+**Success Response (200):**
 
-  **cURL Example:**
-  ```bash
-  curl -X PATCH http://localhost:3000/product-reviews/1 \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "rating": 4,
-      "comment": "Đã cập nhật đánh giá"
-    }'
-  ```
-
-  ---
-
-  #### 5.6. Xóa review
-
-  ```http
-  DELETE /product-reviews/:id
-  Authorization: Bearer <accessToken>
-  ```
-
-  **Path Parameters:**
-  - `id` (number): ID của review
-
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Review deleted successfully"
-  }
-  ```
-
-  **Error Responses:**
-  - `403 Forbidden`: Không phải owner của review
-  ```json
-  {
-    "statusCode": 403,
-    "message": "You can only delete your own reviews",
-    "error": "Forbidden"
-  }
-  ```
-
-  - `404 Not Found`: Review không tồn tại
-
-  **cURL Example:**
-  ```bash
-  curl -X DELETE http://localhost:3000/product-reviews/1 \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-  ```
-
-  **Lưu ý:**
-  - Chỉ có thể update/delete review của chính mình
-  - Mỗi khách hàng chỉ được review một lần cho mỗi sản phẩm (unique constraint)
-  - Rating phải từ 1-5 sao
-  - Reviews được sắp xếp theo thời gian tạo (mới nhất trước)
-
-  ---
-
-  ### 6. Favorites
-
-  API quản lý danh sách yêu thích sản phẩm của khách hàng. Mỗi khách hàng chỉ có thể thêm một sản phẩm vào danh sách yêu thích một lần.
-
-  #### 6.1. Thêm sản phẩm vào danh sách yêu thích
-
-  ```http
-  POST /favorites
-  Authorization: Bearer <accessToken>
-  Content-Type: application/json
-  ```
-
-  **Request Body:**
-  ```json
-  {
-    "productId": 1
-  }
-  ```
-
-  **Validation:**
-  - `productId`: Required, number (must exist in products table)
-
-  **Success Response (201):**
-  ```json
+```json
+[
   {
     "id": 1,
-    "customerId": 1,
     "productId": 1,
+    "customerId": 1,
+    "rating": 5,
+    "comment": "Sản phẩm rất tốt!",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
     "customer": {
       "id": 1,
       "email": "customer@example.com",
       "fullName": "Nguyễn Văn A"
-    },
-    "product": {
-      "id": 1,
-      "name": "iPhone 15 Pro Max",
-      "price": "29990000.00"
     }
   }
-  ```
+]
+```
 
-  **Error Responses:**
-  - `400 Bad Request`: Sản phẩm đã có trong danh sách yêu thích
-  ```json
-  {
-    "statusCode": 400,
-    "message": "Sản phẩm này đã có trong danh sách yêu thích",
-    "error": "Bad Request"
+**cURL Example:**
+
+```bash
+curl -X GET http://localhost:3000/product-reviews/product/1
+```
+
+---
+
+#### 5.4. Lấy review theo ID
+
+```http
+GET /product-reviews/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của review
+
+**Success Response (200):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "customerId": 1,
+  "rating": 5,
+  "comment": "Sản phẩm rất tốt!",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "customer": {
+    "id": 1,
+    "email": "customer@example.com",
+    "fullName": "Nguyễn Văn A"
+  },
+  "product": {
+    "id": 1,
+    "name": "iPhone 15 Pro Max"
   }
-  ```
+}
+```
 
-  - `401 Unauthorized`: Chưa đăng nhập
-  ```json
-  {
-    "statusCode": 401,
-    "message": "Unauthorized",
-    "error": "Unauthorized"
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product review with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 5.5. Cập nhật review
+
+```http
+PATCH /product-reviews/:id
+Authorization: Bearer <accessToken>
+Content-Type: application/json
+```
+
+**Request Body:** (Tất cả fields đều optional)
+
+```json
+{
+  "rating": 4,
+  "comment": "Sản phẩm tốt nhưng giá hơi cao"
+}
+```
+
+**Validation:**
+
+- `rating`: Optional, number, must be between 1-5 (nếu có)
+- `comment`: Optional, string
+
+**Success Response (200):** (Trả về review đã cập nhật)
+
+**Error Responses:**
+
+- `403 Forbidden`: Không phải owner của review
+
+```json
+{
+  "statusCode": 403,
+  "message": "You can only update your own reviews",
+  "error": "Forbidden"
+}
+```
+
+- `400 Bad Request`: Rating không hợp lệ
+
+```json
+{
+  "statusCode": 400,
+  "message": "Rating must be between 1 and 5 stars",
+  "error": "Bad Request"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X PATCH http://localhost:3000/product-reviews/1 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rating": 4,
+    "comment": "Đã cập nhật đánh giá"
+  }'
+```
+
+---
+
+#### 5.6. Xóa review
+
+```http
+DELETE /product-reviews/:id
+Authorization: Bearer <accessToken>
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của review
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Review deleted successfully"
+}
+```
+
+**Error Responses:**
+
+- `403 Forbidden`: Không phải owner của review
+
+```json
+{
+  "statusCode": 403,
+  "message": "You can only delete your own reviews",
+  "error": "Forbidden"
+}
+```
+
+- `404 Not Found`: Review không tồn tại
+
+**cURL Example:**
+
+```bash
+curl -X DELETE http://localhost:3000/product-reviews/1 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Lưu ý:**
+
+- Chỉ có thể update/delete review của chính mình
+- Mỗi khách hàng chỉ được review một lần cho mỗi sản phẩm (unique constraint)
+- Rating phải từ 1-5 sao
+- Reviews được sắp xếp theo thời gian tạo (mới nhất trước)
+
+---
+
+### 6. Favorites
+
+API quản lý danh sách yêu thích sản phẩm của khách hàng. Mỗi khách hàng chỉ có thể thêm một sản phẩm vào danh sách yêu thích một lần.
+
+#### 6.1. Thêm sản phẩm vào danh sách yêu thích
+
+```http
+POST /favorites
+Authorization: Bearer <accessToken>
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "productId": 1
+}
+```
+
+**Validation:**
+
+- `productId`: Required, number (must exist in products table)
+
+**Success Response (201):**
+
+```json
+{
+  "id": 1,
+  "customerId": 1,
+  "productId": 1,
+  "customer": {
+    "id": 1,
+    "email": "customer@example.com",
+    "fullName": "Nguyễn Văn A"
+  },
+  "product": {
+    "id": 1,
+    "name": "iPhone 15 Pro Max",
+    "price": "29990000.00"
   }
-  ```
+}
+```
 
-  **cURL Example:**
-  ```bash
-  curl -X POST http://localhost:3000/favorites \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "productId": 1
-    }'
-  ```
+**Error Responses:**
 
-  ---
+- `400 Bad Request`: Sản phẩm đã có trong danh sách yêu thích
 
-  #### 6.2. Lấy danh sách yêu thích của khách hàng đang đăng nhập
+```json
+{
+  "statusCode": 400,
+  "message": "Sản phẩm này đã có trong danh sách yêu thích",
+  "error": "Bad Request"
+}
+```
 
-  ```http
-  GET /favorites
-  Authorization: Bearer <accessToken>
-  ```
+- `401 Unauthorized`: Chưa đăng nhập
 
-  **Headers:**
-  ```
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-  ```
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "customerId": 1,
-      "productId": 1,
-      "product": {
-        "id": 1,
-        "name": "iPhone 15 Pro Max",
-        "categoryId": 1,
-        "shortDescription": "iPhone mới nhất với chip A17 Pro",
-        "description": "iPhone 15 Pro Max với màn hình 6.7 inch...",
-        "price": "29990000.00",
-        "stock": 50,
-        "mainImageUrl": "https://example.com/image.jpg",
-        "isActive": true,
-        "createdAt": "2024-01-01T00:00:00.000Z",
-        "updatedAt": "2024-01-01T00:00:00.000Z"
-      }
-    },
-    {
-      "id": 2,
-      "customerId": 1,
-      "productId": 2,
-      "product": {
-        "id": 2,
-        "name": "Samsung Galaxy S24 Ultra",
-        "price": "27990000.00",
-        ...
-      }
-    }
-  ]
-  ```
+**cURL Example:**
 
-  **Lưu ý:**
-  - Endpoint này yêu cầu authentication (JWT token)
-  - Chỉ trả về danh sách yêu thích của khách hàng đang đăng nhập
-  - Sản phẩm được sắp xếp theo thời gian thêm vào (mới nhất trước)
-  - Response bao gồm đầy đủ thông tin sản phẩm
+```bash
+curl -X POST http://localhost:3000/favorites \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": 1
+  }'
+```
 
-  **Error Responses:**
-  - `401 Unauthorized`: Invalid or missing token
-  ```json
-  {
-    "statusCode": 401,
-    "message": "Unauthorized",
-    "error": "Unauthorized"
-  }
-  ```
+---
 
-  **cURL Example:**
-  ```bash
-  curl -X GET http://localhost:3000/favorites \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-  ```
+#### 6.2. Lấy danh sách yêu thích của khách hàng đang đăng nhập
 
-  ---
+```http
+GET /favorites
+Authorization: Bearer <accessToken>
+```
 
-  #### 6.3. Xóa sản phẩm khỏi danh sách yêu thích
+**Headers:**
 
-  ```http
-  DELETE /favorites/:id
-  Authorization: Bearer <accessToken>
-  ```
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
 
-  **Path Parameters:**
-  - `id` (number): ID của sản phẩm (productId) cần xóa khỏi danh sách yêu thích
+**Success Response (200):**
 
-  **Success Response (200):**
-  ```json
+```json
+[
   {
     "id": 1,
     "customerId": 1,
-    "productId": 1
-  }
-  ```
-
-  **Lưu ý:**
-  - Endpoint này yêu cầu authentication (JWT token)
-  - Chỉ có thể xóa sản phẩm khỏi danh sách yêu thích của chính mình
-  - Nếu sản phẩm không có trong danh sách yêu thích, endpoint sẽ trả về success mà không có lỗi
-
-  **Error Responses:**
-  - `401 Unauthorized`: Invalid or missing token
-  ```json
-  {
-    "statusCode": 401,
-    "message": "Unauthorized",
-    "error": "Unauthorized"
-  }
-  ```
-
-  **cURL Example:**
-  ```bash
-  curl -X DELETE http://localhost:3000/favorites/1 \
-    -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-  ```
-
-  **Lưu ý tổng quát:**
-  - Tất cả endpoints đều yêu cầu authentication (JWT token)
-  - Mỗi khách hàng chỉ có thể thêm một sản phẩm vào danh sách yêu thích một lần (unique constraint)
-  - Chỉ có thể xem và quản lý danh sách yêu thích của chính mình
-  - Sản phẩm được sắp xếp theo thời gian thêm vào (mới nhất trước)
-
-  ---
-
-  ### 7. Product Images
-
-  #### 7.1. Lấy tất cả product images
-
-  ```http
-  GET /product-images
-  ```
-
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "productId": 1,
-      "product": {
-        "id": 1,
-        "name": "iPhone 15 Pro Max"
-      },
-      "url": "https://example.com/image.jpg",
-      "ordinal": 0,
-      "isPrimary": true,
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
-
-  ---
-
-  #### 7.2. Lấy product image theo ID
-
-  ```http
-  GET /product-images/:id
-  ```
-
-  **Path Parameters:**
-  - `id` (number): ID của product image
-
-  **Success Response (200):**
-  ```json
-  {
-    "id": 1,
     "productId": 1,
     "product": {
       "id": 1,
-      "name": "iPhone 15 Pro Max"
-    },
-    "url": "https://example.com/image.jpg",
-    "ordinal": 0,
-    "isPrimary": true,
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product image with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  #### 7.3. Tạo product image mới
-
-  ```http
-  POST /product-images
-  Content-Type: application/json
-  ```
-
-  **Request Body:**
-  ```json
-  {
-    "productId": 1,
-    "url": "https://example.com/image.jpg",
-    "ordinal": 0,
-    "isPrimary": true
-  }
-  ```
-
-  **Validation:**
-  - `productId`: Required, number (must exist in products table)
-  - `url`: Required, string (URL)
-  - `ordinal`: Optional, number (default: 0)
-  - `isPrimary`: Optional, boolean (default: false)
-
-  **Success Response (201):**
-  ```json
-  {
-    "id": 1,
-    "productId": 1,
-    "url": "https://example.com/image.jpg",
-    "ordinal": 0,
-    "isPrimary": true,
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
-
-  ---
-
-  #### 7.4. Cập nhật product image
-
-  ```http
-  PATCH /product-images/:id
-  Content-Type: application/json
-  ```
-
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "url": "https://example.com/new-image.jpg",
-    "ordinal": 1,
-    "isPrimary": false
-  }
-  ```
-
-  **Success Response (200):** (Trả về product image đã cập nhật)
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product image with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  #### 7.5. Xóa product image
-
-  ```http
-  DELETE /product-images/:id
-  ```
-
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Product image deleted successfully"
-  }
-  ```
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product image with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  ### 8. Product Colors
-
-  #### 8.1. Lấy tất cả product colors
-
-  ```http
-  GET /product-colors
-  ```
-
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "productId": 1,
-      "product": {
-        "id": 1,
-        "name": "iPhone 15 Pro Max"
-      },
-      "colorName": "Đen",
-      "colorHex": "#000000",
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
-
-  ---
-
-  #### 8.2. Lấy product color theo ID
-
-  ```http
-  GET /product-colors/:id
-  ```
-
-  **Path Parameters:**
-  - `id` (number): ID của product color
-
-  **Success Response (200):**
-  ```json
-  {
-    "id": 1,
-    "productId": 1,
-    "product": {
-      "id": 1,
-      "name": "iPhone 15 Pro Max"
-    },
-    "colorName": "Đen",
-    "colorHex": "#000000",
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product color with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  #### 8.3. Tạo product color mới
-
-  ```http
-  POST /product-colors
-  Content-Type: application/json
-  ```
-
-  **Request Body:**
-  ```json
-  {
-    "productId": 1,
-    "colorName": "Đen",
-    "colorHex": "#000000"
-  }
-  ```
-
-  **Validation:**
-  - `productId`: Required, number (must exist in products table)
-  - `colorName`: Required, string, max 50 characters
-  - `colorHex`: Optional, string, format: #RRGGBB (7 characters)
-
-  **Success Response (201):**
-  ```json
-  {
-    "id": 1,
-    "productId": 1,
-    "colorName": "Đen",
-    "colorHex": "#000000",
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
-
-  ---
-
-  #### 8.4. Cập nhật product color
-
-  ```http
-  PATCH /product-colors/:id
-  Content-Type: application/json
-  ```
-
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "colorName": "Trắng",
-    "colorHex": "#FFFFFF"
-  }
-  ```
-
-  **Success Response (200):** (Trả về product color đã cập nhật)
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product color with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  #### 8.5. Xóa product color
-
-  ```http
-  DELETE /product-colors/:id
-  ```
-
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Product color deleted successfully"
-  }
-  ```
-
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Product color with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  ### 9. Attribute Definitions
-
-  #### 9.1. Lấy tất cả attribute definitions
-
-  ```http
-  GET /attribute-defs
-  ```
-
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "name": "RAM",
+      "name": "iPhone 15 Pro Max",
       "categoryId": 1,
-      "category": {
-        "id": 1,
-        "name": "Điện thoại"
-      },
-      "value": "8GB, 12GB, 16GB",
-      "createdAt": "2024-01-01T00:00:00.000Z"
+      "shortDescription": "iPhone mới nhất với chip A17 Pro",
+      "description": "iPhone 15 Pro Max với màn hình 6.7 inch...",
+      "price": "29990000.00",
+      "stock": 50,
+      "mainImageUrl": "https://example.com/image.jpg",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
     }
-  ]
-  ```
+  },
+  {
+    "id": 2,
+    "customerId": 1,
+    "productId": 2,
+    "product": {
+      "id": 2,
+      "name": "Samsung Galaxy S24 Ultra",
+      "price": "27990000.00",
+      ...
+    }
+  }
+]
+```
 
-  ---
+**Lưu ý:**
 
-  #### 9.2. Lấy attribute definition theo ID
+- Endpoint này yêu cầu authentication (JWT token)
+- Chỉ trả về danh sách yêu thích của khách hàng đang đăng nhập
+- Sản phẩm được sắp xếp theo thời gian thêm vào (mới nhất trước)
+- Response bao gồm đầy đủ thông tin sản phẩm
 
-  ```http
-  GET /attribute-defs/:id
-  ```
+**Error Responses:**
 
-  **Path Parameters:**
-  - `id` (number): ID của attribute definition
+- `401 Unauthorized`: Invalid or missing token
 
-  **Success Response (200):**
-  ```json
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X GET http://localhost:3000/favorites \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+---
+
+#### 6.3. Xóa sản phẩm khỏi danh sách yêu thích
+
+```http
+DELETE /favorites/:id
+Authorization: Bearer <accessToken>
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của sản phẩm (productId) cần xóa khỏi danh sách yêu thích
+
+**Success Response (200):**
+
+```json
+{
+  "id": 1,
+  "customerId": 1,
+  "productId": 1
+}
+```
+
+**Lưu ý:**
+
+- Endpoint này yêu cầu authentication (JWT token)
+- Chỉ có thể xóa sản phẩm khỏi danh sách yêu thích của chính mình
+- Nếu sản phẩm không có trong danh sách yêu thích, endpoint sẽ trả về success mà không có lỗi
+
+**Error Responses:**
+
+- `401 Unauthorized`: Invalid or missing token
+
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized",
+  "error": "Unauthorized"
+}
+```
+
+**cURL Example:**
+
+```bash
+curl -X DELETE http://localhost:3000/favorites/1 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Lưu ý tổng quát:**
+
+- Tất cả endpoints đều yêu cầu authentication (JWT token)
+- Mỗi khách hàng chỉ có thể thêm một sản phẩm vào danh sách yêu thích một lần (unique constraint)
+- Chỉ có thể xem và quản lý danh sách yêu thích của chính mình
+- Sản phẩm được sắp xếp theo thời gian thêm vào (mới nhất trước)
+
+---
+
+### 7. Product Images
+
+#### 7.1. Lấy tất cả product images
+
+```http
+GET /product-images
+```
+
+**Success Response (200):**
+
+```json
+[
+  {
+    "id": 1,
+    "productId": 1,
+    "product": {
+      "id": 1,
+      "name": "iPhone 15 Pro Max"
+    },
+    "url": "https://example.com/image.jpg",
+    "ordinal": 0,
+    "isPrimary": true,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+---
+
+#### 7.2. Lấy product image theo ID
+
+```http
+GET /product-images/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của product image
+
+**Success Response (200):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "product": {
+    "id": 1,
+    "name": "iPhone 15 Pro Max"
+  },
+  "url": "https://example.com/image.jpg",
+  "ordinal": 0,
+  "isPrimary": true,
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product image with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 7.3. Tạo product image mới
+
+```http
+POST /product-images
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "productId": 1,
+  "url": "https://example.com/image.jpg",
+  "ordinal": 0,
+  "isPrimary": true
+}
+```
+
+**Validation:**
+
+- `productId`: Required, number (must exist in products table)
+- `url`: Required, string (URL)
+- `ordinal`: Optional, number (default: 0)
+- `isPrimary`: Optional, boolean (default: false)
+
+**Success Response (201):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "url": "https://example.com/image.jpg",
+  "ordinal": 0,
+  "isPrimary": true,
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+#### 7.4. Cập nhật product image
+
+```http
+PATCH /product-images/:id
+Content-Type: application/json
+```
+
+**Request Body:** (Tất cả fields đều optional)
+
+```json
+{
+  "url": "https://example.com/new-image.jpg",
+  "ordinal": 1,
+  "isPrimary": false
+}
+```
+
+**Success Response (200):** (Trả về product image đã cập nhật)
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product image with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 7.5. Xóa product image
+
+```http
+DELETE /product-images/:id
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Product image deleted successfully"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product image with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+### 8. Product Colors
+
+#### 8.1. Lấy tất cả product colors
+
+```http
+GET /product-colors
+```
+
+**Success Response (200):**
+
+```json
+[
+  {
+    "id": 1,
+    "productId": 1,
+    "product": {
+      "id": 1,
+      "name": "iPhone 15 Pro Max"
+    },
+    "colorName": "Đen",
+    "colorHex": "#000000",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+---
+
+#### 8.2. Lấy product color theo ID
+
+```http
+GET /product-colors/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của product color
+
+**Success Response (200):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "product": {
+    "id": 1,
+    "name": "iPhone 15 Pro Max"
+  },
+  "colorName": "Đen",
+  "colorHex": "#000000",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product color with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 8.3. Tạo product color mới
+
+```http
+POST /product-colors
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "productId": 1,
+  "colorName": "Đen",
+  "colorHex": "#000000"
+}
+```
+
+**Validation:**
+
+- `productId`: Required, number (must exist in products table)
+- `colorName`: Required, string, max 50 characters
+- `colorHex`: Optional, string, format: #RRGGBB (7 characters)
+
+**Success Response (201):**
+
+```json
+{
+  "id": 1,
+  "productId": 1,
+  "colorName": "Đen",
+  "colorHex": "#000000",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+---
+
+#### 8.4. Cập nhật product color
+
+```http
+PATCH /product-colors/:id
+Content-Type: application/json
+```
+
+**Request Body:** (Tất cả fields đều optional)
+
+```json
+{
+  "colorName": "Trắng",
+  "colorHex": "#FFFFFF"
+}
+```
+
+**Success Response (200):** (Trả về product color đã cập nhật)
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product color with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 8.5. Xóa product color
+
+```http
+DELETE /product-colors/:id
+```
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Product color deleted successfully"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Product color with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+### 9. Attribute Definitions
+
+#### 9.1. Lấy tất cả attribute definitions
+
+```http
+GET /attribute-defs
+```
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "name": "RAM",
@@ -1796,339 +1898,335 @@ curl -X GET http://localhost:3000/auth/profile \
     "value": "8GB, 12GB, 16GB",
     "createdAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Attribute definition with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+---
 
-  ---
+#### 9.2. Lấy attribute definition theo ID
 
-  #### 9.3. Tạo attribute definition mới
+```http
+GET /attribute-defs/:id
+```
 
-  ```http
-  POST /attribute-defs
-  Content-Type: application/json
-  ```
+**Path Parameters:**
 
-  **Request Body:**
-  ```json
-  {
-    "name": "RAM",
-    "categoryId": 1,
-    "value": "8GB, 12GB, 16GB"
-  }
-  ```
+- `id` (number): ID của attribute definition
 
-  **Validation:**
-  - `name`: Required, string, max 150 characters
-  - `categoryId`: Optional, number (must exist in categories table)
-  - `value`: Optional, string
+**Success Response (200):**
 
-  **Success Response (201):**
-  ```json
-  {
+```json
+{
+  "id": 1,
+  "name": "RAM",
+  "categoryId": 1,
+  "category": {
     "id": 1,
-    "name": "RAM",
-    "categoryId": 1,
-    "value": "8GB, 12GB, 16GB",
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
+    "name": "Điện thoại"
+  },
+  "value": "8GB, 12GB, 16GB",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  ---
+**Error Response (404):**
 
-  #### 9.4. Cập nhật attribute definition
+```json
+{
+  "statusCode": 404,
+  "message": "Attribute definition with ID 999 not found",
+  "error": "Not Found"
+}
+```
 
-  ```http
-  PATCH /attribute-defs/:id
-  Content-Type: application/json
-  ```
+---
 
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "name": "Bộ nhớ RAM",
-    "value": "8GB, 12GB, 16GB, 32GB"
-  }
-  ```
+#### 9.3. Tạo attribute definition mới
 
-  **Success Response (200):** (Trả về attribute definition đã cập nhật)
+```http
+POST /attribute-defs
+Content-Type: application/json
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Attribute definition with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+**Request Body:**
 
-  ---
+```json
+{
+  "name": "RAM",
+  "categoryId": 1,
+  "value": "8GB, 12GB, 16GB"
+}
+```
 
-  #### 9.5. Xóa attribute definition
+**Validation:**
 
-  ```http
-  DELETE /attribute-defs/:id
-  ```
+- `name`: Required, string, max 150 characters
+- `categoryId`: Optional, number (must exist in categories table)
+- `value`: Optional, string
 
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Attribute definition deleted successfully"
-  }
-  ```
+**Success Response (201):**
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Attribute definition with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+```json
+{
+  "id": 1,
+  "name": "RAM",
+  "categoryId": 1,
+  "value": "8GB, 12GB, 16GB",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  ---
+---
 
-  ### 10. Customers
+#### 9.4. Cập nhật attribute definition
 
-  #### 10.1. Lấy tất cả customers
+```http
+PATCH /attribute-defs/:id
+Content-Type: application/json
+```
 
-  ```http
-  GET /customers
-  ```
+**Request Body:** (Tất cả fields đều optional)
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "email": "customer@example.com",
-      "fullName": "Nguyễn Văn A",
-      "isActive": true,
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
+```json
+{
+  "name": "Bộ nhớ RAM",
+  "value": "8GB, 12GB, 16GB, 32GB"
+}
+```
 
-  **Lưu ý:** Endpoint này không trả về `passwordHash` vì lý do bảo mật.
+**Success Response (200):** (Trả về attribute definition đã cập nhật)
 
-  ---
+**Error Response (404):**
 
-  #### 10.2. Lấy customer theo ID
+```json
+{
+  "statusCode": 404,
+  "message": "Attribute definition with ID 999 not found",
+  "error": "Not Found"
+}
+```
 
-  ```http
-  GET /customers/:id
-  ```
+---
 
-  **Path Parameters:**
-  - `id` (number): ID của customer
+#### 9.5. Xóa attribute definition
 
-  **Success Response (200):**
-  ```json
-  {
-    "id": 1,
-    "email": "customer@example.com",
-    "fullName": "Nguyễn Văn A",
-    "isActive": true,
-    "role": "CUSTOMER",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-  ```
+```http
+DELETE /attribute-defs/:id
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Customer with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+**Success Response (200):**
 
-  ---
+```json
+{
+  "message": "Attribute definition deleted successfully"
+}
+```
 
-  #### 10.3. Tạo customer mới
+**Error Response (404):**
 
-  ```http
-  POST /customers
-  Content-Type: application/json
-  ```
+```json
+{
+  "statusCode": 404,
+  "message": "Attribute definition with ID 999 not found",
+  "error": "Not Found"
+}
+```
 
-  **Request Body:**
-  ```json
-  {
-    "email": "customer@example.com",
-    "passwordHash": "$2b$10$hashedpassword...",
-    "fullName": "Nguyễn Văn A",
-    "isActive": true
-  }
-  ```
+---
 
-  **Validation:**
-  - `email`: Required, string, valid email format, unique
-  - `passwordHash`: Required, string (hashed password)
-  - `fullName`: Optional, string, max 255 characters
-  - `isActive`: Optional, boolean (default: true)
-  - `role`: Optional, enum (CUSTOMER/ADMIN, default: CUSTOMER)
+### 10. Customers
 
-  **⚠️ Lưu ý:** Nên sử dụng `/auth/register` để tạo customer mới thay vì endpoint này, vì nó sẽ tự động hash password.
+#### 10.1. Lấy tất cả customers
 
-  **Success Response (201):**
-  ```json
+```http
+GET /customers
+```
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "email": "customer@example.com",
     "fullName": "Nguyễn Văn A",
     "isActive": true,
-    "role": "CUSTOMER",
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Error Responses:**
-  - `409 Conflict`: Email already exists
-  ```json
-  {
-    "statusCode": 409,
-    "message": "Email already exists",
-    "error": "Conflict"
-  }
-  ```
+**Lưu ý:** Endpoint này không trả về `passwordHash` vì lý do bảo mật.
 
-  ---
+---
 
-  #### 10.4. Cập nhật customer
+#### 10.2. Lấy customer theo ID
 
-  ```http
-  PATCH /customers/:id
-  Content-Type: application/json
-  ```
+```http
+GET /customers/:id
+```
 
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
-  {
-    "fullName": "Nguyễn Văn B",
-    "isActive": false
-  }
-  ```
+**Path Parameters:**
 
-  **Success Response (200):** (Trả về customer đã cập nhật)
+- `id` (number): ID của customer
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Customer with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+**Success Response (200):**
 
-  ---
+```json
+{
+  "id": 1,
+  "email": "customer@example.com",
+  "fullName": "Nguyễn Văn A",
+  "isActive": true,
+  "role": "CUSTOMER",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  #### 10.5. Xóa customer
+**Error Response (404):**
 
-  ```http
-  DELETE /customers/:id
-  ```
+```json
+{
+  "statusCode": 404,
+  "message": "Customer with ID 999 not found",
+  "error": "Not Found"
+}
+```
 
-  **Path Parameters:**
-  - `id` (number): ID của customer
+---
 
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Customer deleted successfully"
-  }
-  ```
+#### 10.3. Tạo customer mới
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Customer with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+```http
+POST /customers
+Content-Type: application/json
+```
 
-  **Lưu ý:** Khi xóa customer, các orders liên quan sẽ có `customerId` = null (SET NULL).
+**Request Body:**
 
-  ---
+```json
+{
+  "email": "customer@example.com",
+  "passwordHash": "$2b$10$hashedpassword...",
+  "fullName": "Nguyễn Văn A",
+  "isActive": true
+}
+```
 
-  ### 11. Customer Addresses
+**Validation:**
 
-  #### 11.1. Lấy tất cả customer addresses
+- `email`: Required, string, valid email format, unique
+- `passwordHash`: Required, string (hashed password)
+- `fullName`: Optional, string, max 255 characters
+- `isActive`: Optional, boolean (default: true)
+- `role`: Optional, enum (CUSTOMER/ADMIN, default: CUSTOMER)
 
-  ```http
-  GET /customer-addresses
-  ```
+**⚠️ Lưu ý:** Nên sử dụng `/auth/register` để tạo customer mới thay vì endpoint này, vì nó sẽ tự động hash password.
 
-  **Success Response (200):**
-  ```json
-  [
-    {
-      "id": 1,
-      "customerId": 1,
-      "customer": {
-        "id": 1,
-        "email": "customer@example.com"
-      },
-      "receiverName": "Nguyễn Văn A",
-      "phone": "0123456789",
-      "address": "123 Đường ABC, Quận XYZ, TP.HCM",
-      "isDefault": true,
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ]
-  ```
+**Success Response (201):**
 
-  ---
+```json
+{
+  "id": 1,
+  "email": "customer@example.com",
+  "fullName": "Nguyễn Văn A",
+  "isActive": true,
+  "role": "CUSTOMER",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
-  #### 11.2. Tạo customer address mới
+**Error Responses:**
 
-  ```http
-  POST /customer-addresses
-  Content-Type: application/json
-  ```
+- `409 Conflict`: Email already exists
 
-  **Request Body:**
-  ```json
-  {
-    "customerId": 1,
-    "receiverName": "Nguyễn Văn A",
-    "phone": "0123456789",
-    "address": "123 Đường ABC, Quận XYZ, TP.HCM",
-    "isDefault": true
-  }
-  ```
+```json
+{
+  "statusCode": 409,
+  "message": "Email already exists",
+  "error": "Conflict"
+}
+```
 
-  **Validation:**
-  - `customerId`: Required, number (must exist in customers table)
-  - `receiverName`: Optional, string, max 255 characters
-  - `phone`: Optional, string, max 50 characters
-  - `address`: Required, string
-  - `isDefault`: Optional, boolean (default: false)
+---
 
-  ---
+#### 10.4. Cập nhật customer
 
-  #### 11.3. Lấy customer address theo ID
+```http
+PATCH /customers/:id
+Content-Type: application/json
+```
 
-  ```http
-  GET /customer-addresses/:id
-  ```
+**Request Body:** (Tất cả fields đều optional)
 
-  **Path Parameters:**
-  - `id` (number): ID của customer address
+```json
+{
+  "fullName": "Nguyễn Văn B",
+  "isActive": false
+}
+```
 
-  **Success Response (200):**
-  ```json
+**Success Response (200):** (Trả về customer đã cập nhật)
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Customer with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 10.5. Xóa customer
+
+```http
+DELETE /customers/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của customer
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Customer deleted successfully"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Customer with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+**Lưu ý:** Khi xóa customer, các orders liên quan sẽ có `customerId` = null (SET NULL).
+
+---
+
+### 11. Customer Addresses
+
+#### 11.1. Lấy tất cả customer addresses
+
+```http
+GET /customer-addresses
+```
+
+**Success Response (200):**
+
+```json
+[
   {
     "id": 1,
     "customerId": 1,
@@ -2142,123 +2240,192 @@ curl -X GET http://localhost:3000/auth/profile \
     "isDefault": true,
     "createdAt": "2024-01-01T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Error Response (404):**
-  ```json
+---
+
+#### 11.2. Tạo customer address mới
+
+```http
+POST /customer-addresses
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "customerId": 1,
+  "receiverName": "Nguyễn Văn A",
+  "phone": "0123456789",
+  "address": "123 Đường ABC, Quận XYZ, TP.HCM",
+  "isDefault": true
+}
+```
+
+**Validation:**
+
+- `customerId`: Required, number (must exist in customers table)
+- `receiverName`: Optional, string, max 255 characters
+- `phone`: Optional, string, max 50 characters
+- `address`: Required, string
+- `isDefault`: Optional, boolean (default: false)
+
+---
+
+#### 11.3. Lấy customer address theo ID
+
+```http
+GET /customer-addresses/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của customer address
+
+**Success Response (200):**
+
+```json
+{
+  "id": 1,
+  "customerId": 1,
+  "customer": {
+    "id": 1,
+    "email": "customer@example.com"
+  },
+  "receiverName": "Nguyễn Văn A",
+  "phone": "0123456789",
+  "address": "123 Đường ABC, Quận XYZ, TP.HCM",
+  "isDefault": true,
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Customer address with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 11.4. Lấy customer addresses theo customer ID
+
+```http
+GET /customer-addresses/customer/:customerId
+```
+
+**Path Parameters:**
+
+- `customerId` (number): ID của customer
+
+**Success Response (200):**
+
+```json
+[
   {
-    "statusCode": 404,
-    "message": "Customer address with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
-
-  ---
-
-  #### 11.4. Lấy customer addresses theo customer ID
-
-  ```http
-  GET /customer-addresses/customer/:customerId
-  ```
-
-  **Path Parameters:**
-  - `customerId` (number): ID của customer
-
-  **Success Response (200):**
-  ```json
-  [
-    {
+    "id": 1,
+    "customerId": 1,
+    "customer": {
       "id": 1,
-      "customerId": 1,
-      "customer": {
-        "id": 1,
-        "email": "customer@example.com"
-      },
-      "receiverName": "Nguyễn Văn A",
-      "phone": "0123456789",
-      "address": "123 Đường ABC, Quận XYZ, TP.HCM",
-      "isDefault": true,
-      "createdAt": "2024-01-01T00:00:00.000Z"
+      "email": "customer@example.com"
     },
-    {
-      "id": 2,
-      "customerId": 1,
-      "customer": {
-        "id": 1,
-        "email": "customer@example.com"
-      },
-      "receiverName": "Nguyễn Văn B",
-      "phone": "0987654321",
-      "address": "456 Đường XYZ, Quận ABC, TP.HCM",
-      "isDefault": false,
-      "createdAt": "2024-01-02T00:00:00.000Z"
-    }
-  ]
-  ```
-
-  **cURL Example:**
-  ```bash
-  curl -X GET http://localhost:3000/customer-addresses/customer/1
-  ```
-
-  ---
-
-  #### 11.5. Cập nhật customer address
-
-  ```http
-  PATCH /customer-addresses/:id
-  Content-Type: application/json
-  ```
-
-  **Request Body:** (Tất cả fields đều optional)
-  ```json
+    "receiverName": "Nguyễn Văn A",
+    "phone": "0123456789",
+    "address": "123 Đường ABC, Quận XYZ, TP.HCM",
+    "isDefault": true,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
   {
-    "receiverName": "Nguyễn Văn C",
+    "id": 2,
+    "customerId": 1,
+    "customer": {
+      "id": 1,
+      "email": "customer@example.com"
+    },
+    "receiverName": "Nguyễn Văn B",
     "phone": "0987654321",
-    "address": "789 Đường MNO, Quận DEF, TP.HCM",
-    "isDefault": false
+    "address": "456 Đường XYZ, Quận ABC, TP.HCM",
+    "isDefault": false,
+    "createdAt": "2024-01-02T00:00:00.000Z"
   }
-  ```
+]
+```
 
-  **Success Response (200):** (Trả về customer address đã cập nhật)
+**cURL Example:**
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Customer address with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+```bash
+curl -X GET http://localhost:3000/customer-addresses/customer/1
+```
 
-  ---
+---
 
-  #### 11.6. Xóa customer address
+#### 11.5. Cập nhật customer address
 
-  ```http
-  DELETE /customer-addresses/:id
-  ```
+```http
+PATCH /customer-addresses/:id
+Content-Type: application/json
+```
 
-  **Path Parameters:**
-  - `id` (number): ID của customer address
+**Request Body:** (Tất cả fields đều optional)
 
-  **Success Response (200):**
-  ```json
-  {
-    "message": "Customer address deleted successfully"
-  }
-  ```
+```json
+{
+  "receiverName": "Nguyễn Văn C",
+  "phone": "0987654321",
+  "address": "789 Đường MNO, Quận DEF, TP.HCM",
+  "isDefault": false
+}
+```
 
-  **Error Response (404):**
-  ```json
-  {
-    "statusCode": 404,
-    "message": "Customer address with ID 999 not found",
-    "error": "Not Found"
-  }
-  ```
+**Success Response (200):** (Trả về customer address đã cập nhật)
 
-  ---
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Customer address with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
+
+#### 11.6. Xóa customer address
+
+```http
+DELETE /customer-addresses/:id
+```
+
+**Path Parameters:**
+
+- `id` (number): ID của customer address
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Customer address deleted successfully"
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Customer address with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+---
 
 ### 12. Orders
 
@@ -2269,6 +2436,7 @@ GET /orders
 ```
 
 **Success Response (200):**
+
 ```json
 [
   {
@@ -2315,9 +2483,11 @@ GET /orders/:id
 ```
 
 **Path Parameters:**
+
 - `id` (number): ID của order
 
 **Success Response (200):**
+
 ```json
 {
   "id": 1,
@@ -2359,6 +2529,7 @@ GET /orders/:id
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2377,11 +2548,13 @@ Authorization: Bearer <accessToken>
 ```
 
 **Headers:**
+
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Success Response (200):**
+
 ```json
 [
   {
@@ -2425,13 +2598,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Lưu ý:**
+
 - Endpoint này yêu cầu authentication (JWT token)
 - Chỉ trả về các đơn hàng của khách hàng đang đăng nhập
 - Đơn hàng được sắp xếp theo thời gian tạo mới nhất (DESC)
 - Bao gồm đầy đủ thông tin: customer, address, orderItems và orderItems.product
 
 **Error Responses:**
+
 - `401 Unauthorized`: Invalid or missing token
+
 ```json
 {
   "statusCode": 401,
@@ -2440,6 +2616,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X GET http://localhost:3000/orders/my-orders \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
@@ -2455,6 +2632,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "orderNo": "ORD-2024-001",
@@ -2468,6 +2646,7 @@ Content-Type: application/json
 ```
 
 **Validation:**
+
 - `orderNo`: Required, string, max 50 characters, unique
 - `customerId`: Optional, number (must exist in customers table)
 - `addressId`: Required, number (must exist in customer_addresses table)
@@ -2478,6 +2657,7 @@ Content-Type: application/json
 - `note`: Optional, string
 
 **Success Response (201):**
+
 ```json
 {
   "id": 1,
@@ -2494,7 +2674,9 @@ Content-Type: application/json
 ```
 
 **Error Responses:**
+
 - `409 Conflict`: Order number already exists
+
 ```json
 {
   "statusCode": 409,
@@ -2504,6 +2686,7 @@ Content-Type: application/json
 ```
 
 - `400 Bad Request`: Invalid address ID
+
 ```json
 {
   "statusCode": 400,
@@ -2522,6 +2705,7 @@ Content-Type: application/json
 ```
 
 **Request Body:** (Tất cả fields đều optional)
+
 ```json
 {
   "status": "shipped",
@@ -2532,6 +2716,7 @@ Content-Type: application/json
 **Success Response (200):** (Trả về order đã cập nhật)
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2541,6 +2726,7 @@ Content-Type: application/json
 ```
 
 **Workflow thông thường:**
+
 1. `pending` → `shipped` → `completed`
 2. `pending` → `cancelled`
 
@@ -2553,9 +2739,11 @@ DELETE /orders/:id
 ```
 
 **Path Parameters:**
+
 - `id` (number): ID của order
 
 **Success Response (200):**
+
 ```json
 {
   "message": "Order deleted successfully"
@@ -2563,6 +2751,7 @@ DELETE /orders/:id
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2584,6 +2773,7 @@ GET /order-items
 ```
 
 **Success Response (200):**
+
 ```json
 [
   {
@@ -2616,9 +2806,11 @@ GET /order-items/:id
 ```
 
 **Path Parameters:**
+
 - `id` (number): ID của order item
 
 **Success Response (200):**
+
 ```json
 {
   "id": 1,
@@ -2641,6 +2833,7 @@ GET /order-items/:id
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2659,6 +2852,7 @@ Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "orderId": 1,
@@ -2670,6 +2864,7 @@ Content-Type: application/json
 ```
 
 **Validation:**
+
 - `orderId`: Required, number (must exist in orders table)
 - `productId`: Required, number (must exist in products table)
 - `colorId`: Optional, string, max 150 characters
@@ -2677,6 +2872,7 @@ Content-Type: application/json
 - `quantity`: Optional, number, > 0 (default: 1)
 
 **Success Response (201):**
+
 ```json
 {
   "id": 1,
@@ -2690,7 +2886,9 @@ Content-Type: application/json
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Order not found
+
 ```json
 {
   "statusCode": 400,
@@ -2700,6 +2898,7 @@ Content-Type: application/json
 ```
 
 - `400 Bad Request`: Product not found
+
 ```json
 {
   "statusCode": 400,
@@ -2720,6 +2919,7 @@ Content-Type: application/json
 ```
 
 **Request Body:** (Tất cả fields đều optional)
+
 ```json
 {
   "quantity": 2,
@@ -2730,6 +2930,7 @@ Content-Type: application/json
 **Success Response (200):** (Trả về order item đã cập nhật)
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2747,9 +2948,11 @@ DELETE /order-items/:id
 ```
 
 **Path Parameters:**
+
 - `id` (number): ID của order item
 
 **Success Response (200):**
+
 ```json
 {
   "message": "Order item deleted successfully"
@@ -2757,6 +2960,7 @@ DELETE /order-items/:id
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -2779,14 +2983,17 @@ Content-Type: multipart/form-data
 ```
 
 **Request:**
+
 - Form data với key `image` (file)
 
 **File Requirements:**
+
 - **Allowed types:** JPEG, JPG, PNG, GIF, WebP
 - **Max size:** 10MB
 - **Field name:** `image`
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -2829,7 +3036,9 @@ Content-Type: multipart/form-data
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: No file provided
+
 ```json
 {
   "statusCode": 400,
@@ -2839,6 +3048,7 @@ Content-Type: multipart/form-data
 ```
 
 - `400 Bad Request`: Invalid file type
+
 ```json
 {
   "statusCode": 400,
@@ -2848,6 +3058,7 @@ Content-Type: multipart/form-data
 ```
 
 - `400 Bad Request`: File too large
+
 ```json
 {
   "statusCode": 400,
@@ -2857,19 +3068,21 @@ Content-Type: multipart/form-data
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/upload/image \
   -F "image=@/path/to/image.jpg"
 ```
 
 **JavaScript/Fetch Example:**
+
 ```javascript
 const formData = new FormData();
 formData.append('image', fileInput.files[0]);
 
 const response = await fetch('http://localhost:3000/upload/image', {
   method: 'POST',
-  body: formData
+  body: formData,
 });
 
 const data = await response.json();
@@ -2886,10 +3099,12 @@ Content-Type: multipart/form-data
 ```
 
 **Request:**
+
 - Form data với key `images` (multiple files)
 - **Max files:** 10 files per request
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -2911,7 +3126,9 @@ Content-Type: multipart/form-data
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: No files provided
+
 ```json
 {
   "statusCode": 400,
@@ -2921,6 +3138,7 @@ Content-Type: multipart/form-data
 ```
 
 **cURL Example:**
+
 ```bash
 curl -X POST http://localhost:3000/upload/images \
   -F "images=@/path/to/image1.jpg" \
@@ -2929,29 +3147,32 @@ curl -X POST http://localhost:3000/upload/images \
 ```
 
 **JavaScript/Fetch Example:**
+
 ```javascript
 const formData = new FormData();
-fileInput.files.forEach(file => {
+fileInput.files.forEach((file) => {
   formData.append('images', file);
 });
 
 const response = await fetch('http://localhost:3000/upload/images', {
   method: 'POST',
-  body: formData
+  body: formData,
 });
 
 const data = await response.json();
-data.images.forEach(img => {
+data.images.forEach((img) => {
   console.log('Image URL:', img.url);
 });
 ```
 
 **Lưu ý:**
+
 - Tất cả các file phải đáp ứng yêu cầu về type và size như upload một ảnh
 - Nếu một file không hợp lệ, toàn bộ request sẽ bị từ chối
 - URL trả về từ ImgBB có thể sử dụng trực tiếp trong các API khác (products, banners, categories, etc.)
 
 **Cách lấy ImgBB API Key:**
+
 1. Truy cập [https://imgbb.com/](https://imgbb.com/)
 2. Đăng ký/Đăng nhập tài khoản
 3. Vào phần **API** trong dashboard
@@ -2966,15 +3187,15 @@ data.images.forEach(img => {
 
 ### Common Validations
 
-| Field Type | Rules |
-|------------|-------|
-| Email | Required, valid email format, unique |
-| Password | Required, min 6 characters |
-| String | Max length varies by field |
-| Number | Must be valid number, >= 0 for prices/quantities |
-| Boolean | true/false |
-| URL | Valid URL format |
-| Date | ISO 8601 format |
+| Field Type | Rules                                            |
+| ---------- | ------------------------------------------------ |
+| Email      | Required, valid email format, unique             |
+| Password   | Required, min 6 characters                       |
+| String     | Max length varies by field                       |
+| Number     | Must be valid number, >= 0 for prices/quantities |
+| Boolean    | true/false                                       |
+| URL        | Valid URL format                                 |
+| Date       | ISO 8601 format                                  |
 
 ### Order Status Values
 
@@ -2999,19 +3220,20 @@ data.images.forEach(img => {
 
 ### Common HTTP Status Codes
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request data |
-| 401 | Unauthorized | Missing or invalid authentication |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Resource already exists (e.g., duplicate email) |
-| 500 | Internal Server Error | Server error |
+| Code | Meaning               | Description                                     |
+| ---- | --------------------- | ----------------------------------------------- |
+| 200  | OK                    | Request successful                              |
+| 201  | Created               | Resource created successfully                   |
+| 400  | Bad Request           | Invalid request data                            |
+| 401  | Unauthorized          | Missing or invalid authentication               |
+| 404  | Not Found             | Resource not found                              |
+| 409  | Conflict              | Resource already exists (e.g., duplicate email) |
+| 500  | Internal Server Error | Server error                                    |
 
 ### Example Error Responses
 
 **Validation Error (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -3024,6 +3246,7 @@ data.images.forEach(img => {
 ```
 
 **Not Found (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -3033,6 +3256,7 @@ data.images.forEach(img => {
 ```
 
 **Conflict (409):**
+
 ```json
 {
   "statusCode": 409,
@@ -3182,6 +3406,7 @@ JWT_EXPIRES_IN=7d
 **Lỗi:** `ER_ACCESS_DENIED_ERROR` hoặc `ECONNREFUSED`
 
 **Giải pháp:**
+
 1. Kiểm tra MySQL đang chạy: `mysql -u root -p`
 2. Kiểm tra thông tin trong `.env` file
 3. Kiểm tra firewall và network
@@ -3192,6 +3417,7 @@ JWT_EXPIRES_IN=7d
 **Lỗi:** `Unauthorized` khi gọi protected endpoints
 
 **Giải pháp:**
+
 1. Kiểm tra token có trong header: `Authorization: Bearer <token>`
 2. Kiểm tra token chưa hết hạn
 3. Kiểm tra `JWT_SECRET` trong `.env` khớp với khi tạo token
@@ -3201,6 +3427,7 @@ JWT_EXPIRES_IN=7d
 **Lỗi:** `Cannot add or update a child row: a foreign key constraint fails`
 
 **Giải pháp:**
+
 1. Đảm bảo các bảng cha đã tồn tại (categories trước products)
 2. Kiểm tra ID có tồn tại trong bảng cha
 3. Kiểm tra kiểu dữ liệu khớp (BIGINT)
@@ -3210,6 +3437,7 @@ JWT_EXPIRES_IN=7d
 **Lỗi:** `EADDRINUSE: address already in use :::3000`
 
 **Giải pháp:**
+
 ```bash
 # Tìm process đang dùng port 3000
 lsof -ti:3000
@@ -3226,6 +3454,7 @@ PORT=3001
 **Lỗi:** Schema không được tạo tự động
 
 **Giải pháp:**
+
 1. Kiểm tra `synchronize: true` trong development
 2. Kiểm tra entities được import đúng trong `database.config.ts`
 3. Xóa database và tạo lại nếu cần
@@ -3242,6 +3471,111 @@ Nếu gặp vấn đề hoặc có câu hỏi:
 
 ---
 
+## 🧪 Testing
+
+### Run E2E Tests
+
+```bash
+npm run test:e2e
+```
+
+### Run Unit Tests
+
+```bash
+npm run test
+```
+
+### Test Coverage
+
+```bash
+npm run test:cov
+```
+
+**Các file test chính:**
+
+- `test/app.e2e-spec.ts` - E2E tests cho tất cả endpoints
+
+---
+
+## ⚡ Performance Optimization
+
+### Caching Strategy
+
+- Sử dụng HTTP caching headers
+- Redis cache cho frequently accessed data
+- Database query optimization với indexes
+
+### Database Indexes
+
+```sql
+-- Products table
+CREATE INDEX idx_category_id ON products(category_id);
+CREATE INDEX idx_is_active ON products(is_active);
+CREATE INDEX idx_created_at ON products(created_at);
+
+-- Orders table
+CREATE INDEX idx_customer_id ON orders(customer_id);
+CREATE INDEX idx_status ON orders(status);
+CREATE INDEX idx_created_at ON orders(created_at);
+
+-- Reviews table
+CREATE INDEX idx_product_id ON product_reviews(product_id);
+CREATE INDEX idx_customer_id ON product_reviews(customer_id);
+```
+
+### Query Optimization
+
+- Sử dụng `leftJoinAndSelect` để eager load relations
+- Implement pagination cho list endpoints
+- Batch operations khi có nhiều records
+
+---
+
+## 🔒 Security Considerations
+
+### Authentication & Authorization
+
+- ✅ JWT tokens cho authentication
+- ✅ Password hashing với bcrypt
+- ✅ Role-based access control (RBAC)
+
+### Data Protection
+
+- ✅ Input validation và sanitization
+- ✅ SQL injection prevention (TypeORM ORM)
+- ✅ CORS configuration
+- ✅ Rate limiting (nên thêm)
+
+### Best Practices
+
+1. **HTTPS in Production** - Luôn sử dụng HTTPS
+2. **Environment Variables** - Không commit sensitive data
+3. **Regular Updates** - Update dependencies thường xuyên
+4. **Security Headers** - Configure helmet middleware
+
+```typescript
+// Recommended: Add helmet for security headers
+import helmet from '@nestjs/helmet';
+
+app.use(helmet());
+```
+
+5. **Rate Limiting** - Ngăn chặn abuse
+
+```typescript
+// Recommended: Add rate limiting
+import { ThrottlerModule } from '@nestjs/throttler';
+
+ThrottlerModule.forRoot([
+  {
+    ttl: 60000,
+    limit: 100,
+  },
+]);
+```
+
+---
+
 ## 📄 License
 
 MIT License
@@ -3252,11 +3586,15 @@ MIT License
 
 Để phát triển frontend, bạn có thể:
 
-1. Sử dụng các API endpoints đã document ở trên
-2. Implement authentication flow với JWT tokens
-3. Tạo UI cho quản lý sản phẩm, đơn hàng, khách hàng
-4. Thêm pagination nếu cần (hiện tại chưa có)
-5. Thêm filtering và sorting cho các list endpoints
+1. ✅ Sử dụng các API endpoints đã document ở trên
+2. ✅ Implement authentication flow với JWT tokens
+3. ✅ Tạo UI cho quản lý sản phẩm, đơn hàng, khách hàng
+4. ⏳ Thêm pagination cho list endpoints (nên optimize)
+5. ⏳ Thêm filtering và sorting cho các list endpoints
 6. ✅ File upload cho images đã được implement (sử dụng ImgBB)
+7. ⏳ Thêm real-time notifications (Socket.io)
+8. ⏳ Thêm email notifications
+9. ⏳ Implement caching strategy
+10. ⏳ Setup monitoring & logging
 
 **Happy Coding! 🚀**

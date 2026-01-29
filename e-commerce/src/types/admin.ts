@@ -4,6 +4,22 @@ export interface DashboardStats {
 	totalOrders: number;
 	totalCustomers: number;
 	lowStockProducts: number;
+	newCustomers?: number;
+	pendingOrders?: number;
+}
+
+export interface ProductSale {
+	id: number;
+	name: string;
+	quantity: number;
+	revenue: number;
+	mainImageUrl?: string;
+}
+
+export interface RevenueData {
+	date: string;
+	revenue: number;
+	orders: number;
 }
 
 export interface AdminCustomer {
@@ -66,14 +82,25 @@ export interface CreateProductPayload {
 	}[];
 }
 
+export interface AdminOrderItem {
+	id: number;
+	orderNo?: string;
+	productId: number;
+	product?: AdminProduct;
+	colorId?: string;
+	unitPrice: number;
+	quantity: number;
+}
+
 export interface AdminOrder {
 	id: number;
 	orderNo: string;
 	status: string;
-	totalAmount: number;
+	totalAmount: number | string;
 	createdAt: string;
 	customer?: {
 		fullName: string;
 		email: string;
 	};
+	orderItems?: AdminOrderItem[];
 }

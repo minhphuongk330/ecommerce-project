@@ -1,12 +1,12 @@
 "use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Dashboard from "@mui/icons-material/Dashboard";
-import ShoppingBag from "@mui/icons-material/ShoppingBag";
-import ShoppingCart from "@mui/icons-material/ShoppingCart";
-import People from "@mui/icons-material/People";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
+import Dashboard from "@mui/icons-material/Dashboard";
+import People from "@mui/icons-material/People";
+import ShoppingBag from "@mui/icons-material/ShoppingBag";
+import ShoppingCart from "@mui/icons-material/ShoppingCart";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { routerPaths } from "~/utils/router";
 import CommonIconButton from "../atoms/IconButton";
 
@@ -27,7 +27,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
 	return (
 		<div
-			className={`hidden md:flex h-screen bg-gray-900 text-white transition-all duration-300 flex-col flex-shrink-0 ${
+			className={`hidden md:flex min-h-screen bg-gray-900 text-white transition-all duration-300 flex-col flex-shrink-0 ${
 				isCollapsed ? "w-20" : "w-64"
 			}`}
 		>

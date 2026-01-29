@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "~/components/Admin/Sidebar";
+import React, { useEffect, useState } from "react";
 import AdminHeader from "~/components/Admin/Header";
+import Sidebar from "~/components/Admin/Sidebar";
 import { useAuthStore } from "~/stores/useAuth";
 import { routerPaths } from "~/utils/router";
 
@@ -30,11 +30,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 	}
 
 	return (
-		<div className="flex flex-col md:flex-row min-h-screen md:h-screen bg-gray-100 md:overflow-hidden">
+		<div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
 			<Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
-			<div className="flex-1 flex flex-col md:overflow-hidden">
+			<div className="flex-1 flex flex-col">
 				<AdminHeader />
-				<main className="flex-1 bg-gray-50 p-4 md:p-[40px] md:overflow-x-hidden md:overflow-y-auto">{children}</main>
+				<main className="flex-1 bg-gray-50 p-4 md:p-[40px]">{children}</main>
 			</div>
 		</div>
 	);

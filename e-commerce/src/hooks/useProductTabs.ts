@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { productService } from "~/services/product";
 import { Product } from "~/types/product";
 
@@ -25,9 +25,10 @@ export const useProductTabs = (defaultTab: string) => {
 
 	const filteredProducts = useMemo(() => {
 		if (!products.length) return [];
-
-		const list = products.filter(p => p.collection === activeTab);
-		return list.length > 0 ? list.slice(0, 8) : products.slice(0, 4);
+		const TABS = ["New Arrival", "Bestseller", "Featured Products"];
+		const tabIndex = TABS.indexOf(activeTab);
+		const tabProducts = products.filter((_, idx) => idx % 3 === tabIndex);
+		return tabProducts.slice(0, 8);
 	}, [activeTab, products]);
 
 	return { activeTab, setActiveTab, filteredProducts, isLoading };
