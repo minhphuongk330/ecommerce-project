@@ -2,15 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
+import { Product } from '../../entities/product.entity';
+import { MailService } from '../mail/mail.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly mailService: MailService,
   ) {}
 
@@ -50,7 +53,28 @@ export class OrdersService {
 
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
+    const previousStatus = order.status;
+
     Object.assign(order, updateOrderDto);
+
+    if (
+      updateOrderDto.status === 'Cancelled' &&
+      previousStatus !== 'Cancelled'
+    ) {
+      if (order.orderItems && order.orderItems.length > 0) {
+        for (const orderItem of order.orderItems) {
+          const product = await this.productRepository.findOne({
+            where: { id: orderItem.productId },
+          });
+
+          if (product) {
+            product.stock += orderItem.quantity;
+            await this.productRepository.save(product);
+          }
+        }
+      }
+    }
+
     return await this.orderRepository.save(order);
   }
 

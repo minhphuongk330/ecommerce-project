@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderItem } from '../../entities/order-item.entity';
+import { Product } from '../../entities/product.entity';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 
@@ -10,9 +15,32 @@ export class OrderItemsService {
   constructor(
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
 
   async create(createOrderItemDto: CreateOrderItemDto): Promise<OrderItem> {
+    const quantity = createOrderItemDto.quantity || 1;
+
+    const product = await this.productRepository.findOne({
+      where: { id: createOrderItemDto.productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(
+        `Product with ID ${createOrderItemDto.productId} not found`,
+      );
+    }
+
+    if (product.stock < quantity) {
+      throw new BadRequestException(
+        `Insufficient stock for product "${product.name}". Available: ${product.stock}, Requested: ${quantity}`,
+      );
+    }
+
+    product.stock -= quantity;
+    await this.productRepository.save(product);
+
     const orderItem = this.orderItemRepository.create(createOrderItemDto);
     return await this.orderItemRepository.save(orderItem);
   }
@@ -49,4 +77,3 @@ export class OrderItemsService {
     await this.orderItemRepository.remove(orderItem);
   }
 }
-

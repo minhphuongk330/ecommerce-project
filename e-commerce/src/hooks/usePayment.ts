@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCartStore } from "~/stores/cart";
-import { useAuthStore } from "~/stores/useAuth";
+import { useState } from "react";
 import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useNotification } from "~/contexts/Notification";
 import { orderService } from "~/services/order";
+import { useCartStore } from "~/stores/cart";
+import { useAuthStore } from "~/stores/useAuth";
 import { routerPaths } from "~/utils/router";
 import { usePaymentSummary } from "./usePaymentSummary";
 
@@ -45,9 +45,15 @@ export const usePayment = () => {
 
 			clearCart();
 			setIsSuccessModalOpen(true);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Payment Error:", error);
-			showNotification("Payment failed. Please try again.", "error");
+
+			const errorMessage = error?.response?.data?.message || error?.message || "";
+			if (errorMessage.includes("Insufficient stock")) {
+				showNotification(errorMessage, "error");
+			} else {
+				showNotification("Payment failed. Please try again.", "error");
+			}
 		} finally {
 			setIsProcessing(false);
 		}
