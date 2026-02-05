@@ -1,6 +1,6 @@
-import { Product } from "./product";
 import { Address } from "./address";
 import { User } from "./auth";
+import { Product } from "./product";
 
 export type OrderStatus = "Pending" | "Shipped" | "Completed" | "Cancelled";
 
@@ -26,6 +26,8 @@ export interface Order {
 	discount: string;
 	totalAmount: string;
 	note?: string;
+	shippingCost?: number | string;
+	scheduledDeliveryDate?: string;
 	orderItems: OrderItem[];
 	createdAt: string;
 	updatedAt: string;
@@ -39,6 +41,8 @@ export interface CreateOrderPayload {
 	discount?: number;
 	totalAmount?: number;
 	note?: string;
+	shippingCost?: number;
+	scheduledDeliveryDate?: string;
 }
 
 export interface CreateOrderItemPayload {

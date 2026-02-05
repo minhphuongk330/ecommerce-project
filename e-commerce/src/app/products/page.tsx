@@ -1,19 +1,26 @@
 "use client";
-import { useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Filters from "~/components/Catalog/Filters/Index";
 import ProductListArea from "~/components/Catalog/ProductsArea/Index";
 import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
+import { MobileFilterProvider } from "~/contexts/MobileFilterContext";
 import { useProductFilter } from "~/hooks/useProductFilter";
 import { useProducts } from "~/hooks/useProducts";
 import { routerPaths } from "~/utils/router";
-import { MobileFilterProvider } from "~/contexts/MobileFilterContext";
 
 function ProductsContent() {
-	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const mediaQuery = window.matchMedia("(max-width: 1023px)");
+		setIsMobile(mediaQuery.matches);
+
+		const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+		mediaQuery.addEventListener("change", handler);
+		return () => mediaQuery.removeEventListener("change", handler);
+	}, []);
+
 	const searchParams = useSearchParams();
 	const categoryIdParam = searchParams.get("categoryId");
 	const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;

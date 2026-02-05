@@ -1,13 +1,15 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useScrollDirection() {
 	const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
 	const lastScrollY = useRef(0);
+
 	const updateScrollDirection = useCallback(() => {
 		const scrollY = window.pageYOffset;
 		const previousY = lastScrollY.current;
 		const direction = scrollY > previousY ? "down" : "up";
 		const diff = Math.abs(scrollY - previousY);
+
 		if (diff > 5 || scrollY < 5) {
 			setScrollDirection(prevDirection => {
 				if (prevDirection !== direction) {
@@ -20,7 +22,7 @@ export function useScrollDirection() {
 	}, []);
 
 	useEffect(() => {
-		window.addEventListener("scroll", updateScrollDirection);
+		window.addEventListener("scroll", updateScrollDirection, { passive: true });
 
 		return () => {
 			window.removeEventListener("scroll", updateScrollDirection);

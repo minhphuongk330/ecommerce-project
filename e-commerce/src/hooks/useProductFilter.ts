@@ -1,6 +1,6 @@
 "use client";
-import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Product } from "~/types/product";
 
 interface UseProductFilterOptions {

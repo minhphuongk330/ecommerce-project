@@ -1,5 +1,5 @@
+import { CreateOrderItemPayload, CreateOrderPayload, Order, OrderItem, UpdateOrderPayload } from "~/types/order";
 import axiosClient from "./axiosClient";
-import { Order, OrderItem, CreateOrderPayload, CreateOrderItemPayload, UpdateOrderPayload } from "~/types/order";
 
 interface CartItemInput {
 	id: number | string;
@@ -67,13 +67,12 @@ export const orderService = {
 				quantity: item.quantity,
 			}),
 		);
-		await Promise.all(createItemPromises);
 
-		try {
-			await axiosClient.post(`/orders/${newOrder.id}/confirmation`);
-		} catch (error) {
+		const confirmationPromise = axiosClient.post(`/orders/${newOrder.id}/confirmation`).catch(error => {
 			console.error("Failed to trigger email confirmation:", error);
-		}
+		});
+
+		await Promise.all([...createItemPromises, confirmationPromise]);
 
 		return newOrder;
 	},

@@ -38,7 +38,7 @@ export default function DashboardPage() {
 			setPendingOrdersCount(pendingCount);
 		} catch (err: any) {
 			console.error("Dashboard Error:", err);
-			const message = err?.response?.data?.message || "Không thể tải dữ liệu thống kê.";
+			const message = err?.response?.data?.message || "Unable to load statistics data.";
 			setError(message);
 			setStats(null);
 		} finally {

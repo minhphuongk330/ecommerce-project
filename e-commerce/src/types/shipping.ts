@@ -6,6 +6,8 @@ export interface ShippingMethod {
 	name: string;
 	description: string;
 	price: number;
+	basePrice?: number;
+	dynamicPrice?: number;
 	estimatedDate?: string;
 }
 

@@ -1,8 +1,13 @@
 "use client";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import StepButton from "~/components/checkout/Button";
-import SuccessModal from "~/components/Payment/Modal/Success";
 import PaymentSummary from "~/components/Payment/Index";
 import { usePayment } from "~/hooks/usePayment";
+
+const SuccessModalLazy = dynamic(() => import("~/components/Payment/Modal/Success"), {
+	loading: () => null,
+});
 
 export default function PaymentPage() {
 	const { isProcessing, isSuccessModalOpen, handlePay, handleRedirectHome, handleBack } = usePayment();
@@ -25,7 +30,11 @@ export default function PaymentPage() {
 				/>
 			</div>
 
-			<SuccessModal isOpen={isSuccessModalOpen} onConfirm={handleRedirectHome} />
+			{isSuccessModalOpen && (
+				<Suspense fallback={null}>
+					<SuccessModalLazy isOpen={isSuccessModalOpen} onConfirm={handleRedirectHome} />
+				</Suspense>
+			)}
 		</div>
 	);
 }

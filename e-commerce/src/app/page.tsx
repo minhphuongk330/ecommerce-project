@@ -1,13 +1,20 @@
 "use client";
-import { useMemo } from "react";
-import BannerSlider, { SliderItem } from "~/components/Banner/Slider";
+import dynamic from "next/dynamic";
+import { Suspense, useMemo } from "react";
 import Banner from "~/components/Banner";
+import BannerSlider, { SliderItem } from "~/components/Banner/Slider";
 import CategoryBrowser from "~/components/Category/Browser";
-import ProductTabsSection from "~/components/Products/TabsSection";
-import SectionProductList from "~/components/Products/SectionProductList";
 import { useBanners } from "~/hooks/useBanner";
 import { useDiscountProducts } from "~/hooks/useProductDiscount";
 import { router } from "~/utils/router";
+
+const ProductTabsSectionLazy = dynamic(() => import("~/components/Products/TabsSection"), {
+	loading: () => <div className="h-[400px] bg-gray-100 animate-pulse" />,
+});
+
+const SectionProductListLazy = dynamic(() => import("~/components/Products/SectionProductList"), {
+	loading: () => <div className="h-[600px] bg-gray-100 animate-pulse" />,
+});
 
 const GRID_STYLES = [
 	{ bg: "bg-white", text: "text-black", btn: "dark" as const },
@@ -80,7 +87,9 @@ export default function Home() {
 			)}
 
 			<CategoryBrowser />
-			<ProductTabsSection />
+			<Suspense fallback={<div className="h-[400px] bg-gray-100 animate-pulse" />}>
+				<ProductTabsSectionLazy />
+			</Suspense>
 
 			{gridBanners && gridBanners.length > 0 && (
 				<div className="w-full pb-8 md:pb-16">
@@ -111,7 +120,9 @@ export default function Home() {
 				</div>
 			)}
 
-			<SectionProductList title="Discount up to -50%" products={discountData} />
+			<Suspense fallback={<div className="h-[600px] bg-gray-100 animate-pulse" />}>
+				<SectionProductListLazy title="Discount up to -50%" products={discountData} />
+			</Suspense>
 
 			{bottomBanner && (
 				<Banner

@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useCartStore } from "~/stores/cart";
-import { ShippingMethod } from "~/types/shipping";
+import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
 
 export interface CartItem {
 	id: number;
@@ -28,26 +28,40 @@ export const usePaymentSummary = () => {
 				acc.itemsWithTotal.push({ item, total: t });
 				return acc;
 			},
-			{ subtotal: 0, itemsWithTotal: [] as { item: CartItem; total: number }[] }
+			{ subtotal: 0, itemsWithTotal: [] as { item: CartItem; total: number }[] },
 		);
 	}, [rawItems]);
 
-	const { shippingCost, total, shipmentLabel } = useMemo(() => {
-		const cost = Number(selectedShippingMethod?.price || 0);
-
+	const calculateShippingCost = useCallback(() => {
+		let cost = Number(selectedShippingMethod?.price || 0);
 		let label = "Not selected";
-		if (selectedShippingMethod) {
-			if (selectedShippingMethod.type === "schedule") label = "Schedule";
-			else if (selectedShippingMethod.price === 0) label = "Free";
-			else label = formatPrice(selectedShippingMethod.price);
-		}
 
+		if (selectedShippingMethod) {
+			if (selectedShippingMethod.type === "schedule") {
+				if (scheduledDate) {
+					const days = calculateShippingDays(scheduledDate);
+					cost = calculateSchedulePrice(days);
+					label = formatPrice(cost);
+				} else {
+					label = "Schedule";
+				}
+			} else if (selectedShippingMethod.price === 0) {
+				label = "Free";
+			} else {
+				label = formatPrice(selectedShippingMethod.price);
+			}
+		}
+		return { cost, label };
+	}, [selectedShippingMethod, scheduledDate]);
+
+	const { shippingCost, total, shipmentLabel } = useMemo(() => {
+		const { cost, label } = calculateShippingCost();
 		return {
 			shippingCost: cost,
 			total: subtotal + TAX_AMOUNT + cost,
 			shipmentLabel: label,
 		};
-	}, [subtotal, selectedShippingMethod]);
+	}, [calculateShippingCost, subtotal]);
 
 	return {
 		itemsWithTotal,

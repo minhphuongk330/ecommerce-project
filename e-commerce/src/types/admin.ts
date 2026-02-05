@@ -98,6 +98,8 @@ export interface AdminOrder {
 	status: string;
 	totalAmount: number | string;
 	createdAt: string;
+	shippingCost?: number | string;
+	scheduledDeliveryDate?: string;
 	customer?: {
 		fullName: string;
 		email: string;
