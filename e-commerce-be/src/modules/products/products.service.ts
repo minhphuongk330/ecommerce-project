@@ -121,4 +121,26 @@ export class ProductsService {
     const product = await this.findOne(id);
     await this.productRepository.remove(product);
   }
+  async migrateOldAttributesToNewFormat() {
+    const products = await this.productRepository.find();
+    let count = 0;
+    for (const product of products) {
+      const oldAttrs = product.attributes;
+      if (Array.isArray(oldAttrs)) {
+        const newAttrs = {};
+        oldAttrs.forEach((item: any) => {
+          if (item.key && item.value) {
+            newAttrs[item.key] = item.value;
+          }
+        });
+        product.attributes = newAttrs;
+        await this.productRepository.save(product);
+        count++;
+      }
+    }
+
+    return {
+      message: `Đã chuyển đổi thành công ${count} sản phẩm sang định dạng mới!`,
+    };
+  }
 }

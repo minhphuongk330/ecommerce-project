@@ -64,7 +64,7 @@ export class Product {
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
-  @Column({ type: 'simple-json', nullable: true })
+  @Column({ type: 'json', nullable: true })
   attributes: any;
 
   @OneToMany(() => ProductImage, (productImage) => productImage.product)
