@@ -39,6 +39,7 @@ export interface AdminCustomer {
 export interface AdminCategory {
 	id: number;
 	name: string;
+	configs?: string | any;
 }
 
 export interface AdminProduct {
@@ -61,6 +62,8 @@ export interface AdminProduct {
 		colorName: string;
 		colorHex: string;
 	}[];
+	attributes?: any;
+	variants?: any[];
 }
 
 export interface CreateProductPayload {

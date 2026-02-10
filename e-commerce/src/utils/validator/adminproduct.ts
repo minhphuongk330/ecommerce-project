@@ -1,7 +1,5 @@
 import z from "zod";
-
 const numericInput = z.union([z.string(), z.number()]).transform(val => Number(val));
-
 export const productSchema = z.object({
 	name: z.string().min(1, { message: "Product name is required" }),
 	price: numericInput.pipe(z.number().min(0, { message: "Invalid price" })),
@@ -19,6 +17,18 @@ export const productSchema = z.object({
 	extraImage3: z.string().optional().or(z.literal("")),
 	extraImage4: z.string().optional().or(z.literal("")),
 	isActive: z.boolean().optional(),
+	attributes: z.record(z.string(), z.any()).optional(),
+	variants: z
+		.array(
+			z.object({
+				sku: z.string().optional(),
+				price: numericInput.pipe(z.number().min(0, { message: "Price must be positive" })),
+				stock: numericInput.pipe(z.number().min(0, { message: "Stock must be positive" })),
+				options: z.any().optional(),
+			}),
+		)
+		.optional()
+		.default([]),
 });
 
 export interface ProductFormValues {
@@ -40,6 +50,13 @@ export interface ProductFormValues {
 	extraImage3?: string;
 	extraImage4?: string;
 	isActive?: boolean;
+	attributes?: Record<string, any>;
+	variants?: {
+		sku?: string;
+		price: number | string;
+		stock: number | string;
+		options?: any;
+	}[];
 }
 
 export type ProductFormOutput = z.infer<typeof productSchema>;

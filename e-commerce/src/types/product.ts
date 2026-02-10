@@ -57,6 +57,7 @@ export interface ProductDetail extends Product {
 			value: string | string[];
 		}[];
 	}[];
+	attributes?: any;
 }
 
 export interface CreateProductInput {

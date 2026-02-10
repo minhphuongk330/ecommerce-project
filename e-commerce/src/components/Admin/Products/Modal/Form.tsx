@@ -34,6 +34,8 @@ const initialValues: ProductFormValues = {
 	extraImage4: "",
 	isActive: true,
 	colors: [],
+	attributes: {},
+	variants: [],
 };
 
 export default function ProductFormModal({
@@ -67,15 +69,26 @@ export default function ProductFormModal({
 				...initialValues,
 				...defaultValues,
 				...fullProduct,
+				categoryId: fullProduct.categoryId ? Number(fullProduct.categoryId) : undefined,
+				price: Number(fullProduct.price),
+				stock: Number(fullProduct.stock),
+
 				colors:
 					fullProduct.productColors?.map((c: any) => ({
 						id: c.id,
 						colorName: c.colorName || c.name || "",
 						colorHex: c.colorHex || c.hex || c.colorCode || "#000000",
 					})) || [],
-				categoryId: fullProduct.categoryId ? Number(fullProduct.categoryId) : undefined,
-				price: Number(fullProduct.price),
-				stock: Number(fullProduct.stock),
+
+				attributes: fullProduct.attributes || {},
+
+				variants:
+					fullProduct.variants?.map((v: any) => ({
+						sku: v.sku || v.options?.name || "",
+						price: Number(v.price),
+						stock: Number(v.stock),
+						options: v.options,
+					})) || [],
 			};
 
 			reset(formData);
@@ -90,7 +103,6 @@ export default function ProductFormModal({
 		if (!isOpen) return;
 
 		if (defaultValues?.id) {
-			reset({ ...initialValues, ...defaultValues });
 			fetchProductDetail(defaultValues.id);
 		} else {
 			reset(initialValues);
@@ -101,6 +113,13 @@ export default function ProductFormModal({
 		const cleanData = {
 			...data,
 			colors: data.colors?.map(({ id, ...rest }: any) => rest),
+
+			variants: data.variants?.map(v => ({
+				price: v.price,
+				stock: v.stock,
+				sku: v.sku,
+				options: { name: v.sku },
+			})),
 		};
 		await onSubmit(cleanData);
 	};
@@ -110,7 +129,7 @@ export default function ProductFormModal({
 	};
 
 	return (
-		<BaseDialog isOpen={isOpen} onClose={onClose} title={title} showCloseIcon={true} width={800}>
+		<BaseDialog isOpen={isOpen} onClose={onClose} title={title} showCloseIcon={true} width={900}>
 			{isFetchingDetail ? (
 				<div className="h-[400px] flex flex-col items-center justify-center gap-3 text-gray-500">
 					<CircularProgress size={40} color="inherit" />

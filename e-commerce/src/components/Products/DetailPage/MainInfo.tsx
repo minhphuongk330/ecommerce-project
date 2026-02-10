@@ -1,13 +1,12 @@
 "use client";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCartStore } from "~/stores/cart";
 import { useFavoriteStore } from "~/stores/useFavorite";
 import StepButton from "~/components/checkout/Button";
 import ColorSelector from "~/components/atoms/ColorSelector";
-import CapacitySelector from "~/components/atoms/CapacitySelector";
+import VariantSelector from "~/components/atoms/VariantSelector";
 import ImageGallery from "./ImageGallery";
-import SpecsGrid from "./SpecGrid";
 import DeliveryInfo from "./DeliveryInfo";
 import { routerPaths } from "~/utils/router";
 import { MainInfoProps } from "~/types/component";
@@ -19,12 +18,20 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [isExpanded, setIsExpanded] = useState(false);
+	const [activeVariant, setActiveVariant] = useState<any>(null);
 	const addToCart = useCartStore(state => state.addToCart);
 	const favorites = useFavoriteStore(state => state.favorites);
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
 	const isLiked = favorites.some(item => Number(item.productId) === Number(product.id));
 	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 	const { showNotification } = useNotification();
+
+	useEffect(() => {
+		if (product.variants && product.variants.length > 0) {
+			const availableVariant = product.variants.find((v: any) => v.stock > 0) || product.variants[0];
+			setActiveVariant(availableVariant);
+		}
+	}, [product.variants]);
 
 	const imageUrls = useMemo(() => {
 		const images = [
@@ -48,7 +55,10 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	}, [product]);
 
 	const activeColorName = searchParams.get("color") || formattedColors[0]?.name || "";
-	const activeCapacity = searchParams.get("capacity") || product.capacities?.[0] || "";
+
+	const handleSelectVariant = (variant: any) => {
+		setActiveVariant(variant);
+	};
 
 	const createQueryString = useCallback(
 		(name: string, value: string) => {
@@ -63,17 +73,18 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		router.replace(pathname + "?" + createQueryString("color", colorName), { scroll: false });
 	};
 
-	const handleSelectCapacity = (capacity: string) => {
-		router.replace(pathname + "?" + createQueryString("capacity", capacity), { scroll: false });
-	};
-
 	const handleAddToCart = async () => {
 		if (!isAuthenticated) {
 			router.push(routerPaths.login);
 			return;
 		}
 		try {
-			await addToCart(product, activeColorName);
+			const cartItemData = {
+				...product,
+				variantId: activeVariant?.id,
+				price: activeVariant ? activeVariant.price : product.price,
+			};
+			await addToCart(cartItemData, activeColorName);
 			showNotification("Added to cart successfully!", "success");
 			router.push(routerPaths.cart);
 		} catch (error: any) {
@@ -82,75 +93,78 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		}
 	};
 
-	const displayPrice =
-		typeof product.price === "number" ? product.price : parseFloat(product.price as unknown as string);
+	const currentPrice = activeVariant ? Number(activeVariant.price) : Number(product.price);
+	const currentStock = activeVariant ? Number(activeVariant.stock) : Number(product.stock);
 
 	return (
-		<div className="w-full flex justify-center py-6 md:py-10 bg-white px-4 md:px-[160px]">
-			<div className="flex flex-col lg:flex-row gap-6 md:gap-[48px] w-full max-w-[1440px] mx-auto">
-				<ImageGallery images={imageUrls} productName={product.name} />
+		<div className="w-full flex flex-col items-center bg-[#F9F9F9]">
+			<div className="w-full bg-white flex justify-center py-6 md:py-10">
+				<div className="w-full max-w-[1440px] px-4 md:px-[160px]">
+					<div className="flex flex-col lg:flex-row gap-6 md:gap-[48px] w-full mx-auto">
+						<ImageGallery images={imageUrls} productName={product.name} />
 
-				<div className="w-full lg:w-[536px] flex flex-col">
-					<h1 className="text-2xl md:text-[40px] font-bold text-black leading-tight mb-4 md:mb-6">{product.name}</h1>
+						<div className="w-full lg:w-[536px] flex flex-col">
+							<h1 className="text-2xl md:text-[40px] font-bold text-black leading-tight mb-4 md:mb-6">
+								{product.name}
+							</h1>
 
-					<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
-						<span className="text-2xl md:text-[32px] font-medium text-black">${displayPrice}</span>
-						{product.originalPrice && product.originalPrice > displayPrice && (
-							<span className="text-lg md:text-[24px] text-gray-400 line-through mb-1">${product.originalPrice}</span>
-						)}
+							<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
+								<span className="text-2xl md:text-[32px] font-medium text-black">${currentPrice}</span>
+								{product.originalPrice && product.originalPrice > currentPrice && (
+									<span className="text-lg md:text-[24px] text-gray-400 line-through mb-1">
+										${product.originalPrice}
+									</span>
+								)}
+							</div>
+
+							{product.variants && product.variants.length > 0 && (
+								<VariantSelector
+									variants={product.variants}
+									selectedSku={activeVariant?.sku}
+									onSelect={handleSelectVariant}
+								/>
+							)}
+
+							{formattedColors.length > 0 && (
+								<ColorSelector
+									colors={formattedColors}
+									selectedColor={activeColorName}
+									onSelect={handleSelectColor}
+									label="Select color :"
+									className="mb-4 md:mb-6"
+								/>
+							)}
+
+							<div className="mb-6 md:mb-8">
+								<p
+									className={`text-base text-[#6F6F6F] leading-relaxed transition-all duration-300 ${
+										isExpanded ? "" : "line-clamp-4"
+									}`}
+								>
+									{product.shortDescription || ""}
+								</p>
+								{(product.shortDescription || "").length > 250 && (
+									<button
+										onClick={() => setIsExpanded(!isExpanded)}
+										className="mt-2 text-sm font-medium text-black underline hover:text-gray-600"
+									>
+										{isExpanded ? "Show less" : "Read more"}
+									</button>
+								)}
+							</div>
+
+							<StepButton
+								layout="full"
+								primaryLabel={currentStock > 0 ? "Add to Cart" : "Out of Stock"}
+								onPrimaryClick={handleAddToCart}
+								disabled={currentStock === 0}
+								secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
+								onSecondaryClick={() => toggleFavorite(Number(product.id))}
+								className="mb-6"
+							/>
+							<DeliveryInfo />
+						</div>
 					</div>
-
-					{formattedColors.length > 0 && (
-						<ColorSelector
-							colors={formattedColors}
-							selectedColor={activeColorName}
-							onSelect={handleSelectColor}
-							label="Select color :"
-							className="mb-4 md:mb-6"
-						/>
-					)}
-
-					{product.capacities && product.capacities.length > 0 && (
-						<CapacitySelector
-							capacities={product.capacities}
-							selectedCapacity={activeCapacity}
-							onSelect={handleSelectCapacity}
-							className="mb-4 md:mb-6"
-						/>
-					)}
-
-					<SpecsGrid specs={product.specs} className="mb-4 md:mb-6" />
-
-					<div className="mb-6 md:mb-8">
-						<p
-							className={`text-base text-[#6F6F6F] leading-relaxed transition-all duration-300 ${
-								isExpanded ? "" : "line-clamp-6"
-							}`}
-						>
-							{product.shortDescription}
-						</p>
-
-						{product.shortDescription && product.shortDescription.length > 400 && (
-							<button
-								onClick={() => setIsExpanded(!isExpanded)}
-								className="mt-2 text-sm font-medium text-black underline hover:text-gray-600 transition-colors"
-							>
-								{isExpanded ? "Show less" : "Read more"}
-							</button>
-						)}
-					</div>
-
-					<StepButton
-						layout="full"
-						primaryLabel={product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-						onPrimaryClick={handleAddToCart}
-						disabled={product.stock === 0}
-						secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
-						onSecondaryClick={() => toggleFavorite(Number(product.id))}
-						className="mb-6"
-					/>
-
-					<DeliveryInfo />
 				</div>
 			</div>
 		</div>
