@@ -2,6 +2,15 @@ export class CreateProductColorDto {
   colorName: string;
   colorHex?: string;
 }
+
+export class CreateProductVariantDto {
+  price: number;
+  stock: number;
+  sku?: string;
+  options: any;
+  imageUrl?: string;
+}
+
 export class CreateProductDto {
   name?: string;
   categoryId?: number;
@@ -15,6 +24,7 @@ export class CreateProductDto {
   extraImage3?: string;
   extraImage4?: string;
   isActive?: boolean;
-  attribute?: string; 
+  attributes?: any;
   colors?: CreateProductColorDto[];
+  variants?: CreateProductVariantDto[];
 }

@@ -15,6 +15,7 @@ import { OrderItem } from './order-item.entity';
 import { ProductReview } from './product-review.entity';
 import { Favorite } from './favorite.entity';
 import { CartItem } from './cart-item.entity';
+import { ProductVariant } from './product-variant.entity';
 
 @Entity('products')
 export class Product {
@@ -63,8 +64,8 @@ export class Product {
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
-  @Column({ type: 'text', nullable: true })
-  attribute: string;
+  @Column({ type: 'simple-json', nullable: true })
+  attributes: any;
 
   @OneToMany(() => ProductImage, (productImage) => productImage.product)
   productImages: ProductImage[];
@@ -73,6 +74,11 @@ export class Product {
     cascade: true,
   })
   productColors: ProductColor[];
+
+  @OneToMany(() => ProductVariant, (variant) => variant.product, {
+    cascade: true,
+  })
+  variants: ProductVariant[];
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];

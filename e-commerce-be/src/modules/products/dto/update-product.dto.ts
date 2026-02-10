@@ -1,7 +1,8 @@
-export class CreateProductColorDto {
-  colorName: string;
-  colorHex?: string;
-}
+import {
+  CreateProductColorDto,
+  CreateProductVariantDto,
+} from './create-product.dto';
+
 export class UpdateProductDto {
   name?: string;
   categoryId?: number;
@@ -15,7 +16,7 @@ export class UpdateProductDto {
   extraImage3?: string;
   extraImage4?: string;
   isActive?: boolean;
-  attribute?: string;
+  attributes?: any;
   colors?: CreateProductColorDto[];
+  variants?: CreateProductVariantDto[];
 }
-
