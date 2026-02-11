@@ -26,23 +26,35 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 	const { showNotification } = useNotification();
 
-	useEffect(() => {
-		if (product.variants && product.variants.length > 0) {
-			const availableVariant = product.variants.find((v: any) => v.stock > 0) || product.variants[0];
-			setActiveVariant(availableVariant);
-		}
-	}, [product.variants]);
+	const createQueryString = useCallback(
+		(name: string, value: string) => {
+			const params = new URLSearchParams(searchParams.toString());
+			params.set(name, value);
+			return params.toString();
+		},
+		[searchParams],
+	);
 
-	const imageUrls = useMemo(() => {
-		const images = [
-			product.mainImageUrl,
-			product.extraImage1,
-			product.extraImage2,
-			product.extraImage3,
-			product.extraImage4,
-		];
-		return images.filter((img): img is string => typeof img === "string" && img.trim() !== "");
-	}, [product]);
+	const activeSkuParam = searchParams.get("sku");
+	useEffect(() => {
+		if (!product.variants || product.variants.length === 0) return;
+		let targetVariant;
+		if (activeSkuParam) {
+			targetVariant = product.variants.find((v: any) => v.sku === activeSkuParam);
+		}
+		if (!targetVariant) {
+			targetVariant = product.variants.find((v: any) => v.stock > 0) || product.variants[0];
+		}
+		setActiveVariant(targetVariant);
+		if (targetVariant && activeSkuParam !== targetVariant.sku) {
+			router.replace(pathname + "?" + createQueryString("sku", targetVariant.sku), { scroll: false });
+		}
+	}, [product.variants, activeSkuParam, pathname, router, createQueryString]);
+
+	const handleSelectVariant = (variant: any) => {
+		setActiveVariant(variant);
+		router.replace(pathname + "?" + createQueryString("sku", variant.sku), { scroll: false });
+	};
 
 	const formattedColors = useMemo(() => {
 		return (
@@ -54,24 +66,28 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		);
 	}, [product]);
 
-	const activeColorName = searchParams.get("color") || formattedColors[0]?.name || "";
-
-	const handleSelectVariant = (variant: any) => {
-		setActiveVariant(variant);
-	};
-
-	const createQueryString = useCallback(
-		(name: string, value: string) => {
-			const params = new URLSearchParams(searchParams.toString());
-			params.set(name, value);
-			return params.toString();
-		},
-		[searchParams],
-	);
-
+	const activeColorParam = searchParams.get("color");
+	useEffect(() => {
+		if (formattedColors.length > 0 && !activeColorParam) {
+			const firstColor = formattedColors[0].name;
+			router.replace(pathname + "?" + createQueryString("color", firstColor), { scroll: false });
+		}
+	}, [formattedColors, activeColorParam, pathname, router, createQueryString]);
+	const activeColorName = activeColorParam || formattedColors[0]?.name || "";
 	const handleSelectColor = (colorName: string) => {
 		router.replace(pathname + "?" + createQueryString("color", colorName), { scroll: false });
 	};
+
+	const imageUrls = useMemo(() => {
+		const images = [
+			product.mainImageUrl,
+			product.extraImage1,
+			product.extraImage2,
+			product.extraImage3,
+			product.extraImage4,
+		];
+		return images.filter((img): img is string => typeof img === "string" && img.trim() !== "");
+	}, [product]);
 
 	const handleAddToCart = async () => {
 		if (!isAuthenticated) {
@@ -102,12 +118,10 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 				<div className="w-full max-w-[1440px] px-4 md:px-[160px]">
 					<div className="flex flex-col lg:flex-row gap-6 md:gap-[48px] w-full mx-auto">
 						<ImageGallery images={imageUrls} productName={product.name} />
-
 						<div className="w-full lg:w-[536px] flex flex-col">
 							<h1 className="text-2xl md:text-[40px] font-bold text-black leading-tight mb-4 md:mb-6">
 								{product.name}
 							</h1>
-
 							<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
 								<span className="text-2xl md:text-[32px] font-medium text-black">${currentPrice}</span>
 								{product.originalPrice && product.originalPrice > currentPrice && (
@@ -116,7 +130,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 									</span>
 								)}
 							</div>
-
 							{product.variants && product.variants.length > 0 && (
 								<VariantSelector
 									variants={product.variants}
@@ -124,7 +137,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 									onSelect={handleSelectVariant}
 								/>
 							)}
-
 							{formattedColors.length > 0 && (
 								<ColorSelector
 									colors={formattedColors}
@@ -134,7 +146,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 									className="mb-4 md:mb-6"
 								/>
 							)}
-
 							<div className="mb-6 md:mb-8">
 								<p
 									className={`text-base text-[#6F6F6F] leading-relaxed transition-all duration-300 ${
@@ -152,7 +163,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 									</button>
 								)}
 							</div>
-
 							<StepButton
 								layout="full"
 								primaryLabel={currentStock > 0 ? "Add to Cart" : "Out of Stock"}

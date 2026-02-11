@@ -54,6 +54,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 		<div className="space-y-8 py-2">
 			<div className="space-y-4">
 				<h3 className="text-sm font-bold text-gray-800 uppercase border-b pb-2">Basic Information</h3>
+
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<CommonInput name="name" control={control} label="Product name" required />
 					<CommonInput name="categoryId" control={control} label="Category" select required>
@@ -64,6 +65,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 						))}
 					</CommonInput>
 				</div>
+
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<CommonInput name="price" control={control} label="Display Price ($)" type="number" required />
 					<CommonInput name="stock" control={control} label="Total Stock" type="number" required />
@@ -75,10 +77,6 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 					<h3 className="text-sm font-bold text-blue-800 uppercase border-b border-blue-200 pb-2">
 						Technical Specifications
 					</h3>
-					<p className="text-xs text-blue-600 mb-2">
-						Fill in the specs based on {categories.find(c => Number(c.id) === Number(selectedCategoryId))?.name}{" "}
-						standards.
-					</p>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						{Object.keys(currentCategoryConfig).map(key => (
@@ -97,6 +95,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 			<div className="space-y-4">
 				<div className="flex items-center justify-between border-b pb-2">
 					<h3 className="text-sm font-bold text-gray-800 uppercase">Product Variants</h3>
+
 					<Button
 						type="button"
 						variant="outline"
@@ -111,14 +110,9 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 					{variantFields.map((field, index) => (
 						<div key={field.id} className="grid grid-cols-12 gap-3 p-3 border rounded-lg bg-gray-50 items-start">
 							<div className="col-span-5">
-								<CommonInput
-									name={`variants.${index}.sku`}
-									control={control}
-									label="Variant Name"
-									placeholder="e.g. 8GB/256GB - Red"
-									required
-								/>
+								<CommonInput name={`variants.${index}.sku`} control={control} label="Variant Name" required />
 							</div>
+
 							<div className="col-span-3">
 								<CommonInput
 									name={`variants.${index}.price`}
@@ -128,9 +122,11 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 									required
 								/>
 							</div>
+
 							<div className="col-span-3">
 								<CommonInput name={`variants.${index}.stock`} control={control} label="Stock" type="number" required />
 							</div>
+
 							<div className="col-span-1 flex justify-center mt-2">
 								<IconButton onClick={() => removeVariant(index)} color="error">
 									<DeleteOutline />
@@ -138,15 +134,13 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 							</div>
 						</div>
 					))}
-					{variantFields.length === 0 && (
-						<p className="text-sm text-gray-400 italic">No variants added. The product will use the base price.</p>
-					)}
 				</div>
 			</div>
 
 			<div>
-				<div className="flex items-center justify-between mb-3 border-b pb-2">
+				<div className="flex items-center justify-between mb-4 border-b pb-2">
 					<h3 className="text-sm font-bold text-gray-800 uppercase">Colors</h3>
+
 					<Button
 						type="button"
 						variant="outline"
@@ -157,36 +151,42 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 					</Button>
 				</div>
 
-				<div className="space-y-3">
+				<div className="space-y-4">
 					{colorFields.map((field, index) => (
-						<div key={field.id} className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50">
+						<div
+							key={field.id}
+							className="flex items-end gap-4 p-4 bg-white border border-gray-200 rounded-xl shadow-sm items-end"
+						>
 							<div className="flex-1">
 								<CommonInput name={`colors.${index}.colorName`} control={control} label="Color Name" />
 							</div>
-							<div className="w-[100px]">
+
+							<div>
 								<Controller
 									control={control}
 									name={`colors.${index}.colorHex`}
 									render={({ field: { onChange, value } }) => (
 										<div className="flex flex-col gap-1">
-											<label className="text-[10px] uppercase text-gray-500 font-bold">Hex</label>
-											<div className="flex items-center gap-2 border rounded px-2 py-1 bg-white">
+											<label className="text-xs font-semibold text-gray-600">Color</label>
+
+											<div className="h-[40px] flex items-center">
 												<input
 													type="color"
-													className="w-6 h-6 border-none bg-transparent cursor-pointer"
 													value={value}
 													onChange={onChange}
+													className="w-[40px] h-[40px] p-1 border border-gray-300 rounded-md cursor-pointer"
 												/>
-												<span className="text-xs">{value}</span>
 											</div>
 										</div>
 									)}
 								/>
 							</div>
-							<IconButton onClick={() => removeColor(index)} color="error">
-								{" "}
-								<DeleteOutline />{" "}
-							</IconButton>
+
+							<div className="col-span-1 flex justify-center">
+								<IconButton onClick={() => removeColor(index)} color="error" className="mt-6">
+									<DeleteOutline />
+								</IconButton>
+							</div>
 						</div>
 					))}
 				</div>
@@ -199,6 +199,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 
 			<div>
 				<h3 className="mb-3 text-sm font-bold text-gray-800 uppercase border-b pb-2">Images</h3>
+
 				<div className="space-y-3">
 					<ImageUploadInput
 						name="mainImageUrl"
@@ -207,6 +208,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 						label="Main image (URL)"
 						required
 					/>
+
 					<div className="grid grid-cols-2 gap-3">
 						{[1, 2, 3, 4].map(index => (
 							<ImageUploadInput
