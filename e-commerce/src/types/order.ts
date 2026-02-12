@@ -51,6 +51,7 @@ export interface CreateOrderItemPayload {
 	colorId?: string;
 	unitPrice: number;
 	quantity: number;
+	variantId?: number;
 }
 
 export interface UpdateOrderPayload {

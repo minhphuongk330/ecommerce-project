@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
+import { ProductVariant } from '../../entities/product-variant.entity';
 import { Product } from '../../entities/product.entity';
 import { MailService } from '../mail/mail.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -12,8 +13,13 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(ProductVariant)
+    private readonly variantRepository: Repository<ProductVariant>,
+
     private readonly mailService: MailService,
   ) {}
 
@@ -24,7 +30,13 @@ export class OrdersService {
 
   async findAll(): Promise<Order[]> {
     return await this.orderRepository.find({
-      relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
+      relations: [
+        'customer',
+        'address',
+        'orderItems',
+        'orderItems.product',
+        'orderItems.product.variants',
+      ],
       order: { createdAt: 'DESC' },
       withDeleted: true,
     });
@@ -33,7 +45,13 @@ export class OrdersService {
   async findByCustomerId(customerId: number): Promise<Order[]> {
     return await this.orderRepository.find({
       where: { customerId },
-      relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
+      relations: [
+        'customer',
+        'address',
+        'orderItems',
+        'orderItems.product',
+        'orderItems.product.variants',
+      ],
       order: { createdAt: 'DESC' },
       withDeleted: true,
     });
@@ -42,9 +60,16 @@ export class OrdersService {
   async findOne(id: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
+      relations: [
+        'customer',
+        'address',
+        'orderItems',
+        'orderItems.product',
+        'orderItems.product.variants',
+      ],
       withDeleted: true,
     });
+
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
@@ -54,7 +79,6 @@ export class OrdersService {
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
     const previousStatus = order.status;
-
     Object.assign(order, updateOrderDto);
 
     if (
@@ -63,6 +87,16 @@ export class OrdersService {
     ) {
       if (order.orderItems && order.orderItems.length > 0) {
         for (const orderItem of order.orderItems) {
+          if (orderItem.variantId) {
+            const variant = await this.variantRepository.findOne({
+              where: { id: orderItem.variantId },
+            });
+            if (variant) {
+              variant.stock += orderItem.quantity;
+              await this.variantRepository.save(variant);
+            }
+          }
+
           const product = await this.productRepository.findOne({
             where: { id: orderItem.productId },
           });

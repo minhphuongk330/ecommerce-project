@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Favorite } from '../../entities/favorite.entity';
+import { Repository, IsNull } from 'typeorm'; // Import IsNull
+import { Favorite } from '../../entities/favorite.entity'; // Kiểm tra đường dẫn import entity
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 
 @Injectable()
@@ -12,10 +12,15 @@ export class FavoritesService {
   ) {}
 
   async create(customerId: number, createFavoriteDto: CreateFavoriteDto) {
-    const { productId } = createFavoriteDto;
+    const { productId, variantId } = createFavoriteDto;
 
+    // 1. Kiểm tra tồn tại (Dùng IsNull() để tìm kiếm chính xác)
     const existing = await this.favoriteRepository.findOne({
-      where: { customerId, productId },
+      where: {
+        customerId,
+        productId,
+        variantId: variantId ? variantId : IsNull(),
+      },
     });
 
     if (existing) {
@@ -24,9 +29,13 @@ export class FavoritesService {
       );
     }
 
+    // 2. Tạo mới
     const newFavorite = this.favoriteRepository.create({
       customerId,
       productId,
+      // 👇 SỬA Ở ĐÂY: Bỏ '|| null'.
+      // Nếu variantId undefined, TypeORM sẽ tự hiểu là không có giá trị (tương đương null trong DB)
+      variantId: variantId, 
     });
 
     return await this.favoriteRepository.save(newFavorite);
@@ -35,14 +44,19 @@ export class FavoritesService {
   async findAll(customerId: number) {
     return await this.favoriteRepository.find({
       where: { customerId },
-      relations: ['product'],
+      relations: ['product', 'variant'], // Load thêm variant để hiển thị
       order: { id: 'DESC' },
     });
   }
 
-  async remove(customerId: number, productId: number) {
+  async remove(customerId: number, productId: number, variantId?: number) {
     const item = await this.favoriteRepository.findOne({
-      where: { customerId, productId },
+      where: {
+        customerId,
+        productId,
+      
+        variantId: variantId ? variantId : IsNull(),
+      },
     });
 
     if (item) {

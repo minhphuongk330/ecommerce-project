@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Product } from './product.entity';
+import { ProductVariant } from './product-variant.entity'; // Đảm bảo import đúng đường dẫn
 
 @Entity('favorites')
 export class Favorite {
@@ -19,6 +20,10 @@ export class Favorite {
   @Column()
   productId: number;
 
+  // 👇 SỬA Ở ĐÂY: Thêm '| null' vào kiểu dữ liệu
+  @Column({ nullable: true })
+  variantId: number | null; 
+
   @ManyToOne(() => Customer, (customer) => customer.favorites, {
     onDelete: 'CASCADE',
   })
@@ -30,4 +35,8 @@ export class Favorite {
   })
   @JoinColumn({ name: 'productId' })
   product: Product;
+
+  @ManyToOne(() => ProductVariant, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'variantId' })
+  variant: ProductVariant;
 }

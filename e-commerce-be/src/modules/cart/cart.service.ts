@@ -20,19 +20,30 @@ export class CartService {
   ) {}
 
   async create(customerId: number, createCartDto: CreateCartDto) {
-    const { productId, quantity, color } = createCartDto;
+    const { productId, quantity, color, variantId } = createCartDto;
 
     const product = await this.productRepository.findOne({
       where: { id: productId },
+      relations: ['variants'],
     });
 
     if (!product) {
       throw new NotFoundException('The product does not exist!');
     }
 
-    if (quantity > product.stock) {
+    let stockAvailable = product.stock;
+
+    if (variantId) {
+      const selectedVariant = product.variants.find((v) => v.id === variantId);
+      if (!selectedVariant) {
+        throw new BadRequestException('Selected variant does not exist');
+      }
+      stockAvailable = selectedVariant.stock;
+    }
+
+    if (quantity > stockAvailable) {
       throw new BadRequestException(
-        `Only ${product.stock} items available in stock. Cannot add ${quantity}.`,
+        `Only ${stockAvailable} items available for this version. Cannot add ${quantity}.`,
       );
     }
 
@@ -41,14 +52,15 @@ export class CartService {
         customerId,
         productId,
         color: color ? color : IsNull(),
+        variantId: variantId ? variantId : IsNull(),
       },
     });
 
     if (existing) {
       const totalQuantity = existing.quantity + quantity;
-      if (totalQuantity > product.stock) {
+      if (totalQuantity > stockAvailable) {
         throw new BadRequestException(
-          `Your cart already has ${existing.quantity} items. Stock available: ${product.stock}. Cannot add ${quantity} more.`,
+          `Cart already has ${existing.quantity}. Stock available: ${stockAvailable}. Cannot add more.`,
         );
       }
 
@@ -61,6 +73,7 @@ export class CartService {
       productId,
       quantity,
       color,
+      variantId,
     });
 
     return await this.cartRepository.save(newItem);
@@ -69,7 +82,8 @@ export class CartService {
   async findAll(customerId: number) {
     return await this.cartRepository.find({
       where: { customerId },
-      relations: ['product'],
+
+      relations: ['product', 'product.variants'],
       order: { id: 'DESC' },
     });
   }
@@ -77,16 +91,24 @@ export class CartService {
   async updateQuantity(customerId: number, id: number, quantity: number) {
     const item = await this.cartRepository.findOne({
       where: { id, customerId },
-      relations: ['product'],
+      relations: ['product', 'product.variants'],
     });
 
     if (!item) {
       throw new NotFoundException('Product not found in cart.');
     }
 
-    if (quantity > item.product.stock) {
+    let stockAvailable = item.product.stock;
+    if (item.variantId) {
+      const variant = item.product.variants.find(
+        (v) => v.id === item.variantId,
+      );
+      if (variant) stockAvailable = variant.stock;
+    }
+
+    if (quantity > stockAvailable) {
       throw new BadRequestException(
-        `Only ${item.product.stock} items available in stock. Cannot update quantity to ${quantity}.`,
+        `Only ${stockAvailable} items available. Cannot update to ${quantity}.`,
       );
     }
 

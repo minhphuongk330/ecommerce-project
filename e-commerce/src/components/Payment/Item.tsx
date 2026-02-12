@@ -7,6 +7,8 @@ interface SummaryItemProps {
 }
 
 export default function SummaryItem({ item, total }: SummaryItemProps) {
+	const selectedVariant = (item as any).variants?.find((v: any) => Number(v.id) === Number((item as any).variantId));
+
 	return (
 		<div className="flex items-center justify-between p-[16px] bg-[#F6F6F6] rounded-[10px]">
 			<div className="flex items-center gap-[16px]">
@@ -16,7 +18,9 @@ export default function SummaryItem({ item, total }: SummaryItemProps) {
 				<div className="flex flex-col">
 					<span className="text-[14px] lg:text-[16px] font-medium text-black truncate max-w-[150px]">{item.name}</span>
 					<span className="text-[12px] text-gray-500">
-						x{item.quantity} {item.selectedColor && `| ${item.selectedColor}`}
+						x{item.quantity}
+						{item.selectedColor && ` | ${item.selectedColor}`}
+						{selectedVariant && ` | ${selectedVariant.sku}`}
 					</span>
 				</div>
 			</div>

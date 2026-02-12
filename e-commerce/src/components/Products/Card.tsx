@@ -5,16 +5,23 @@ import { ProductCardProps } from "~/types/component";
 import Button from "~/components/atoms/Button";
 import FavoriteBtn from "~/components/atoms/FavoriteBtn";
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+interface ExtendedProductCardProps extends ProductCardProps {
+	preselectedSku?: string;
+	variantId?: number;
+}
+
+const ProductCard: React.FC<ExtendedProductCardProps> = ({ product, preselectedSku, variantId }) => {
 	const router = useRouter();
-	const handleBuyNow = () => {
-		router.push(`/products/${product.id}`);
+	const handleBuyNow = (e?: React.MouseEvent) => {
+		e?.stopPropagation();
+		const url = preselectedSku ? `/products/${product.id}?sku=${preselectedSku}` : `/products/${product.id}`;
+		router.push(url);
 	};
 
 	return (
 		<div className="w-full min-h-[290px] md:min-h-[432px] h-full flex flex-col items-center bg-[#F6F6F6] rounded-[9px] p-3 md:p-6 text-center transition-all duration-300">
 			<div className="w-full flex justify-end mb-1 md:mb-4">
-				<FavoriteBtn productId={product.id} iconSize="medium" />
+				<FavoriteBtn productId={product.id} variantId={variantId} iconSize="medium" />
 			</div>
 
 			<div
@@ -29,7 +36,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 			</div>
 
 			<div className="flex-grow flex flex-col items-center w-full mb-2 md:mb-4">
-				<h3 className="text-sm md:text-base font-medium text-black mb-1 md:mb-2 line-clamp-2 leading-tight min-h-[36px] md:min-h-[48px] flex items-center">
+				<h3
+					className="text-sm md:text-base font-medium text-black mb-1 md:mb-2 line-clamp-2 leading-tight min-h-[36px] md:min-h-[48px] flex items-center cursor-pointer hover:text-gray-600"
+					onClick={handleBuyNow}
+				>
 					{product.name}
 				</h3>
 				<p className="text-lg md:text-2xl font-semibold text-black tracking-wide">${product.price}</p>

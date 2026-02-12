@@ -24,7 +24,9 @@ export class OrderItem {
   @Column({ type: 'bigint', nullable: true, name: 'product_id' })
   productId: number;
 
-  @ManyToOne(() => Product, (product) => product.orderItems, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Product, (product) => product.orderItems, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
@@ -39,5 +41,7 @@ export class OrderItem {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-}
 
+  @Column({ type: 'bigint', nullable: true, name: 'variant_id' })
+  variantId: number;
+}

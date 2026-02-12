@@ -7,6 +7,7 @@ export interface CartItemBackend {
 	productId: number;
 	quantity: number;
 	color?: string;
+	variantId?: number;
 	product: Product;
 }
 
@@ -14,12 +15,12 @@ export const cartService = {
 	getAll: async (): Promise<CartItemBackend[]> => {
 		return await axiosClient.get("/cart");
 	},
-
-	create: async (productId: number, quantity: number, color?: string): Promise<CartItemBackend> => {
+	create: async (productId: number, quantity: number, color?: string, variantId?: number): Promise<CartItemBackend> => {
 		return await axiosClient.post("/cart", {
 			productId,
 			quantity,
 			color,
+			variantId,
 		});
 	},
 

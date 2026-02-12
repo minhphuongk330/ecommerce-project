@@ -3,4 +3,5 @@ export class CreateCartDto {
   quantity: number;
   color?: string;
   capacity?: string;
+  variantId?: number;
 }

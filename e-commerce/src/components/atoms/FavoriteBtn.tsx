@@ -11,27 +11,28 @@ interface FavoriteBtnProps {
 	productId: number;
 	className?: string;
 	iconSize?: "small" | "medium" | "large";
+	variantId?: number;
 }
 
-export default function FavoriteBtn({ productId, className = "", iconSize = "medium" }: FavoriteBtnProps) {
+export default function FavoriteBtn({ productId, variantId, className = "", iconSize = "medium" }: FavoriteBtnProps) {
 	const user = useAuthStore(state => state.user);
 	const { showNotification } = useNotification();
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
-	const isFavorite = useFavoriteStore(state => state.favorites.some(item => item.productId === productId));
+	const checkIsFavorite = useFavoriteStore(state => state.checkIsFavorite);
+	const isFavorite = checkIsFavorite(productId, variantId);
 	const [isAnimating, setIsAnimating] = useState(false);
-
 	const handleToggle = async (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-
 		if (!user) {
 			showNotification("Please log in to add to favorites.", "warning");
 			return;
 		}
 		setIsAnimating(true);
 		setTimeout(() => setIsAnimating(false), 300);
-		await toggleFavorite(productId);
+		await toggleFavorite(productId, variantId);
 	};
+
 	const IconComponent = isFavorite ? (
 		<Favorite color="error" fontSize={iconSize} />
 	) : (

@@ -36,4 +36,7 @@ export class CartItem {
   })
   @JoinColumn({ name: 'productId' })
   product: Product;
+
+  @Column({ nullable: true })
+  variantId: number;
 }

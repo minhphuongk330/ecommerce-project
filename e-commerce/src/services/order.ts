@@ -6,6 +6,7 @@ interface CartItemInput {
 	price: number | string;
 	quantity: number;
 	selectedColor?: string | null;
+	variantId?: number;
 }
 
 export const orderService = {
@@ -65,14 +66,16 @@ export const orderService = {
 				colorId: item.selectedColor || undefined,
 				unitPrice: Number(item.price),
 				quantity: item.quantity,
+				variantId: item.variantId,
 			}),
 		);
+		await Promise.all(createItemPromises);
 
-		const confirmationPromise = axiosClient.post(`/orders/${newOrder.id}/confirmation`).catch(error => {
+		try {
+			await axiosClient.post(`/orders/${newOrder.id}/confirmation`);
+		} catch (error) {
 			console.error("Failed to trigger email confirmation:", error);
-		});
-
-		await Promise.all([...createItemPromises, confirmationPromise]);
+		}
 
 		return newOrder;
 	},

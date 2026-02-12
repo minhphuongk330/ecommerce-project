@@ -22,9 +22,18 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const addToCart = useCartStore(state => state.addToCart);
 	const favorites = useFavoriteStore(state => state.favorites);
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
-	const isLiked = favorites.some(item => Number(item.productId) === Number(product.id));
 	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 	const { showNotification } = useNotification();
+
+	const isLiked = useMemo(() => {
+		return favorites.some(item => {
+			const sameProduct = Number(item.productId) === Number(product.id);
+			if (activeVariant) {
+				return sameProduct && Number(item.variantId) === Number(activeVariant.id);
+			}
+			return sameProduct && !item.variantId;
+		});
+	}, [favorites, product.id, activeVariant]);
 
 	const createQueryString = useCallback(
 		(name: string, value: string) => {
@@ -73,6 +82,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 			router.replace(pathname + "?" + createQueryString("color", firstColor), { scroll: false });
 		}
 	}, [formattedColors, activeColorParam, pathname, router, createQueryString]);
+
 	const activeColorName = activeColorParam || formattedColors[0]?.name || "";
 	const handleSelectColor = (colorName: string) => {
 		router.replace(pathname + "?" + createQueryString("color", colorName), { scroll: false });
@@ -99,6 +109,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 				...product,
 				variantId: activeVariant?.id,
 				price: activeVariant ? activeVariant.price : product.price,
+				variants: product.variants,
 			};
 			await addToCart(cartItemData, activeColorName);
 			showNotification("Added to cart successfully!", "success");
@@ -106,6 +117,27 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		} catch (error: any) {
 			const message = error?.response?.data?.message || "Failed to add to cart";
 			showNotification(message, "error");
+		}
+	};
+
+	const handleToggleFavorite = async () => {
+		if (!isAuthenticated) {
+			showNotification("Please log in to add to wishlist", "warning");
+			router.push(routerPaths.login);
+			return;
+		}
+
+		try {
+			await toggleFavorite(Number(product.id), activeVariant?.id);
+
+			if (!isLiked) {
+				showNotification("Added to wishlist!", "success");
+			} else {
+				showNotification("Removed from wishlist!", "success");
+			}
+		} catch (error) {
+			console.error(error);
+			showNotification("Something went wrong", "error");
 		}
 	};
 
@@ -169,7 +201,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 								onPrimaryClick={handleAddToCart}
 								disabled={currentStock === 0}
 								secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
-								onSecondaryClick={() => toggleFavorite(Number(product.id))}
+								onSecondaryClick={handleToggleFavorite}
 								className="mb-6"
 							/>
 							<DeliveryInfo />
