@@ -11,8 +11,12 @@ const CartList: React.FC<CartListProps> = ({ items, onRemove, onIncrease, onDecr
 
 	const handleConfirmDelete = async () => {
 		if (!deleteId) return;
-		await onRemove(deleteId);
-		setDeleteId(null);
+		try {
+			await onRemove(deleteId);
+			setDeleteId(null);
+		} catch (error) {
+			console.error("Delete from cart failed:", error);
+		}
 	};
 
 	return (

@@ -2,8 +2,16 @@
 import { useEffect, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { adminService } from "~/services/admin";
+import dayjs, { Dayjs } from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
 
-export default function OrderStatusChart() {
+dayjs.extend(isBetween);
+
+interface OrderStatusChartProps {
+	dateRange: { startDate: Dayjs; endDate: Dayjs };
+}
+
+export default function OrderStatusChart({ dateRange }: OrderStatusChartProps) {
 	const [data, setData] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
@@ -20,7 +28,11 @@ export default function OrderStatusChart() {
 			try {
 				setLoading(true);
 				const orders = await adminService.getOrders();
-				const statusCount = orders.reduce(
+				const filteredOrders = orders.filter(order =>
+					dayjs(order.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
+				);
+
+				const statusCount = filteredOrders.reduce(
 					(acc, order) => {
 						const status = order.status.toLowerCase();
 						acc[status] = (acc[status] || 0) + 1;
@@ -43,23 +55,18 @@ export default function OrderStatusChart() {
 		};
 
 		fetchOrderStatus();
-	}, []);
+	}, [dateRange]);
 
-	if (loading) {
+	if (loading)
+		return (
+			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[350px]">Loading...</div>
+		);
+	if (data.length === 0)
 		return (
 			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[350px]">
-				<div className="text-gray-500">Loading...</div>
+				No data in this period
 			</div>
 		);
-	}
-
-	if (data.length === 0) {
-		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[350px]">
-				<div className="text-gray-500">No order data available</div>
-			</div>
-		);
-	}
 
 	return (
 		<div className="bg-white p-6 rounded-lg shadow-md h-full flex flex-col">

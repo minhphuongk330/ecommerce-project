@@ -9,6 +9,7 @@ import { NotificationProvider } from "~/contexts/Notification";
 import { useAuthStore } from "~/stores/useAuth";
 import { useFavoriteStore } from "~/stores/useFavorite";
 import BackToTop from "./layout/BackToTop";
+import { usePathname } from "next/navigation";
 
 const customTheme = createTheme({
 	palette: {
@@ -33,6 +34,7 @@ const customTheme = createTheme({
 export default function Providers({ children }: { children: React.ReactNode }) {
 	const user = useAuthStore(state => state.user);
 	const { fetchFavorites, clearFavorites } = useFavoriteStore();
+	const isAdminPage = usePathname().startsWith("/admin");
 
 	useEffect(() => {
 		if (user) {
@@ -46,9 +48,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		<ThemeProvider theme={customTheme}>
 			<CssBaseline />
 			<NotificationProvider>
-				<Header />
+				{!isAdminPage && <Header />}
 				<main style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
-				<Footer />
+				{!isAdminPage && <Footer />}
 				<BackToTop />
 			</NotificationProvider>
 		</ThemeProvider>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { favoriteService, FavoriteItem } from "~/services/favorite";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { FavoriteItem, favoriteService } from "~/services/favorite";
 
 interface FavoriteState {
 	favorites: FavoriteItem[];
@@ -42,6 +42,7 @@ export const useFavoriteStore = create<FavoriteState>()(
 				} catch (error) {
 					console.error("Error toggling favorite:", error);
 					await fetchFavorites();
+					throw error;
 				}
 			},
 			checkIsFavorite: (productId: number, variantId?: number) => {

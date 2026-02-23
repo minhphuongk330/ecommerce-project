@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import CartList from "~/components/Cart/List";
 import OrderSummary from "~/components/Cart/OderSummary";
 import EmptyState from "~/components/atoms/EmptyState";
-import { useCartStore } from "~/stores/cart";
 import { useNotification } from "~/contexts/Notification";
+import { useCartStore } from "~/stores/cart";
 
 export default function CartPage() {
 	const cartItems = useCartStore(state => state.cartItems);
@@ -32,6 +32,24 @@ export default function CartPage() {
 		}
 	};
 
+	const handleRemove = async (cartItemId: number) => {
+		try {
+			await removeFromCart(cartItemId);
+		} catch (error: any) {
+			const message = error?.response?.data?.message || "Failed to remove item from cart";
+			showNotification(message, "error");
+		}
+	};
+
+	const handleDecrease = async (cartItemId: number) => {
+		try {
+			await decreaseQuantity(cartItemId);
+		} catch (error: any) {
+			const message = error?.response?.data?.message || "Failed to decrease quantity";
+			showNotification(message, "error");
+		}
+	};
+
 	return (
 		<div className="w-full bg-white min-h-screen">
 			<div className="w-full max-w-[1440px] mx-auto pt-[40px] pb-[112px] px-4 md:px-[160px]">
@@ -43,9 +61,9 @@ export default function CartPage() {
 							<h1 className="text-xl md:text-[24px] font-medium text-black">Shopping Cart</h1>
 							<CartList
 								items={cartItems}
-								onRemove={removeFromCart}
+								onRemove={handleRemove}
 								onIncrease={handleIncrease}
-								onDecrease={decreaseQuantity}
+								onDecrease={handleDecrease}
 							/>
 						</div>
 						<div className="w-full md:w-[536px]">

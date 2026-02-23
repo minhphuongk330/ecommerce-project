@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
-import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import React, { useState } from "react";
 import CommonIconButton from "~/components/atoms/IconButton";
 import { useNotification } from "~/contexts/Notification";
 import { useAuthStore } from "~/stores/useAuth";
@@ -21,6 +21,8 @@ export default function FavoriteBtn({ productId, variantId, className = "", icon
 	const checkIsFavorite = useFavoriteStore(state => state.checkIsFavorite);
 	const isFavorite = checkIsFavorite(productId, variantId);
 	const [isAnimating, setIsAnimating] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
 	const handleToggle = async (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -28,9 +30,18 @@ export default function FavoriteBtn({ productId, variantId, className = "", icon
 			showNotification("Please log in to add to favorites.", "warning");
 			return;
 		}
+		setIsLoading(true);
 		setIsAnimating(true);
-		setTimeout(() => setIsAnimating(false), 300);
-		await toggleFavorite(productId, variantId);
+		try {
+			await toggleFavorite(productId, variantId);
+			setTimeout(() => setIsAnimating(false), 300);
+		} catch (error) {
+			console.error("Error toggling favorite:", error);
+			showNotification("Failed to add to favorites. Please try again.", "error");
+			setIsAnimating(false);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const IconComponent = isFavorite ? (
@@ -43,7 +54,8 @@ export default function FavoriteBtn({ productId, variantId, className = "", icon
 		<CommonIconButton
 			onClick={handleToggle}
 			icon={IconComponent}
-			className={`${isAnimating ? "animate-bounce" : ""} ${className}`}
+			disabled={isLoading}
+			className={`${isAnimating ? "animate-bounce" : ""} ${isLoading ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
 		/>
 	);
 }

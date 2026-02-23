@@ -1,17 +1,17 @@
 "use client";
-import React, { useCallback, useMemo, useState, useEffect } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCartStore } from "~/stores/cart";
-import { useFavoriteStore } from "~/stores/useFavorite";
-import StepButton from "~/components/checkout/Button";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ColorSelector from "~/components/atoms/ColorSelector";
 import VariantSelector from "~/components/atoms/VariantSelector";
-import ImageGallery from "./ImageGallery";
-import DeliveryInfo from "./DeliveryInfo";
-import { routerPaths } from "~/utils/router";
-import { MainInfoProps } from "~/types/component";
-import { useAuthStore } from "~/stores/useAuth";
+import StepButton from "~/components/checkout/Button";
 import { useNotification } from "~/contexts/Notification";
+import { useCartStore } from "~/stores/cart";
+import { useAuthStore } from "~/stores/useAuth";
+import { useFavoriteStore } from "~/stores/useFavorite";
+import { MainInfoProps } from "~/types/component";
+import { routerPaths } from "~/utils/router";
+import DeliveryInfo from "./DeliveryInfo";
+import ImageGallery from "./ImageGallery";
 
 const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const router = useRouter();
@@ -19,6 +19,8 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const searchParams = useSearchParams();
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [activeVariant, setActiveVariant] = useState<any>(null);
+	const [isAddingToCart, setIsAddingToCart] = useState(false);
+	const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 	const addToCart = useCartStore(state => state.addToCart);
 	const favorites = useFavoriteStore(state => state.favorites);
 	const toggleFavorite = useFavoriteStore(state => state.toggleFavorite);
@@ -104,6 +106,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 			router.push(routerPaths.login);
 			return;
 		}
+		setIsAddingToCart(true);
 		try {
 			const cartItemData = {
 				...product,
@@ -117,6 +120,8 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		} catch (error: any) {
 			const message = error?.response?.data?.message || "Failed to add to cart";
 			showNotification(message, "error");
+		} finally {
+			setIsAddingToCart(false);
 		}
 	};
 
@@ -127,6 +132,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 			return;
 		}
 
+		setIsTogglingFavorite(true);
 		try {
 			await toggleFavorite(Number(product.id), activeVariant?.id);
 
@@ -138,6 +144,8 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		} catch (error) {
 			console.error(error);
 			showNotification("Something went wrong", "error");
+		} finally {
+			setIsTogglingFavorite(false);
 		}
 	};
 
@@ -200,6 +208,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 								primaryLabel={currentStock > 0 ? "Add to Cart" : "Out of Stock"}
 								onPrimaryClick={handleAddToCart}
 								disabled={currentStock === 0}
+								isLoading={isAddingToCart}
 								secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
 								onSecondaryClick={handleToggleFavorite}
 								className="mb-6"

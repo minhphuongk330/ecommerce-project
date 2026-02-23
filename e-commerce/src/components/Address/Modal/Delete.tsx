@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
 import Close from "@mui/icons-material/Close";
+import { useState } from "react";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { useNotification } from "~/contexts/Notification";
 import { addressService } from "~/services/address";
@@ -21,9 +21,13 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
-			console.error(error);
 			showNotification("Delete failed.", "error");
 		}
+	};
+
+	const handleError = (error: any) => {
+		const message = error?.response?.data?.message || "Delete failed.";
+		showNotification(message, "error");
 	};
 
 	return (
@@ -45,6 +49,7 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 				title="Delete Address"
 				message="Are you sure you want to delete this address?"
 				onConfirm={handleDelete}
+				onError={handleError}
 			/>
 		</>
 	);

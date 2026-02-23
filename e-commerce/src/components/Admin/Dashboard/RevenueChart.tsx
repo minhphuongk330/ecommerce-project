@@ -7,13 +7,8 @@ import { adminService } from "~/services/admin";
 
 dayjs.extend(isBetween);
 
-interface DateRange {
-	startDate: Dayjs;
-	endDate: Dayjs;
-}
-
 interface RevenueChartProps {
-	dateRange?: DateRange;
+	dateRange: { startDate: Dayjs; endDate: Dayjs };
 }
 
 export default function RevenueChart({ dateRange }: RevenueChartProps) {
@@ -25,22 +20,14 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 			try {
 				setLoading(true);
 				const orders = await adminService.getOrders();
-				let start, end;
-				if (dateRange) {
-					start = dateRange.startDate;
-					end = dateRange.endDate;
-				} else {
-					end = dayjs();
-					start = end.subtract(30, "day");
-				}
-
+				const start = dateRange.startDate;
+				const end = dateRange.endDate;
 				const dateMap: Record<string, { revenue: number; orders: number }> = {};
 				let current = start;
 				while (current.isBefore(end) || current.isSame(end, "day")) {
 					dateMap[current.format("MMM DD")] = { revenue: 0, orders: 0 };
 					current = current.add(1, "day");
 				}
-
 				orders.forEach(order => {
 					const date = dayjs(order.createdAt);
 					if (date.isBetween(start, end, null, "[]")) {
@@ -53,41 +40,25 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 					}
 				});
 
-				const chartData = Object.entries(dateMap)
-					.map(([date, { revenue, orders }]) => ({
-						date,
-						revenue: Math.max(0, Math.round(revenue)),
-						orders: Math.max(0, orders),
-					}))
-					.filter(item => item.date);
-
+				const chartData = Object.entries(dateMap).map(([date, { revenue, orders }]) => ({
+					date,
+					revenue: Math.max(0, Math.round(revenue)),
+					orders: Math.max(0, orders),
+				}));
 				setData(chartData);
 			} catch (error) {
 				console.error("Error fetching revenue data:", error);
-				setData([]);
 			} finally {
 				setLoading(false);
 			}
 		};
-
 		fetchRevenueData();
 	}, [dateRange]);
 
-	if (loading) {
+	if (loading)
 		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[400px]">
-				<div className="text-gray-500">Loading...</div>
-			</div>
+			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[400px]">Loading...</div>
 		);
-	}
-
-	if (data.length === 0) {
-		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[400px]">
-				<div className="text-gray-500">No revenue data available</div>
-			</div>
-		);
-	}
 
 	return (
 		<div className="bg-white p-6 rounded-lg shadow-md">

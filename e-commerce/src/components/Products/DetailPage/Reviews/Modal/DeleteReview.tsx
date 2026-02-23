@@ -21,9 +21,13 @@ export default function DeleteReview({ id, onSuccess }: DeleteReviewProps) {
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
-			console.error(error);
 			showNotification("Delete failed.", "error");
 		}
+	};
+
+	const handleError = (error: any) => {
+		const message = error?.response?.data?.message || "Delete failed.";
+		showNotification(message, "error");
 	};
 
 	return (
@@ -45,6 +49,7 @@ export default function DeleteReview({ id, onSuccess }: DeleteReviewProps) {
 				title="Delete Review"
 				message="Are you sure you want to delete this review? This action cannot be undone."
 				onConfirm={handleDelete}
+				onError={handleError}
 			/>
 		</>
 	);

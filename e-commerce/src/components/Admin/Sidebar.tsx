@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { routerPaths } from "~/utils/router";
 import CommonIconButton from "../atoms/IconButton";
+import HomeIcon from "@mui/icons-material/Home";
 
 interface SidebarProps {
 	isCollapsed: boolean;
@@ -20,6 +21,7 @@ const MENU_ITEMS = [
 	{ name: "Products", path: routerPaths.adminProducts, icon: <ShoppingBag /> },
 	{ name: "Orders", path: routerPaths.adminOrders, icon: <ShoppingCart /> },
 	{ name: "Customers", path: routerPaths.adminCustomers, icon: <People /> },
+	{ name: "Home", path: routerPaths.index, icon: <HomeIcon /> },
 ];
 
 export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
@@ -47,7 +49,8 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
 			<div className="flex-1 py-6 space-y-1 overflow-y-auto">
 				{MENU_ITEMS.map(item => {
-					const isActive = pathname.startsWith(item.path);
+					const isActive = item.path === routerPaths.index ? pathname === item.path : pathname.startsWith(item.path);
+
 					return (
 						<Link
 							key={item.path}

@@ -14,90 +14,125 @@ import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
 import TopSellingProducts from "~/components/Admin/Dashboard/TopSellingProducts";
 import StatCard from "~/components/atoms/StatCard";
 import { adminService } from "~/services/admin";
-import { DashboardStats } from "~/types/admin";
+import { AdminCustomer, AdminOrder } from "~/types/admin";
 
 dayjs.extend(isBetween);
 
 export default function DashboardPage() {
-	const [stats, setStats] = useState<DashboardStats | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
-	const [dateRange, setDateRange] = useState<DateRange>({
-		startDate: dayjs().subtract(30, "day"),
-		endDate: dayjs(),
+	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
+	const [allCustomers, setAllCustomers] = useState<AdminCustomer[]>([]);
+
+	const [filteredStats, setFilteredStats] = useState({
+		revenue: 0,
+		orders: 0,
+		newCustomers: 0,
+		pendingOrders: 0,
 	});
 
-	const fetchStats = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const [data, orders] = await Promise.all([adminService.getStats(), adminService.getOrders()]);
-			setStats(data);
-			const pendingCount = orders.filter(order => order.status?.toLowerCase() === "pending").length;
-			setPendingOrdersCount(pendingCount);
-		} catch (err: any) {
-			console.error("Dashboard Error:", err);
-			const message = err?.response?.data?.message || "Unable to load statistics data.";
-			setError(message);
-			setStats(null);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	const [dateRange, setDateRange] = useState<DateRange>({
+		startDate: dayjs().subtract(7, "day").startOf("day"),
+		endDate: dayjs().endOf("day"),
+	});
 
 	useEffect(() => {
-		fetchStats();
+		const fetchRawData = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+				const [ordersData, customersData] = await Promise.all([adminService.getOrders(), adminService.getCustomers()]);
+				setAllOrders(ordersData);
+				setAllCustomers(customersData);
+			} catch (err) {
+				console.error("Error fetching dashboard data:", err);
+				setError("Failed to load dashboard data. Please try refreshing the page.");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchRawData();
 	}, []);
+
+	useEffect(() => {
+		if (!allOrders.length && !allCustomers.length) return;
+
+		const filteredOrders = allOrders.filter(order =>
+			dayjs(order.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
+		);
+
+		const filteredCustomers = allCustomers.filter(customer =>
+			dayjs(customer.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
+		);
+
+		const totalRevenue = filteredOrders.reduce((sum, order) => {
+			const amount = typeof order.totalAmount === "string" ? parseFloat(order.totalAmount) : order.totalAmount;
+			return sum + (amount || 0);
+		}, 0);
+
+		const pendingCount = filteredOrders.filter(order => order.status.toLowerCase() === "pending").length;
+
+		setFilteredStats({
+			revenue: totalRevenue,
+			orders: filteredOrders.length,
+			newCustomers: filteredCustomers.length,
+			pendingOrders: pendingCount,
+		});
+	}, [dateRange, allOrders, allCustomers]);
 
 	const statItems = [
 		{
-			title: "Total Revenue",
-			value: stats ? `$${stats.totalRevenue.toLocaleString()}` : "0",
+			title: "Revenue",
+			value: `$${filteredStats.revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
 			icon: <AttachMoney />,
 			color: "bg-green-600",
 		},
 		{
-			title: "Total Orders",
-			value: stats?.totalOrders ?? 0,
+			title: "Orders",
+			value: filteredStats.orders,
 			icon: <ShoppingCartOutlined />,
 			color: "bg-blue-600",
 		},
 		{
 			title: "New Customers",
-			value: stats?.newCustomers ?? 0,
+			value: filteredStats.newCustomers,
 			icon: <PeopleOutline />,
 			color: "bg-orange-500",
 		},
 		{
 			title: "Pending Orders",
-			value: pendingOrdersCount,
+			value: filteredStats.pendingOrders,
 			icon: <AlertCircleOutlined />,
 			color: "bg-red-500",
 		},
 	];
 
-	if (loading) {
+	if (loading && allOrders.length === 0) {
 		return (
 			<div className="flex h-[50vh] items-center justify-center flex-col gap-3">
 				<div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-				<span className="text-gray-500 font-medium">Loading data...</span>
+				<span className="text-gray-500 font-medium">Loading dashboard data...</span>
 			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="p-6 bg-red-50 border border-red-200 rounded-lg text-red-700">
-				<h3 className="text-lg font-bold mb-2">Unable to load Dashboard</h3>
-				<p>
-					Error: <span className="font-semibold">{error}</span>
-				</p>
+			<div className="flex h-[50vh] items-center justify-center flex-col gap-4">
+				<div className="text-center">
+					<p className="text-red-600 font-medium mb-4 text-lg">{error}</p>
+					<button
+						onClick={() => window.location.reload()}
+						className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700 transition"
+					>
+						Refresh Page
+					</button>
+				</div>
 			</div>
 		);
 	}
-
-	if (!stats) return null;
 
 	return (
 		<div>
@@ -116,13 +151,13 @@ export default function DashboardPage() {
 					<RevenueChart dateRange={dateRange} />
 				</div>
 				<div>
-					<OrderStatusChart />
+					<OrderStatusChart dateRange={dateRange} />
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-[40px]">
 				<TopSellingProducts dateRange={dateRange} />
-				<RecentOrders />
+				<RecentOrders dateRange={dateRange} />
 			</div>
 
 			<div className="mb-[40px]">

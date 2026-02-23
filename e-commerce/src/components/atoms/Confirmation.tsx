@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import BaseDialog from "~/components/atoms/Dialog";
 import Button from "~/components/atoms/Button";
+import BaseDialog from "~/components/atoms/Dialog";
 
 interface ConfirmationModalProps {
 	isOpen: boolean;
@@ -11,6 +11,7 @@ interface ConfirmationModalProps {
 	message: string;
 	confirmLabel?: string;
 	confirmButtonColor?: string;
+	onError?: (error: any) => void;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -21,6 +22,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 	message,
 	confirmLabel = "Delete",
 	confirmButtonColor = "!bg-red-600 hover:!bg-red-700",
+	onError,
 }) => {
 	const [loading, setLoading] = useState(false);
 
@@ -30,6 +32,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 			await onConfirm();
 		} catch (e) {
 			console.error("Confirmation error:", e);
+			if (onError) {
+				onError(e);
+			}
 		} finally {
 			setLoading(false);
 			onClose();
@@ -40,9 +45,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 		<BaseDialog isOpen={isOpen} onClose={onClose} width={450}>
 			<div className="flex flex-col items-center text-center">
 				<h2 className="text-[28px] font-bold text-black pb-2 leading-tight">{title}</h2>
-
 				<p className="text-[16px] text-gray-700 mb-8">{message}</p>
-
 				<div className="flex justify-center gap-4 w-full">
 					<Button
 						type="button"
