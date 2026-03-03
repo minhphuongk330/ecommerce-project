@@ -7,7 +7,7 @@ interface UseProductFilterOptions {
 	itemsPerPage?: number;
 }
 
-const SYSTEM_PARAMS = ["page", "sort", "itemsPerPage"];
+const SYSTEM_PARAMS = ["page", "sort", "itemsPerPage", "categoryId", "name"];
 
 export const useProductFilter = (data: Product[] = [], { itemsPerPage = 9 }: UseProductFilterOptions = {}) => {
 	const router = useRouter();
@@ -32,9 +32,9 @@ export const useProductFilter = (data: Product[] = [], { itemsPerPage = 9 }: Use
 		router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
 	};
 
-	const toggleFilter = (categoryId: string, itemValue: string) => {
+	const toggleFilter = (filterKey: string, itemValue: string) => {
 		const currentParams = new URLSearchParams(searchParams.toString());
-		const currentValues = currentParams.get(categoryId)?.split(",") || [];
+		const currentValues = currentParams.get(filterKey)?.split(",") || [];
 
 		let newValues: string[];
 		if (currentValues.includes(itemValue)) {
@@ -44,53 +44,42 @@ export const useProductFilter = (data: Product[] = [], { itemsPerPage = 9 }: Use
 		}
 
 		if (newValues.length > 0) {
-			currentParams.set(categoryId, newValues.join(","));
+			currentParams.set(filterKey, newValues.join(","));
 		} else {
-			currentParams.delete(categoryId);
+			currentParams.delete(filterKey);
 		}
-
 		currentParams.delete("page");
 		updateURL(currentParams);
 	};
 
 	const handleChangePage = (page: number) => {
 		const currentParams = new URLSearchParams(searchParams.toString());
-		if (page > 1) {
-			currentParams.set("page", page.toString());
-		} else {
-			currentParams.delete("page");
-		}
+		if (page > 1) currentParams.set("page", page.toString());
+		else currentParams.delete("page");
 		updateURL(currentParams);
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
 	const { paginatedProducts, totalPages, totalCount } = useMemo(() => {
 		let result = [...data];
-		const activeCategories = Object.keys(selectedFilters);
+		const activeFilterKeys = Object.keys(selectedFilters);
 
-		if (activeCategories.length > 0) {
-			activeCategories.forEach(categoryId => {
-				const selectedValues = selectedFilters[categoryId];
-				if (selectedValues && selectedValues.length > 0) {
+		if (activeFilterKeys.length > 0) {
+			activeFilterKeys.forEach(filterKey => {
+				const requiredValues = selectedFilters[filterKey];
+
+				if (requiredValues && requiredValues.length > 0) {
 					result = result.filter(product => {
-						const productAttr = (product as any)[categoryId];
-						let productAttrValue = "";
-
-						if (productAttr) {
-							productAttrValue = String(productAttr);
-						} else if (Array.isArray((product as any).attributes)) {
-							const attr = (product as any).attributes.find(
-								(a: any) => a.name?.toLowerCase() === categoryId.toLowerCase() || a.id?.toString() === categoryId,
-							);
-							if (attr) productAttrValue = String(attr.value);
+						if (!product.attributes || typeof product.attributes !== "object") {
+							return false;
 						}
 
-						if (!productAttrValue) {
-							const productText = `${product.name} ${product.shortDescription || ""}`.toLowerCase();
-							return selectedValues.some(val => productText.includes(val.toLowerCase()));
-						}
-
-						return selectedValues.some(val => productAttrValue.toLowerCase().trim() === val.toLowerCase().trim());
+						const attributeKeyInProduct = Object.keys(product.attributes).find(
+							k => k.toLowerCase() === filterKey.toLowerCase(),
+						);
+						if (!attributeKeyInProduct) return false;
+						const productAttributeValue = product.attributes[attributeKeyInProduct];
+						return requiredValues.some(val => productAttributeValue.toLowerCase().includes(val.toLowerCase()));
 					});
 				}
 			});
@@ -98,10 +87,9 @@ export const useProductFilter = (data: Product[] = [], { itemsPerPage = 9 }: Use
 
 		const totalCount = result.length;
 		const totalPages = Math.ceil(totalCount / itemsPerPage);
-
 		const validPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
 		const startIndex = (validPage - 1) * itemsPerPage;
-		const paginatedProducts = result.slice(startIndex, startIndex + itemsPerPage);
+		const paginatedProducts = totalCount > 0 ? result.slice(startIndex, startIndex + itemsPerPage) : [];
 
 		return { paginatedProducts, totalPages, totalCount };
 	}, [selectedFilters, currentPage, data, itemsPerPage]);

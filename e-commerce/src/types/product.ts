@@ -1,4 +1,9 @@
 import { CategoryShort } from "./category";
+
+export interface ProductAttributes {
+	[key: string]: string;
+}
+
 export interface ProductImage {
 	id: number;
 	productId: number;
@@ -6,14 +11,16 @@ export interface ProductImage {
 	ordinal: number;
 	isPrimary: boolean;
 }
+
 export interface ProductColor {
 	id: number;
 	productId: number;
 	colorName: string;
 	colorHex: string;
 }
+
 export interface Product {
-	id: number;
+	id: number | string;
 	name: string;
 	categoryId: number;
 	category?: CategoryShort;
@@ -27,11 +34,12 @@ export interface Product {
 	extraImage3?: string;
 	extraImage4?: string;
 	isActive: boolean;
-	attribute?: string;
+	attributes?: ProductAttributes;
 	isFavorite?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
 	collection?: "New Arrival" | "Bestseller" | "Featured Products" | "Discount";
+	variants?: any[];
 }
 
 export interface ProductDetail extends Product {
@@ -57,7 +65,6 @@ export interface ProductDetail extends Product {
 			value: string | string[];
 		}[];
 	}[];
-	attributes?: any;
 }
 
 export interface CreateProductInput {
@@ -74,17 +81,20 @@ export interface CreateProductInput {
 	extraImage4?: string;
 	isActive?: boolean;
 }
+
 export interface CreateImageInput {
 	productId: number;
 	url: string;
 	ordinal?: number;
 	isPrimary?: boolean;
 }
+
 export interface CreateColorInput {
 	productId: number;
 	colorName: string;
 	colorHex?: string;
 }
+
 export interface ProductSpecs {
 	screen: string;
 	cpu: string;

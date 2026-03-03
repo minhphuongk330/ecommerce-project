@@ -21,7 +21,7 @@ const transformAttributeToFilter = (attr: AttributeDef): FilterCategory => {
 		: [];
 
 	return {
-		id: attr.id.toString(),
+		id: attr.name.toLowerCase(),
 		title: attr.name,
 		hasSearch: options.length > 1,
 		defaultOpen: false,
@@ -33,9 +33,7 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 	const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
 	const [loading, setLoading] = useState(true);
-
 	const { isMobileDrawerOpen, tempFilters, setTempFilters, toggleTempFilter } = useMobileFilter();
-
 	useEffect(() => {
 		if (isMobileDrawerOpen) {
 			setTempFilters(selectedFilters);
@@ -49,8 +47,22 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 			const relevantAttributes = categoryId
 				? allAttributes.filter(attr => Number(attr.categoryId) === Number(categoryId))
 				: allAttributes;
-			const transformedCategories = relevantAttributes.map(transformAttributeToFilter);
-			setFilterCategories(transformedCategories);
+			const uniqueMap = new Map<string, FilterCategory>();
+			relevantAttributes.forEach(attr => {
+				const newCat = transformAttributeToFilter(attr);
+				if (uniqueMap.has(newCat.id)) {
+					const existingCat = uniqueMap.get(newCat.id)!;
+					const combinedOptions = [...existingCat.options, ...newCat.options];
+					const uniqueOptionsMap = new Map();
+					combinedOptions.forEach(opt => uniqueOptionsMap.set(opt.name, opt));
+					existingCat.options = Array.from(uniqueOptionsMap.values());
+					existingCat.hasSearch = existingCat.options.length > 1;
+				} else {
+					uniqueMap.set(newCat.id, newCat);
+				}
+			});
+
+			setFilterCategories(Array.from(uniqueMap.values()));
 		} catch (error) {
 			console.error("Failed to fetch filter attributes", error);
 		} finally {

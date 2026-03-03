@@ -29,7 +29,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
 	return (
 		<div
-			className={`hidden md:flex min-h-screen bg-gray-900 text-white transition-all duration-300 flex-col flex-shrink-0 ${
+			className={`hidden md:flex h-screen sticky top-0 bg-gray-900 text-white transition-all duration-300 flex-col flex-shrink-0 ${
 				isCollapsed ? "w-20" : "w-64"
 			}`}
 		>
