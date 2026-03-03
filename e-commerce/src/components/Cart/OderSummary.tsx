@@ -5,7 +5,7 @@ import { OrderSummaryProps } from "~/types/cart";
 import Button from "@mui/material/Button";
 import { routerPaths } from "~/utils/router";
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, shipping, total }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => {
 	const router = useRouter();
 
 	return (
@@ -19,13 +19,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, shipping, to
 				</div>
 
 				<div className="flex justify-between items-center text-[#545454]">
-					<span className="text-sm md:text-base font-normal">Estimated Tax</span>
+					<span className="text-sm md:text-base font-normal">Tax (10%)</span>
 					<span className="text-sm md:text-base font-medium">${tax}</span>
 				</div>
 
 				<div className="flex justify-between items-center text-[#545454]">
-					<span className="text-sm md:text-base font-normal">Estimated shipping & Handling</span>
-					<span className="text-sm md:text-base font-medium">${shipping}</span>
+					<span className="text-sm md:text-base font-normal">Shipping & Handling</span>
+					<span className="text-sm md:text-base font-medium">Calculated at checkout</span>
 				</div>
 
 				<div className="flex justify-between items-center text-black mt-2">

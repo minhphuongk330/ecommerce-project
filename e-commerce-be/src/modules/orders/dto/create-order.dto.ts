@@ -14,5 +14,8 @@ export class CreateOrderDto {
   discount?: number;
   totalAmount?: number;
   note?: string;
-  orderItems?: OrderItemDto[]; 
+  orderItems?: OrderItemDto[];
+  subtotal?: number;
+  taxAmount?: number
+  shippingCost?: number; 
 }

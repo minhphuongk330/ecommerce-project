@@ -19,16 +19,16 @@ export const calculateShippingDays = (selectedDate: string): number => {
 };
 
 export const calculateSchedulePrice = (days: number): number => {
-	if (days <= 2) return 15;
-	if (days <= 5) return 8.5;
-	if (days <= 10) return 5;
+	if (days <= 1) return 15;
+	if (days <= 2) return 8.5;
+	if (days <= 6) return 5;
 	return 0;
 };
 
 export const getPriceLabel = (days: number): string => {
-	if (days <= 2) return "SUPER FAST";
-	if (days <= 5) return "EXPRESS";
-	if (days <= 10) return "STANDARD";
+	if (days <= 1) return "NEXT DAY";
+	if (days <= 2) return "EXPRESS";
+	if (days <= 7) return "STANDARD";
 	return "FREE";
 };
 

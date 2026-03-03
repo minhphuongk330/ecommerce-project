@@ -20,6 +20,7 @@ export const routerPaths = {
 	adminProducts: "/admin/products",
 	adminOrders: "/admin/orders",
 	adminCustomers: "/admin/customers",
+	comingsoon: "/coming-soon",
 };
 
 export const replacePathParams = (path: string, params: Record<string, string>) => {

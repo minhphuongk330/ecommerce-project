@@ -40,6 +40,15 @@ export class Order {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   discount: number;
 
+  @Column({type: 'decimal', precision: 12, scale: 2, default: 0})
+  subtotal: number;
+
+  @Column({type: 'decimal', precision: 12, scale: 2, default: 0})
+  taxAmount: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0})
+  shippingCost: number;
+
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0, name: 'total_amount' })
   totalAmount: number;
 

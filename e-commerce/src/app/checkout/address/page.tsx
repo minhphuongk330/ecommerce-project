@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AddressList from "~/components/Address/List";
 import CreateAddress from "~/components/Address/Modal/Create";
@@ -8,28 +7,30 @@ import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useNotification } from "~/contexts/Notification";
 import { useAddress } from "~/hooks/useAddress";
 import { routerPaths } from "~/utils/router";
+import { useCartStore } from "~/stores/cart";
 
 export default function AddressPage() {
 	const router = useRouter();
 	const { showNotification } = useNotification();
 	const { addresses, refresh } = useAddress();
-	const { selectedAddress, setSelectedAddress } = useCheckoutContext();
-	const [selectedId, setSelectedId] = useState<number | null>(selectedAddress?.id ? Number(selectedAddress.id) : null);
+	const { setSelectedAddress } = useCheckoutContext();
+	const selectedAddressId = useCartStore(state => state.selectedAddressId);
+	const setSelectedAddressId = useCartStore(state => state.setSelectedAddressId);
 
 	const handleCreateSuccess = async (newAddress?: any) => {
 		await refresh();
 		if (newAddress && (addresses.length === 0 || newAddress.isDefault)) {
-			setSelectedId(newAddress.id);
+			setSelectedAddressId(newAddress.id);
 		}
 	};
 
 	const handleNext = () => {
-		if (!selectedId) {
+		if (!selectedAddressId) {
 			showNotification("Please select an address to continue.", "error");
 			return;
 		}
 
-		const address = addresses.find(a => a.id === selectedId);
+		const address = addresses.find(a => a.id === selectedAddressId);
 
 		if (address) {
 			setSelectedAddress(address);
@@ -42,7 +43,12 @@ export default function AddressPage() {
 	return (
 		<div className="w-full flex flex-col gap-[64px]">
 			<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-[24px]">
-				<AddressList addresses={addresses} selectedId={selectedId} onSelect={setSelectedId} onRefresh={refresh} />
+				<AddressList
+					addresses={addresses}
+					selectedId={selectedAddressId}
+					onSelect={setSelectedAddressId}
+					onRefresh={refresh}
+				/>
 
 				<CreateAddress onSuccess={handleCreateSuccess} />
 
@@ -51,7 +57,7 @@ export default function AddressPage() {
 					justify="end"
 					primaryLabel="Next"
 					onPrimaryClick={handleNext}
-					disabled={!addresses.length || !selectedId}
+					disabled={!addresses.length || !selectedAddressId}
 					secondaryLabel="Back"
 					onSecondaryClick={() => router.back()}
 					className="mt-[40px] lg:mt-[100px]"

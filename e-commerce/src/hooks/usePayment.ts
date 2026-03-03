@@ -16,7 +16,7 @@ export const usePayment = () => {
 	const clearCart = useCartStore(state => state.clearCart);
 	const cartItems = useCartStore(state => state.cartItems);
 	const { selectedAddress } = useCheckoutContext();
-	const { total } = usePaymentSummary();
+	const { total, subtotal, taxAmount, shippingCost } = usePaymentSummary();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
@@ -40,7 +40,10 @@ export const usePayment = () => {
 				userId: Number(user.id),
 				addressId: selectedAddress.id,
 				totalAmount: total,
-				items: cartItems,
+				subtotal: subtotal,
+				taxAmount: taxAmount,
+				shippingCost: shippingCost,
+				items: cartItems as any,
 			});
 
 			clearCart();

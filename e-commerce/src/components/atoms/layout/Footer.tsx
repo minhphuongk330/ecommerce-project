@@ -1,14 +1,16 @@
 "use client";
-import React from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
-import IconButton from "@mui/material/IconButton";
 import Facebook from "@mui/icons-material/Facebook";
-import Twitter from "@mui/icons-material/Twitter";
 import Instagram from "@mui/icons-material/Instagram";
+import Twitter from "@mui/icons-material/Twitter";
 import YouTube from "@mui/icons-material/YouTube";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import { useRouter } from "next/navigation";
+import React from "react";
 import CyberLogo from "../CyberLogo";
+import { routerPaths } from "~/utils/router";
 
 const SOCIAL_ICONS = [
 	{ name: "Twitter", icon: Twitter },
@@ -45,6 +47,17 @@ const FOOTER_LINK_SECTIONS = [
 	},
 ];
 const Footer: React.FC = () => {
+	const router = useRouter();
+
+	const handleFooterLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+		e.preventDefault();
+		router.push(routerPaths.comingsoon);
+	};
+
+	const handleSocialIconClick = () => {
+		router.push(routerPaths.comingsoon);
+	};
+
 	return (
 		<Box
 			component="footer"
@@ -78,7 +91,12 @@ const Footer: React.FC = () => {
 						{SOCIAL_ICONS.map(item => {
 							const Icon = item.icon;
 							return (
-								<IconButton key={item.name} size="small" sx={{ color: "white" }}>
+								<IconButton
+									key={item.name}
+									size="small"
+									sx={{ color: "white", cursor: "pointer" }}
+									onClick={handleSocialIconClick}
+								>
 									<Icon sx={{ fontSize: { xs: 20, md: 24 } }} />
 								</IconButton>
 							);
@@ -115,7 +133,8 @@ const Footer: React.FC = () => {
 							<Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, md: 1 } }}>
 								{section.items.map(item => (
 									<Link
-										href="#"
+										href="/coming-soon"
+										onClick={handleFooterLinkClick}
 										key={item}
 										color="inherit"
 										underline="hover"
@@ -123,6 +142,7 @@ const Footer: React.FC = () => {
 										sx={{
 											color: "gray",
 											fontSize: { xs: "0.813rem", md: "inherit" },
+											cursor: "pointer",
 										}}
 									>
 										{item}

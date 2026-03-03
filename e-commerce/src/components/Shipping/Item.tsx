@@ -28,12 +28,6 @@ const ShippingListItem: React.FC<ShippingListItemProps> = ({
 		return calculateSchedulePrice(days);
 	}, [scheduledDate, isSchedule]);
 
-	const dynamicLabel = useMemo(() => {
-		if (!isSchedule || !scheduledDate) return "SCHEDULE";
-		const days = calculateShippingDays(scheduledDate);
-		return getPriceLabel(days);
-	}, [scheduledDate, isSchedule]);
-
 	const containerClass = useMemo(
 		() => (isSelected ? "border-black bg-white shadow-sm" : "border-[#EBEBEB] bg-white hover:border-gray-300"),
 		[isSelected],

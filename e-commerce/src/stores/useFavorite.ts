@@ -8,12 +8,17 @@ interface FavoriteState {
 	toggleFavorite: (productId: number, variantId?: number) => Promise<void>;
 	checkIsFavorite: (productId: number, variantId?: number) => boolean;
 	clearFavorites: () => void;
+	_hasHydrated: boolean;
+	setHasHydrated: (state: boolean) => void;
 }
 
 export const useFavoriteStore = create<FavoriteState>()(
 	persist(
 		(set, get) => ({
 			favorites: [],
+			_hasHydrated: false,
+			setHasHydrated: state => set({ _hasHydrated: state }),
+
 			fetchFavorites: async () => {
 				try {
 					const data = await favoriteService.getAll();
@@ -57,6 +62,10 @@ export const useFavoriteStore = create<FavoriteState>()(
 		{
 			name: "favorite-storage",
 			storage: createJSONStorage(() => localStorage),
+
+			onRehydrateStorage: () => state => {
+				state?.setHasHydrated(true);
+			},
 		},
 	),
 );

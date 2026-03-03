@@ -12,7 +12,7 @@ export interface CartItem {
 	selectedColor?: string;
 }
 
-const TAX_AMOUNT = 50;
+const TAX_RATE = 0.1;
 
 export const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 
@@ -54,11 +54,15 @@ export const usePaymentSummary = () => {
 		return { cost, label };
 	}, [selectedShippingMethod, scheduledDate]);
 
-	const { shippingCost, total, shipmentLabel } = useMemo(() => {
+	const { shippingCost, total, shipmentLabel, taxAmount } = useMemo(() => {
 		const { cost, label } = calculateShippingCost();
+
+		const calculatedTax = Math.round(subtotal * TAX_RATE * 100) / 100;
+
 		return {
 			shippingCost: cost,
-			total: subtotal + TAX_AMOUNT + cost,
+			taxAmount: calculatedTax,
+			total: subtotal + calculatedTax + cost,
 			shipmentLabel: label,
 		};
 	}, [calculateShippingCost, subtotal]);
@@ -70,7 +74,7 @@ export const usePaymentSummary = () => {
 		scheduledDate,
 		shipmentLabel,
 		subtotal,
-		taxAmount: TAX_AMOUNT,
+		taxAmount,
 		shippingCost,
 		total,
 	};

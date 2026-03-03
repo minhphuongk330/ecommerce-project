@@ -19,7 +19,7 @@ export const useShippingMethod = () => {
 				id: "free",
 				type: "regular",
 				price: 0,
-				name: "Regular shipment",
+				name: "Regular Shipment",
 				description: "Regular shipment",
 				estimatedDate: getFutureDate(7),
 			},

@@ -31,6 +31,8 @@ export interface Order {
 	orderItems: OrderItem[];
 	createdAt: string;
 	updatedAt: string;
+	subtotal?: number;
+	taxAmount?: number;
 }
 
 export interface CreateOrderPayload {
@@ -43,6 +45,8 @@ export interface CreateOrderPayload {
 	note?: string;
 	shippingCost?: number;
 	scheduledDeliveryDate?: string;
+	subtotal?: number;
+	taxAmount?: number;
 }
 
 export interface CreateOrderItemPayload {

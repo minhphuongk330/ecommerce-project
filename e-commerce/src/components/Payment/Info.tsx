@@ -9,6 +9,8 @@ interface SummaryInfoProps {
 }
 
 export default function SummaryInfo({ address, shipmentLabel, shippingMethod, scheduledDate }: SummaryInfoProps) {
+	const displayDate = shippingMethod?.type === "schedule" ? scheduledDate : shippingMethod?.estimatedDate;
+
 	return (
 		<div className="flex flex-col gap-[24px] mb-[24px]">
 			<div className="flex flex-col gap-[8px]">
@@ -19,8 +21,7 @@ export default function SummaryInfo({ address, shipmentLabel, shippingMethod, sc
 			<div className="flex flex-col gap-[8px]">
 				<span className="text-[14px] text-[#717171]">Shipment method</span>
 				<span className="text-[16px] text-black">
-					{shipmentLabel}
-					{shippingMethod?.type === "schedule" && scheduledDate && ` (${scheduledDate})`}
+					{shippingMethod?.name || "Not selected"} {displayDate ? `(${displayDate})` : ""}
 				</span>
 			</div>
 		</div>

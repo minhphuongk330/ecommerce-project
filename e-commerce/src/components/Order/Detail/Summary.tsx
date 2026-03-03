@@ -13,22 +13,34 @@ interface OrderSummaryProps {
 export default function OrderSummary({ order, onCancelOrder }: OrderSummaryProps) {
 	const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 	const isPending = order.status === "Pending";
+	const subtotal = Number(order.subtotal);
+	const tax = Number(order.taxAmount);
+	const shippingCost = Number(order.shippingCost);
+	const total = Number(order.totalAmount);
 
 	return (
 		<div className="bg-white p-6 rounded-lg border border-gray-200">
 			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Order Summary</h3>
+
 			<div className="space-y-3 text-sm">
 				<div className="flex justify-between text-gray-600">
 					<span>Subtotal</span>
-					<span>{formatPrice(Number(order.totalAmount))}</span>
+					<span className="font-medium">{formatPrice(subtotal)}</span>
 				</div>
+
 				<div className="flex justify-between text-gray-600">
-					<span>Discount</span>
-					<span className="text-green-600">-{formatPrice(Number(order.discount))}</span>
+					<span>Tax</span>
+					<span className="font-medium">{formatPrice(tax)}</span>
 				</div>
+
+				<div className="flex justify-between text-gray-600">
+					<span>Shipping & Handling</span>
+					<span className="font-medium">{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</span>
+				</div>
+
 				<div className="border-t pt-3 flex justify-between font-bold text-lg text-black">
 					<span>Total</span>
-					<span>{formatPrice(Number(order.totalAmount))}</span>
+					<span>{formatPrice(total)}</span>
 				</div>
 			</div>
 
