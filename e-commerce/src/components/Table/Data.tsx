@@ -23,7 +23,7 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 				initialState={{
 					pagination: { paginationModel: { page: 0, pageSize: 5 } },
 				}}
-				pageSizeOptions={[5]}
+				pageSizeOptions={[5, 10, 15, 20]}
 				autoHeight
 				rowHeight={80}
 				disableRowSelectionOnClick
@@ -47,9 +47,6 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 					},
 					"& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-cell:focus": {
 						outline: "none",
-					},
-					"& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
-						display: "none",
 					},
 					"& .MuiTablePagination-displayedRows": {
 						marginBottom: 0,

@@ -6,6 +6,8 @@ interface OrderHeaderProps {
 }
 
 export default function OrderHeader({ order }: OrderHeaderProps) {
+	console.log("DỮ LIỆU ORDER TỪ BACKEND:", order);
+
 	return (
 		<div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
 			<div className="flex justify-between items-center mb-4">
@@ -21,7 +23,17 @@ export default function OrderHeader({ order }: OrderHeaderProps) {
 					{order.status}
 				</span>
 			</div>
-			<p className="text-gray-500 text-sm">Placed on {dayjs(order.createdAt).format("MMMM DD, YYYY [at] HH:mm")}</p>
+
+			<div className="flex flex-col gap-1.5">
+				<p className="text-gray-500 text-sm">Placed on {dayjs(order.createdAt).format("MMMM DD, YYYY [at] HH:mm")}</p>
+
+				<p className="text-gray-700 text-sm">
+					Expected Delivery:{" "}
+					<span className="font-semibold text-blue-600">
+						{order.scheduledDeliveryDate ? dayjs(order.scheduledDeliveryDate).format("MMMM DD, YYYY") : "1"}
+					</span>
+				</p>
+			</div>
 		</div>
 	);
 }

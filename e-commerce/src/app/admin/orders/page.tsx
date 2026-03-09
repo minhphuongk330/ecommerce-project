@@ -5,7 +5,6 @@ import ExportButton from "~/components/Admin/ExportButton";
 import OrdersTable from "~/components/Table/Orders";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { useNotification } from "~/contexts/Notification";
-import { useSelection } from "~/hooks/useSelection";
 import { useTableFilter } from "~/hooks/useTableFilter";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
@@ -16,6 +15,8 @@ import { formatDate, formatPrice } from "~/utils/format";
 export default function OrdersPage() {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+	const selectCount = selectedIds.size;
 
 	const [confirmModal, setConfirmModal] = useState<{
 		isOpen: boolean;
@@ -100,6 +101,7 @@ export default function OrdersPage() {
 			formatter: value => value || "---",
 		},
 	];
+
 	const {
 		filteredData: filteredOrders,
 		filterState,
@@ -165,10 +167,28 @@ export default function OrdersPage() {
 		},
 	});
 
-	const { selectedIds, selectedItems, toggleSelect, toggleAll, clearSelection, selectCount } = useSelection({
-		data: filteredOrders,
-		getId: order => order.id,
-	});
+	const selectedItems = filteredOrders.filter(order => selectedIds.has(order.id));
+
+	const handleSelectChange = (id: number) => {
+		setSelectedIds(prev => {
+			const newSet = new Set(prev);
+			if (newSet.has(id)) newSet.delete(id);
+			else newSet.add(id);
+			return newSet;
+		});
+	};
+
+	const handleSelectAllVisible = (selected: boolean, visibleIds: number[]) => {
+		setSelectedIds(prev => {
+			const newSet = new Set(prev);
+			if (selected) {
+				visibleIds.forEach(id => newSet.add(id));
+			} else {
+				visibleIds.forEach(id => newSet.delete(id));
+			}
+			return newSet;
+		});
+	};
 
 	const onRequestStatusChange = (orderId: number, newStatus: string) => {
 		const currentOrder = allOrders.find(o => o.id === orderId);
@@ -182,6 +202,7 @@ export default function OrdersPage() {
 			newStatus,
 		});
 	};
+
 	const handleConfirmUpdate = async () => {
 		const { orderId, newStatus } = confirmModal;
 		if (!orderId || !newStatus) return;
@@ -198,9 +219,11 @@ export default function OrdersPage() {
 			closeConfirmModal();
 		}
 	};
+
 	const closeConfirmModal = () => {
 		setConfirmModal(prev => ({ ...prev, isOpen: false }));
 	};
+
 	const fetchOrders = async () => {
 		try {
 			setLoading(true);
@@ -213,12 +236,15 @@ export default function OrdersPage() {
 			setLoading(false);
 		}
 	};
+
 	useEffect(() => {
 		fetchOrders();
 	}, []);
+
 	if (loading) {
 		return <div className="p-8 text-gray-500">Loading order list...</div>;
 	}
+
 	return (
 		<div className="space-y-6">
 			<div className="flex justify-between items-center">
@@ -236,12 +262,13 @@ export default function OrdersPage() {
 						columns={exportColumns}
 						filename="orders"
 						label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
-						variant="csv"
+						variant="excel"
 						showCount={false}
 						disabled={selectCount === 0}
 					/>
 				</div>
 			</div>
+
 			<AdminFilter
 				fields={filterConfig.fields}
 				filterState={filterState}
@@ -255,8 +282,8 @@ export default function OrdersPage() {
 				orders={filteredOrders}
 				onStatusChange={onRequestStatusChange}
 				selectedIds={selectedIds}
-				onSelectChange={toggleSelect}
-				onSelectAll={toggleAll}
+				onSelectChange={handleSelectChange}
+				onSelectAll={handleSelectAllVisible}
 			/>
 
 			<ConfirmationModal

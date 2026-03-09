@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import TablePagination from "@mui/material/TablePagination";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Checkbox from "~/components/atoms/Checkbox";
 import StatusChip, { ChipColor } from "~/components/atoms/StatusChip";
@@ -32,7 +32,7 @@ interface Props {
 	onStatusChange: (orderId: number, newStatus: string) => void;
 	selectedIds?: Set<string | number>;
 	onSelectChange?: (id: number) => void;
-	onSelectAll?: (selected: boolean) => void;
+	onSelectAll?: (selected: boolean, ids: number[]) => void;
 }
 
 export default function OrdersTable({
@@ -48,6 +48,7 @@ export default function OrdersTable({
 	const [mounted, setMounted] = useState(false);
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 	useEffect(() => {
 		setMounted(true);
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -75,6 +76,11 @@ export default function OrdersTable({
 		setMobilePage(newPage);
 	};
 
+	const visibleIds = useMemo(() => {
+		const start = paginationModel.page * paginationModel.pageSize;
+		return orders.slice(start, start + paginationModel.pageSize).map(o => o.id);
+	}, [orders, paginationModel]);
+
 	const columns: GridColDef[] = [
 		{
 			field: "checkbox",
@@ -86,15 +92,16 @@ export default function OrdersTable({
 			align: "center" as const,
 			headerAlign: "center" as const,
 			renderHeader: () => {
-				const isAllSelected = orders.length > 0 && selectedIds.size === orders.length;
-				const isIndeterminate = selectedIds.size > 0 && selectedIds.size < orders.length;
+				const isAllVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+				const isIndeterminate =
+					visibleIds.length > 0 && visibleIds.some(id => selectedIds.has(id)) && !isAllVisibleSelected;
 
 				return (
 					<Checkbox
 						id="select-all"
-						checked={isAllSelected}
+						checked={isAllVisibleSelected}
 						indeterminate={isIndeterminate}
-						onChange={() => onSelectAll?.(!isAllSelected)}
+						onChange={() => onSelectAll?.(!isAllVisibleSelected, visibleIds)}
 					/>
 				);
 			},
@@ -109,7 +116,8 @@ export default function OrdersTable({
 		{
 			field: "id",
 			headerName: "ID",
-			width: 200,
+			flex: 1.2,
+			minWidth: 160,
 			disableColumnMenu: true,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => (
 				<button
@@ -123,7 +131,8 @@ export default function OrdersTable({
 		{
 			field: "customerName",
 			headerName: "Customer",
-			width: 180,
+			flex: 1,
+			minWidth: 150,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
 				const name = params.row.customer?.fullName || "Retail customer";
 				return (
@@ -138,10 +147,11 @@ export default function OrdersTable({
 		{
 			field: "customerEmail",
 			headerName: "Email",
-			width: 250,
+			flex: 1.5,
+			minWidth: 200,
 			valueGetter: (_, row) => row.customer?.email || "---",
 			renderCell: params => (
-				<span className="text-gray-600 truncate" title={params.value}>
+				<span className="text-gray-600 truncate" title={params.value as string}>
 					{params.value}
 				</span>
 			),
@@ -149,20 +159,23 @@ export default function OrdersTable({
 		{
 			field: "createdAt",
 			headerName: "Order date",
-			width: 140,
-			valueFormatter: value => formatDate(value),
+			flex: 0.8,
+			minWidth: 120,
+			valueFormatter: value => formatDate(value as string),
 		},
 		{
 			field: "totalAmount",
 			headerName: "Total amount",
-			width: 160,
-			valueFormatter: value => formatPrice(value),
+			flex: 0.8,
+			minWidth: 120,
+			valueFormatter: value => formatPrice(value as number),
 			cellClassName: "font-semibold text-gray-900",
 		},
 		{
 			field: "status",
 			headerName: "Status",
-			width: 140,
+			flex: 0.8,
+			minWidth: 120,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => (
 				<div className="flex items-center h-full">
 					<StatusChip label={params.value as string} color={STATUS_COLORS[params.value as string] || "default"} />
@@ -172,7 +185,8 @@ export default function OrdersTable({
 		{
 			field: "actions",
 			headerName: "Update Status",
-			width: 180,
+			flex: 1,
+			minWidth: 150,
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
 				const currentStatus = params.row.status;
@@ -196,7 +210,14 @@ export default function OrdersTable({
 		<>
 			{isDesktop && (
 				<div className="hidden md:block w-full h-[600px]">
-					<DataTable rows={orders} columns={columns} rowHeight={60} noRowsLabel="No orders yet." />
+					<DataTable
+						rows={orders}
+						columns={columns}
+						rowHeight={60}
+						noRowsLabel="No orders yet."
+						paginationModel={paginationModel}
+						onPaginationModelChange={setPaginationModel}
+					/>
 				</div>
 			)}
 

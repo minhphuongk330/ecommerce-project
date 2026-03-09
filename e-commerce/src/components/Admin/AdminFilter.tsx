@@ -129,7 +129,7 @@ const AdminFilter = memo<AdminFilterProps>(
 
 		return (
 			<div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-				<div className="flex justify-between items-center">
+				<div className="flex justify-end items-center">
 					{isFiltered && (
 						<button
 							onClick={onReset}
@@ -141,7 +141,7 @@ const AdminFilter = memo<AdminFilterProps>(
 					)}
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+				<div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
 					{fields.map(field => (
 						<div key={field.name} className="flex flex-col gap-1">
 							<label className="text-xs font-medium text-gray-600">{field.label}</label>

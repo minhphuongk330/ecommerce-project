@@ -1,3 +1,5 @@
+import * as XLSX from "xlsx";
+
 export interface ExportColumn<T> {
 	key: keyof T | string;
 	label: string;
@@ -10,62 +12,60 @@ export interface ExportOptions<T> {
 	data: T[];
 }
 
-function convertToCSV<T>(data: T[], columns: ExportColumn<T>[]): string {
-	const headers = columns.map(col => `"${col.label}"`).join(",");
+export function downloadExcel<T>(options: ExportOptions<T>): void {
+	const excelData = options.data.map(row => {
+		const rowData: Record<string, any> = {};
 
-	const rows = data.map(row => {
-		return columns
-			.map(col => {
-				let value: any = null;
+		options.columns.forEach(col => {
+			let value: any = null;
 
-				if (typeof col.key === "string" && col.key.includes(".")) {
-					const keys = col.key.split(".");
-					value = keys.reduce((obj, key) => obj?.[key], row);
-				} else {
-					value = row[col.key as keyof T];
-				}
+			if (typeof col.key === "string" && col.key.includes(".")) {
+				const keys = col.key.split(".");
+				value = keys.reduce((obj, key) => obj?.[key], row);
+			} else {
+				value = row[col.key as keyof T];
+			}
 
-				if (col.formatter) {
-					value = col.formatter(value, row);
-				}
+			if (col.formatter) {
+				value = col.formatter(value, row);
+			}
 
-				if (value === null || value === undefined) {
-					return '""';
-				}
+			if (value === null || value === undefined) {
+				value = "";
+			}
 
-				const stringValue = String(value).replace(/"/g, '""');
-				return `"${stringValue}"`;
-			})
-			.join(",");
+			rowData[col.label] = String(value);
+		});
+
+		return rowData;
 	});
 
-	return [headers, ...rows].join("\n");
-}
+	const ws = XLSX.utils.json_to_sheet(excelData);
 
-export function downloadCSV<T>(options: ExportOptions<T>): void {
-	const csv = convertToCSV(options.data, options.columns);
+	const colWidths = options.columns.map(col => {
+		const labelLen = col.label.length;
+		const maxContentLen = excelData.reduce((max, row) => {
+			const content = String(row[col.label] || "");
+			return content.length > max ? content.length : max;
+		}, 0);
 
-	const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-	const url = URL.createObjectURL(blob);
+		return { wch: Math.max(labelLen, maxContentLen) + 2 };
+	});
+	ws["!cols"] = colWidths;
 
-	const link = document.createElement("a");
-	link.href = url;
-	link.download = `${options.filename}_${new Date().getTime()}.csv`;
-	link.click();
-
-	URL.revokeObjectURL(url);
+	const wb = XLSX.utils.book_new();
+	XLSX.utils.book_append_sheet(wb, ws, "Data");
+	XLSX.writeFile(wb, `${options.filename}_${new Date().getTime()}.xlsx`);
 }
 
 export function downloadJSON<T>(filename: string, data: T[]): void {
 	const json = JSON.stringify(data, null, 2);
 	const blob = new Blob([json], { type: "application/json;charset=utf-8;" });
 	const url = URL.createObjectURL(blob);
-
 	const link = document.createElement("a");
 	link.href = url;
 	link.download = `${filename}_${new Date().getTime()}.json`;
 	link.click();
-
 	URL.revokeObjectURL(url);
 }
 

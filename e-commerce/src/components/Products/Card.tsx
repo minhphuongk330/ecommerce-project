@@ -21,7 +21,7 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({ product, preselectedS
 	return (
 		<div className="w-full min-h-[290px] md:min-h-[432px] h-full flex flex-col items-center bg-[#F6F6F6] rounded-[9px] p-3 md:p-6 text-center transition-all duration-300">
 			<div className="w-full flex justify-end mb-1 md:mb-4">
-				<FavoriteBtn productId={product.id} variantId={variantId} iconSize="medium" />
+				<FavoriteBtn productId={Number(product.id)} variantId={variantId} iconSize="medium" />
 			</div>
 
 			<div
