@@ -32,7 +32,8 @@ export interface PaginationProps {
 }
 export interface CheckboxProps {
 	id: string;
-	label: string;
+	label?: string;
 	checked: boolean;
+	indeterminate?: boolean;
 	onChange: () => void;
 }

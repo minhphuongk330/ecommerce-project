@@ -1,12 +1,12 @@
-import { UpdateProductDto } from './../products/dto/update-product.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Category } from '../../entities/category.entity';
+import { Customer, Role } from '../../entities/customer.entity';
 import { Order } from '../../entities/order.entity';
 import { Product } from '../../entities/product.entity';
-import { Customer, Role } from '../../entities/customer.entity';
-import { Category } from '../../entities/category.entity';
 import { CreateProductDto } from '../products/dto/create-product.dto';
+import { UpdateProductDto } from './../products/dto/update-product.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
@@ -122,7 +122,14 @@ export class AdminService {
 
   async getOrders() {
     return this.orderRepository.find({
-      relations: ['customer', 'orderItems', 'orderItems.product'],
+      relations: [
+        'customer',
+        'address',
+        'orderItems',
+        'orderItems.product',
+        'orderItems.product.variants',
+        'orderItems.product.productColors',
+      ],
       order: { createdAt: 'DESC' },
     });
   }
@@ -130,7 +137,14 @@ export class AdminService {
   async getOrderDetail(id: number) {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['customer', 'address', 'orderItems', 'orderItems.product'],
+      relations: [
+        'customer',
+        'address',
+        'orderItems',
+        'orderItems.product',
+        'orderItems.product.variants',
+        'orderItems.product.productColors',
+      ],
     });
     if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
     return order;

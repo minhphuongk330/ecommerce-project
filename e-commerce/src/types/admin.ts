@@ -107,5 +107,12 @@ export interface AdminOrder {
 		fullName: string;
 		email: string;
 	};
+	address?: {
+		id: number;
+		receiverName: string;
+		phone: string;
+		address: string;
+		isDefault?: boolean;
+	};
 	orderItems?: AdminOrderItem[];
 }

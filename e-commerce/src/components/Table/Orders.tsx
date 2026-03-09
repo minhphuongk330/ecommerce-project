@@ -1,12 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import CloseIcon from "@mui/icons-material/Close";
 import TablePagination from "@mui/material/TablePagination";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import Checkbox from "~/components/atoms/Checkbox";
+import StatusChip, { ChipColor } from "~/components/atoms/StatusChip";
+import DataTable from "~/components/Table/Data";
 import { AdminOrder } from "~/types/admin";
 import { formatDate, formatPrice } from "~/utils/format";
+import { router } from "~/utils/router";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
-import DataTable from "~/components/Table/Data";
-import StatusChip, { ChipColor } from "~/components/atoms/StatusChip";
 
 const STATUS_COLORS: Record<string, ChipColor> = {
 	Pending: "warning",
@@ -25,19 +30,46 @@ const STATUS_OPTIONS: DropdownOption[] = [
 interface Props {
 	orders: AdminOrder[];
 	onStatusChange: (orderId: number, newStatus: string) => void;
+	selectedIds?: Set<string | number>;
+	onSelectChange?: (id: number) => void;
+	onSelectAll?: (selected: boolean) => void;
 }
 
-export default function OrdersTable({ orders, onStatusChange }: Props) {
+export default function OrdersTable({
+	orders,
+	onStatusChange,
+	selectedIds = new Set(),
+	onSelectChange,
+	onSelectAll,
+}: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
+	const [mounted, setMounted] = useState(false);
+	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
 	useEffect(() => {
+		setMounted(true);
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
 		handleResize();
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
+
+	useEffect(() => {
+		if (selectedOrder) {
+			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+			document.body.style.overflow = "hidden";
+			document.body.style.paddingRight = `${scrollBarWidth}px`;
+		} else {
+			document.body.style.overflow = "";
+			document.body.style.paddingRight = "";
+		}
+		return () => {
+			document.body.style.overflow = "";
+			document.body.style.paddingRight = "";
+		};
+	}, [selectedOrder]);
 
 	const handleMobilePageChange = (event: unknown, newPage: number) => {
 		setMobilePage(newPage);
@@ -45,10 +77,48 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 
 	const columns: GridColDef[] = [
 		{
+			field: "checkbox",
+			headerName: "",
+			width: 50,
+			minWidth: 50,
+			sortable: false,
+			filterable: false,
+			align: "center" as const,
+			headerAlign: "center" as const,
+			renderHeader: () => {
+				const isAllSelected = orders.length > 0 && selectedIds.size === orders.length;
+				const isIndeterminate = selectedIds.size > 0 && selectedIds.size < orders.length;
+
+				return (
+					<Checkbox
+						id="select-all"
+						checked={isAllSelected}
+						indeterminate={isIndeterminate}
+						onChange={() => onSelectAll?.(!isAllSelected)}
+					/>
+				);
+			},
+			renderCell: (params: GridRenderCellParams<AdminOrder>) => (
+				<Checkbox
+					id={`select-order-${params.row.id}`}
+					checked={selectedIds.has(params.row.id)}
+					onChange={() => onSelectChange?.(params.row.id)}
+				/>
+			),
+		},
+		{
 			field: "id",
 			headerName: "ID",
-			width: 100,
-			valueGetter: (_, row) => `#${row?.orderNo || row?.id}`,
+			width: 200,
+			disableColumnMenu: true,
+			renderCell: (params: GridRenderCellParams<AdminOrder>) => (
+				<button
+					onClick={() => setSelectedOrder(params.row)}
+					className="font-bold text-blue-600 hover:underline transition-colors focus:outline-none"
+				>
+					#{params.row.orderNo || params.row.id}
+				</button>
+			),
 		},
 		{
 			field: "customerName",
@@ -68,7 +138,7 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 		{
 			field: "customerEmail",
 			headerName: "Email",
-			width: 220,
+			width: 250,
 			valueGetter: (_, row) => row.customer?.email || "---",
 			renderCell: params => (
 				<span className="text-gray-600 truncate" title={params.value}>
@@ -85,7 +155,7 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 		{
 			field: "totalAmount",
 			headerName: "Total amount",
-			width: 140,
+			width: 160,
 			valueFormatter: value => formatPrice(value),
 			cellClassName: "font-semibold text-gray-900",
 		},
@@ -102,7 +172,7 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 		{
 			field: "actions",
 			headerName: "Update Status",
-			width: 160,
+			width: 180,
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
 				const currentStatus = params.row.status;
@@ -146,7 +216,12 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 										className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3"
 									>
 										<div className="flex justify-between items-center border-b border-gray-50 pb-2">
-											<span className="text-xs font-bold text-gray-400">#{order.orderNo || order.id}</span>
+											<button
+												onClick={() => setSelectedOrder(order)}
+												className="text-xs font-bold text-blue-600 hover:underline"
+											>
+												#{order.orderNo || order.id}
+											</button>
 											<span className="text-xs text-gray-500">{formatDate(order.createdAt)}</span>
 										</div>
 
@@ -217,6 +292,114 @@ export default function OrdersTable({ orders, onStatusChange }: Props) {
 					</div>
 				)}
 			</div>
+
+			{mounted &&
+				selectedOrder &&
+				createPortal(
+					<div
+						className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 transition-all"
+						onClick={() => setSelectedOrder(null)}
+					>
+						<div
+							className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+							onClick={e => e.stopPropagation()}
+						>
+							<div className="p-6 border-b border-gray-100 flex justify-between items-start">
+								<div>
+									<h3 className="text-xl font-bold text-gray-800">Order Details</h3>
+									<p className="text-sm text-gray-500 mt-1">Order #{selectedOrder.orderNo || selectedOrder.id}</p>
+								</div>
+								<button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 p-1">
+									<CloseIcon />
+								</button>
+							</div>
+
+							<div className="p-6 overflow-y-auto flex-1 bg-gray-50/20 custom-scrollbar">
+								<div className="mb-6">
+									<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+										Delivery Address
+									</h4>
+									{selectedOrder.address && (
+										<div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+											<p className="text-sm font-semibold text-gray-900 mb-2">{selectedOrder.address.receiverName}</p>
+											<p className="text-xs text-gray-600 mb-2">{selectedOrder.address.address}</p>
+											<p className="text-xs text-gray-600">{selectedOrder.address.phone}</p>
+										</div>
+									)}
+								</div>
+
+								<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+									Products in this order
+								</h4>
+								<ul className="flex flex-col gap-3">
+									{selectedOrder.orderItems?.map(item => {
+										const selectedVariant = (item.product as any)?.variants?.find(
+											(v: any) => Number(v.id) === Number((item as any).variantId),
+										);
+										const variantDisplay = selectedVariant?.sku || (item as any)?.variant?.sku;
+										const productLink = router.product(item.productId);
+
+										return (
+											<li
+												key={item.id}
+												className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
+											>
+												<div className="flex items-center gap-4">
+													<Link
+														href={productLink}
+														className="w-16 h-16 rounded border border-gray-100 overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
+													>
+														<img
+															src={item.product?.mainImageUrl || "/images/placeholder-product.png"}
+															className="w-full h-full object-cover"
+															onError={e => {
+																(e.target as HTMLImageElement).src = "/images/placeholder-product.png";
+															}}
+														/>
+													</Link>
+													<div className="flex flex-col gap-1">
+														<Link
+															href={productLink}
+															className="font-bold text-gray-800 text-sm hover:text-blue-600 hover:underline"
+														>
+															{item.product?.name}
+														</Link>
+														<div className="flex flex-wrap items-center gap-2">
+															<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+																Qty: {item.quantity}
+															</span>
+															{item.colorId && (
+																<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+																	Color: {item.colorId}
+																</span>
+															)}
+															{variantDisplay && (
+																<span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+																	Variant: {variantDisplay}
+																</span>
+															)}
+														</div>
+													</div>
+												</div>
+												<span className="font-bold text-gray-900 text-sm">{formatPrice(item.unitPrice)}</span>
+											</li>
+										);
+									})}
+								</ul>
+							</div>
+
+							<div className="p-4 border-t border-gray-100 flex justify-end bg-white">
+								<button
+									onClick={() => setSelectedOrder(null)}
+									className="px-8 py-2 bg-[#111827] text-white font-bold rounded-md hover:bg-black active:scale-95 transition-all"
+								>
+									Close
+								</button>
+							</div>
+						</div>
+					</div>,
+					document.body,
+				)}
 		</>
 	);
 }

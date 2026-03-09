@@ -34,9 +34,9 @@ function getDateRangeByPeriod(period: TimePeriod): DateRangeInfo {
 
 	switch (period) {
 		case "weekly":
-			startDate = dayjs().subtract(7, "day").startOf("day");
+			startDate = dayjs().subtract(6, "day").startOf("day");
 			previousEndDate = startDate.subtract(1, "day").endOf("day");
-			previousStartDate = previousEndDate.subtract(7, "day").startOf("day");
+			previousStartDate = previousEndDate.subtract(6, "day").startOf("day");
 			break;
 		case "monthly":
 			startDate = dayjs().startOf("month");
@@ -49,55 +49,82 @@ function getDateRangeByPeriod(period: TimePeriod): DateRangeInfo {
 			previousStartDate = previousEndDate.subtract(1, "year").startOf("year");
 			break;
 	}
-
-	return {
-		startDate,
-		endDate,
-		previousStartDate,
-		previousEndDate,
-	};
+	return { startDate, endDate, previousStartDate, previousEndDate };
 }
 
 function calculatePercentageChange(current: number, previous: number): number {
-	if (previous === 0) return 0;
+	if (previous === 0) return current > 0 ? 100 : 0;
 	return Math.round(((current - previous) / previous) * 100);
 }
 
-// Revenue Card Component
+function generateRealChartData(
+	items: any[],
+	startDate: dayjs.Dayjs,
+	endDate: dayjs.Dayjs,
+	period: TimePeriod,
+	type: "revenue" | "count",
+	statusFilter?: string,
+) {
+	const dataPoints: { name: string; value: number; _timestamp: number }[] = [];
+	let current = startDate.clone();
+	let stepUnit: dayjs.ManipulateType = period === "yearly" ? "month" : "day";
+	let formatString = period === "yearly" ? "MMM YYYY" : "DD/MM";
+
+	while (current.isBefore(endDate) || current.isSame(endDate, stepUnit)) {
+		dataPoints.push({
+			name: current.format(formatString),
+			value: 0,
+			_timestamp: current.startOf(stepUnit).valueOf(),
+		});
+		current = current.add(1, stepUnit);
+	}
+
+	items.forEach(item => {
+		if (statusFilter && item.status?.toLowerCase() !== statusFilter.toLowerCase()) return;
+
+		const itemDate = dayjs(item.createdAt);
+		if (itemDate.isBetween(startDate, endDate, null, "[]")) {
+			const targetTime = itemDate.startOf(stepUnit).valueOf();
+			const bucketIndex = dataPoints.findIndex(dp => dp._timestamp === targetTime);
+
+			if (bucketIndex !== -1) {
+				if (type === "revenue") {
+					const amount = parseFloat(String(item.totalAmount)) || 0;
+					dataPoints[bucketIndex].value += amount;
+				} else {
+					dataPoints[bucketIndex].value += 1;
+				}
+			}
+		}
+	});
+
+	return dataPoints.map(dp => ({
+		name: dp.name,
+		value: type === "revenue" ? Number(dp.value.toFixed(2)) : dp.value,
+	}));
+}
+
 function RevenueStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<TimePeriod>("weekly");
 	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ value: number }>>([]);
+	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
 
 	useEffect(() => {
-		const dateRange = getDateRangeByPeriod(period);
-
-		const filteredOrders = allOrders.filter(order =>
-			dayjs(order.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
-		);
-
-		const previousOrders = allOrders.filter(order =>
-			dayjs(order.createdAt).isBetween(dateRange.previousStartDate, dateRange.previousEndDate, null, "[]"),
-		);
-
-		const currentRevenue = filteredOrders.reduce((sum, order) => {
-			const amount = typeof order.totalAmount === "string" ? parseFloat(order.totalAmount) : order.totalAmount;
-			return sum + (amount || 0);
-		}, 0);
-
-		const previousRevenue = previousOrders.reduce((sum, order) => {
-			const amount = typeof order.totalAmount === "string" ? parseFloat(order.totalAmount) : order.totalAmount;
-			return sum + (amount || 0);
-		}, 0);
-
-		setStats({ current: currentRevenue, previous: previousRevenue });
-		setChartData(Array.from({ length: 7 }).map(() => ({ value: Math.floor(Math.random() * 10000) })));
+		const range = getDateRangeByPeriod(period);
+		const currentRev = allOrders
+			.filter(o => dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]"))
+			.reduce((s, o) => s + (parseFloat(String(o.totalAmount)) || 0), 0);
+		const prevRev = allOrders
+			.filter(o => dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"))
+			.reduce((s, o) => s + (parseFloat(String(o.totalAmount)) || 0), 0);
+		setStats({ current: currentRev, previous: prevRev });
+		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "revenue"));
 	}, [period, allOrders]);
 
 	return (
 		<StatCard
 			title="Total Earnings"
-			value={`$${stats.current.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+			value={`$${stats.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
 			icon={<AttachMoney />}
 			color="bg-teal-500"
 			percentage={calculatePercentageChange(stats.current, stats.previous)}
@@ -107,25 +134,23 @@ function RevenueStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
 	);
 }
 
-// Orders Card Component
 function OrdersStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<TimePeriod>("weekly");
 	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ value: number }>>([]);
+	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
 
 	useEffect(() => {
-		const dateRange = getDateRangeByPeriod(period);
+		const range = getDateRangeByPeriod(period);
 
-		const filteredOrders = allOrders.filter(order =>
-			dayjs(order.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
-		);
+		const currCount = allOrders.filter(o =>
+			dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]"),
+		).length;
+		const prevCount = allOrders.filter(o =>
+			dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"),
+		).length;
 
-		const previousOrders = allOrders.filter(order =>
-			dayjs(order.createdAt).isBetween(dateRange.previousStartDate, dateRange.previousEndDate, null, "[]"),
-		);
-
-		setStats({ current: filteredOrders.length, previous: previousOrders.length });
-		setChartData(Array.from({ length: 7 }).map(() => ({ value: Math.floor(Math.random() * 100) })));
+		setStats({ current: currCount, previous: prevCount });
+		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "count"));
 	}, [period, allOrders]);
 
 	return (
@@ -141,25 +166,23 @@ function OrdersStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
 	);
 }
 
-// Customers Card Component
 function CustomersStatCard({ allCustomers }: { allCustomers: AdminCustomer[] }) {
 	const [period, setPeriod] = useState<TimePeriod>("weekly");
 	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ value: number }>>([]);
+	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
 
 	useEffect(() => {
-		const dateRange = getDateRangeByPeriod(period);
+		const range = getDateRangeByPeriod(period);
 
-		const filteredCustomers = allCustomers.filter(customer =>
-			dayjs(customer.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]"),
-		);
+		const currCount = allCustomers.filter(c =>
+			dayjs(c.createdAt).isBetween(range.startDate, range.endDate, null, "[]"),
+		).length;
+		const prevCount = allCustomers.filter(c =>
+			dayjs(c.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"),
+		).length;
 
-		const previousCustomers = allCustomers.filter(customer =>
-			dayjs(customer.createdAt).isBetween(dateRange.previousStartDate, dateRange.previousEndDate, null, "[]"),
-		);
-
-		setStats({ current: filteredCustomers.length, previous: previousCustomers.length });
-		setChartData(Array.from({ length: 7 }).map(() => ({ value: Math.floor(Math.random() * 50) })));
+		setStats({ current: currCount, previous: prevCount });
+		setChartData(generateRealChartData(allCustomers, range.startDate, range.endDate, period, "count"));
 	}, [period, allCustomers]);
 
 	return (
@@ -175,29 +198,27 @@ function CustomersStatCard({ allCustomers }: { allCustomers: AdminCustomer[] }) 
 	);
 }
 
-// Pending Orders Card Component
 function PendingOrdersStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<TimePeriod>("weekly");
 	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ value: number }>>([]);
+	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
 
 	useEffect(() => {
-		const dateRange = getDateRangeByPeriod(period);
+		const range = getDateRangeByPeriod(period);
 
-		const filteredOrders = allOrders.filter(
-			order =>
-				dayjs(order.createdAt).isBetween(dateRange.startDate, dateRange.endDate, null, "[]") &&
-				order.status.toLowerCase() === "pending",
-		);
+		const currCount = allOrders.filter(
+			o =>
+				dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]") &&
+				o.status.toLowerCase() === "pending",
+		).length;
+		const prevCount = allOrders.filter(
+			o =>
+				dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]") &&
+				o.status.toLowerCase() === "pending",
+		).length;
 
-		const previousOrders = allOrders.filter(
-			order =>
-				dayjs(order.createdAt).isBetween(dateRange.previousStartDate, dateRange.previousEndDate, null, "[]") &&
-				order.status.toLowerCase() === "pending",
-		);
-
-		setStats({ current: filteredOrders.length, previous: previousOrders.length });
-		setChartData(Array.from({ length: 7 }).map(() => ({ value: Math.floor(Math.random() * 30) })));
+		setStats({ current: currCount, previous: prevCount });
+		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "count", "pending"));
 	}, [period, allOrders]);
 
 	return (
@@ -229,12 +250,11 @@ export default function DashboardPage() {
 				setAllCustomers(customersData);
 			} catch (err) {
 				console.error("Error fetching dashboard data:", err);
-				setError("Failed to load dashboard data. Please try refreshing the page.");
+				setError("Failed to load dashboard data.");
 			} finally {
 				setLoading(false);
 			}
 		};
-
 		fetchRawData();
 	}, []);
 
@@ -283,9 +303,13 @@ export default function DashboardPage() {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-[40px]">
-				<TopSellingProducts dateRange={getDateRangeByPeriod("weekly")} />
-				<RecentOrders dateRange={getDateRangeByPeriod("weekly")} />
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
+				<div className="lg:col-span-1">
+					<TopSellingProducts dateRange={getDateRangeByPeriod("weekly")} />
+				</div>
+				<div className="lg:col-span-2">
+					<RecentOrders dateRange={getDateRangeByPeriod("weekly")} />
+				</div>
 			</div>
 
 			<div className="mb-[40px]">

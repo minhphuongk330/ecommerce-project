@@ -1,7 +1,7 @@
 "use client";
+import { SxProps, Theme } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import { DataGrid, DataGridProps } from "@mui/x-data-grid";
-import { SxProps, Theme } from "@mui/material";
 
 interface DataTableProps extends DataGridProps {
 	noRowsLabel?: string;
@@ -27,6 +27,10 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 				autoHeight
 				rowHeight={80}
 				disableRowSelectionOnClick
+				disableColumnFilter
+				disableColumnMenu
+				disableColumnSelector
+				disableDensitySelector
 				localeText={{ noRowsLabel: noRowsLabel }}
 				{...props}
 				sx={{
@@ -44,7 +48,6 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 					"& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-cell:focus": {
 						outline: "none",
 					},
-
 					"& .MuiTablePagination-selectLabel, & .MuiTablePagination-select": {
 						display: "none",
 					},
