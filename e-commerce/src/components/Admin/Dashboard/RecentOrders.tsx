@@ -1,15 +1,12 @@
 "use client";
-import CloseIcon from "@mui/icons-material/Close";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import Link from "next/link";
 import { memo, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
 import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
-import { router } from "~/utils/router";
 
 dayjs.extend(isBetween);
 
@@ -51,21 +48,6 @@ const RecentOrders = memo(({ dateRange }: RecentOrdersProps) => {
 		};
 		fetchRecentOrders();
 	}, []);
-
-	useEffect(() => {
-		if (selectedOrder) {
-			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-			document.body.style.overflow = "hidden";
-			document.body.style.paddingRight = `${scrollBarWidth}px`;
-		} else {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		}
-		return () => {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		};
-	}, [selectedOrder]);
 
 	const filteredAndSortedOrders = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -153,116 +135,7 @@ const RecentOrders = memo(({ dateRange }: RecentOrdersProps) => {
 				)}
 			</div>
 
-			{mounted &&
-				selectedOrder &&
-				createPortal(
-					<div
-						className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
-						onClick={() => setSelectedOrder(null)}
-					>
-						<div
-							className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-							onClick={e => e.stopPropagation()}
-						>
-							<div className="p-6 border-b border-gray-100 flex justify-between items-start">
-								<div>
-									<h3 className="text-xl font-bold text-gray-800">Order Details</h3>
-									<p className="text-sm text-gray-500 mt-1">Order #{selectedOrder.orderNo}</p>
-								</div>
-								<button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
-									<CloseIcon />
-								</button>
-							</div>
-
-							<div className="p-6 overflow-y-auto flex-1 bg-gray-50/20 custom-scrollbar">
-								<div className="mb-6">
-									<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-										Delivery Address
-									</h4>
-									{selectedOrder.address ? (
-										<div className="bg-white p-4 rounded-lg border border-gray-200">
-											<p className="text-sm font-semibold text-gray-900 mb-2">{selectedOrder.address.receiverName}</p>
-											<p className="text-xs text-gray-600 mb-2">{selectedOrder.address.address}</p>
-											<p className="text-xs text-gray-600">{selectedOrder.address.phone}</p>
-										</div>
-									) : (
-										<p className="text-xs text-gray-400 italic">Address info not available</p>
-									)}
-								</div>
-
-								<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-									Products in this order
-								</h4>
-								<ul className="flex flex-col gap-3">
-									{selectedOrder.orderItems?.map(item => {
-										const variant = (item.product as any)?.variants?.find(
-											(v: any) => Number(v.id) === Number((item as any).variantId),
-										);
-										const productLink = router.product(item.productId);
-
-										return (
-											<li
-												key={item.id}
-												className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
-											>
-												<div className="flex items-center gap-4">
-													<Link
-														href={productLink}
-														className="w-16 h-16 rounded border border-gray-100 overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
-													>
-														<img
-															src={item.product?.mainImageUrl}
-															className="w-full h-full object-cover"
-															onError={e => {
-																(e.target as HTMLImageElement).src = "/images/placeholder-product.png";
-															}}
-														/>
-													</Link>
-
-													<div className="flex flex-col gap-1">
-														<Link
-															href={productLink}
-															className="font-bold text-gray-800 text-sm hover:text-blue-600 hover:underline transition-colors"
-														>
-															{item.product?.name}
-														</Link>
-
-														<div className="flex gap-2">
-															<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-																Qty: {item.quantity}
-															</span>
-															{item.colorId && (
-																<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-																	Color: {item.colorId}
-																</span>
-															)}
-															{variant?.sku && (
-																<span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-																	Variant: {variant.sku}
-																</span>
-															)}
-														</div>
-													</div>
-												</div>
-												<span className="font-bold text-gray-900 text-sm">${Number(item.unitPrice).toFixed(2)}</span>
-											</li>
-										);
-									})}
-								</ul>
-							</div>
-
-							<div className="p-4 border-t border-gray-100 flex justify-end">
-								<button
-									onClick={() => setSelectedOrder(null)}
-									className="px-8 py-2 bg-[#111827] text-white font-bold rounded-md active:scale-95 transition-transform"
-								>
-									Close
-								</button>
-							</div>
-						</div>
-					</div>,
-					document.body,
-				)}
+			<OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
 		</>
 	);
 });

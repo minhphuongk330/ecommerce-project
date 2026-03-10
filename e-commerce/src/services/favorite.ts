@@ -1,7 +1,6 @@
 import axiosClient from "./axiosClient";
 import { Product } from "~/types/product";
 
-// Định nghĩa kiểu dữ liệu cho Variant (để UI hiển thị tên, giá của phiên bản)
 export interface FavoriteVariant {
 	id: number;
 	sku: string;

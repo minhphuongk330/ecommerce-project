@@ -25,7 +25,15 @@ export class OrdersService {
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create(createOrderDto);
-    return await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+
+    try {
+      await this.mailService.sendOrderConfirmation(savedOrder);
+    } catch (error) {
+      console.error('Failed to send confirmation email:', error);
+    }
+
+    return savedOrder;
   }
 
   async findAll(): Promise<Order[]> {
@@ -79,6 +87,7 @@ export class OrdersService {
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
     const previousStatus = order.status;
+
     Object.assign(order, updateOrderDto);
 
     if (

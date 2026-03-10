@@ -13,9 +13,7 @@ export interface CartItem {
 }
 
 const TAX_RATE = 0.1;
-
 export const formatPrice = (value: number) => `$${value.toFixed(2)}`;
-
 export const usePaymentSummary = () => {
 	const { selectedAddress, selectedShippingMethod, scheduledDate } = useCheckoutContext();
 	const rawItems = useCartStore(state => state.cartItems) as unknown as CartItem[];
@@ -67,11 +65,22 @@ export const usePaymentSummary = () => {
 		};
 	}, [calculateShippingCost, subtotal]);
 
+	const deliveryDateForAPI = useMemo(() => {
+		let targetDate: string | null = scheduledDate || null;
+		if (selectedShippingMethod && selectedShippingMethod.type !== "schedule") {
+			targetDate = selectedShippingMethod.estimatedDate || null;
+		}
+		if (!targetDate) return null;
+		const d = new Date(targetDate);
+		return isNaN(d.getTime()) ? null : d.toISOString();
+	}, [scheduledDate, selectedShippingMethod]);
+
 	return {
 		itemsWithTotal,
 		selectedAddress,
 		selectedShippingMethod,
 		scheduledDate,
+		deliveryDateForAPI,
 		shipmentLabel,
 		subtotal,
 		taxAmount,

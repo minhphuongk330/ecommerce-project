@@ -3,6 +3,7 @@ import AttachMoney from "@mui/icons-material/AttachMoney";
 import GroupOutlined from "@mui/icons-material/GroupOutlined";
 import PendingActionsOutlined from "@mui/icons-material/PendingActionsOutlined";
 import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
+import Skeleton from "@mui/material/Skeleton";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useEffect, useState } from "react";
@@ -173,14 +174,12 @@ function CustomersStatCard({ allCustomers }: { allCustomers: AdminCustomer[] }) 
 
 	useEffect(() => {
 		const range = getDateRangeByPeriod(period);
-
 		const currCount = allCustomers.filter(c =>
 			dayjs(c.createdAt).isBetween(range.startDate, range.endDate, null, "[]"),
 		).length;
 		const prevCount = allCustomers.filter(c =>
 			dayjs(c.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"),
 		).length;
-
 		setStats({ current: currCount, previous: prevCount });
 		setChartData(generateRealChartData(allCustomers, range.startDate, range.endDate, period, "count"));
 	}, [period, allCustomers]);
@@ -260,9 +259,23 @@ export default function DashboardPage() {
 
 	if (loading && allOrders.length === 0) {
 		return (
-			<div className="flex h-[50vh] items-center justify-center flex-col gap-3">
-				<div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-				<span className="text-gray-500 font-medium">Loading dashboard data...</span>
+			<div className="space-y-6 pb-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+					{[1, 2, 3, 4].map(i => (
+						<div key={i} className="p-4 border border-gray-200 rounded-lg">
+							<Skeleton width="50%" height={16} />
+							<Skeleton width="66.67%" height={32} />
+						</div>
+					))}
+				</div>
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					{[1, 2].map(i => (
+						<div key={i} className="border border-gray-200 rounded-lg p-6 h-[400px]">
+							<Skeleton width="33.33%" height={24} />
+							<Skeleton width="100%" height={350} />
+						</div>
+					))}
+				</div>
 			</div>
 		);
 	}

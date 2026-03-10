@@ -4,16 +4,17 @@ import { Suspense, useMemo } from "react";
 import Banner from "~/components/Banner";
 import BannerSlider, { SliderItem } from "~/components/Banner/Slider";
 import CategoryBrowser from "~/components/Category/Browser";
+import { ProductGridSkeleton } from "~/components/Skeletons";
 import { useBanners } from "~/hooks/useBanner";
 import { useDiscountProducts } from "~/hooks/useProductDiscount";
 import { router } from "~/utils/router";
 
 const ProductTabsSectionLazy = dynamic(() => import("~/components/Products/TabsSection"), {
-	loading: () => <div className="h-[400px] bg-gray-100 animate-pulse" />,
+	loading: () => <ProductGridSkeleton count={8} />,
 });
 
 const SectionProductListLazy = dynamic(() => import("~/components/Products/SectionProductList"), {
-	loading: () => <div className="h-[600px] bg-gray-100 animate-pulse" />,
+	loading: () => <ProductGridSkeleton count={4} />,
 });
 
 const GRID_STYLES = [
@@ -50,7 +51,14 @@ export default function Home() {
 	}, [gridBanners]);
 
 	if (isLoading) {
-		return <div className="w-full h-screen flex justify-center items-center">Loading...</div>;
+		return (
+			<div className="w-full bg-white">
+				<div className="h-[400px] bg-gray-100 animate-pulse rounded-lg" />
+				<div className="py-12 px-4 md:px-8">
+					<ProductGridSkeleton count={8} />
+				</div>
+			</div>
+		);
 	}
 
 	return (

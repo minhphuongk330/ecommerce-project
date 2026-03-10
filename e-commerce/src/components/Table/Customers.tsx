@@ -1,21 +1,33 @@
 "use client";
-import { useState, useEffect } from "react";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { TablePagination } from "@mui/material";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { useEffect, useMemo, useState } from "react";
+import DataTable from "~/components/Table/Data";
+import Checkbox from "~/components/atoms/Checkbox";
+import StatusChip from "~/components/atoms/StatusChip";
+import UserAvatar from "~/components/atoms/UserAvatar";
 import { AdminCustomer } from "~/types/admin";
 import { formatDate } from "~/utils/format";
-import DataTable from "~/components/Table/Data";
-import UserAvatar from "~/components/atoms/UserAvatar";
-import StatusChip from "~/components/atoms/StatusChip";
 
 interface Props {
 	customers: AdminCustomer[];
+	selectedIds?: Set<string | number>;
+	onSelectChange?: (id: number) => void;
+	onSelectAll?: (selected: boolean, ids: number[]) => void;
+	onSelectCustomer?: (customer: AdminCustomer) => void;
 }
 
-export default function CustomerTable({ customers }: Props) {
+export default function CustomerTable({
+	customers,
+	selectedIds = new Set(),
+	onSelectChange,
+	onSelectAll,
+	onSelectCustomer,
+}: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
 	useEffect(() => {
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -24,16 +36,46 @@ export default function CustomerTable({ customers }: Props) {
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
+	const visibleIds = useMemo(() => {
+		const start = paginationModel.page * paginationModel.pageSize;
+		return customers.slice(start, start + paginationModel.pageSize).map(c => c.id);
+	}, [customers, paginationModel]);
+
 	const handleMobilePageChange = (event: unknown, newPage: number) => {
 		setMobilePage(newPage);
 	};
 
 	const columns: GridColDef[] = [
 		{
-			field: "id",
-			headerName: "ID",
-			width: 100,
-			valueGetter: (_, row) => `#${row.id}`,
+			field: "checkbox",
+			headerName: "",
+			width: 50,
+			minWidth: 50,
+			sortable: false,
+			filterable: false,
+			align: "center" as const,
+			headerAlign: "center" as const,
+			renderHeader: () => {
+				const isAllVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+				const isIndeterminate =
+					visibleIds.length > 0 && visibleIds.some(id => selectedIds.has(id)) && !isAllVisibleSelected;
+
+				return (
+					<Checkbox
+						id="select-all"
+						checked={isAllVisibleSelected}
+						indeterminate={isIndeterminate}
+						onChange={() => onSelectAll?.(!isAllVisibleSelected, visibleIds)}
+					/>
+				);
+			},
+			renderCell: (params: GridRenderCellParams<AdminCustomer>) => (
+				<Checkbox
+					id={`select-customer-${params.row.id}`}
+					checked={selectedIds.has(params.row.id)}
+					onChange={() => onSelectChange?.(params.row.id)}
+				/>
+			),
 		},
 		{
 			field: "fullName",
@@ -42,10 +84,13 @@ export default function CustomerTable({ customers }: Props) {
 			renderCell: (params: GridRenderCellParams<AdminCustomer>) => {
 				const name = params.value || "";
 				return (
-					<div className="flex items-center gap-3 h-full">
+					<button
+						onClick={() => onSelectCustomer?.(params.row)}
+						className="flex items-center gap-3 h-full text-left hover:opacity-70 transition-opacity focus:outline-none"
+					>
 						<UserAvatar alt={name} size={32} bgColor="#dbeafe" textColor="#2563eb" />
-						<span className="font-medium text-gray-900 truncate">{name || "---"}</span>
-					</div>
+						<span className="font-bold text-blue-600 truncate hover:underline">{name || "---"}</span>
+					</button>
 				);
 			},
 		},

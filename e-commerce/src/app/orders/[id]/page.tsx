@@ -1,15 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { orderService } from "~/services/order";
-import { Order } from "~/types/order";
-import { useNotification } from "~/contexts/Notification";
-import { routerPaths } from "~/utils/router";
+import { useEffect, useState } from "react";
 import SingleBtn from "~/components/atoms/SingleBtn";
+import OrderAddress from "~/components/Order/Detail/Address";
 import OrderHeader from "~/components/Order/Detail/Header";
 import OrderItems from "~/components/Order/Detail/Item";
-import OrderAddress from "~/components/Order/Detail/Address";
 import OrderSummary from "~/components/Order/Detail/Summary";
+import { DetailPageSkeleton } from "~/components/Skeletons";
+import { useNotification } from "~/contexts/Notification";
+import { orderService } from "~/services/order";
+import { Order } from "~/types/order";
+import { routerPaths } from "~/utils/router";
 
 export default function OrderDetailPage() {
 	const nav = useRouter();
@@ -53,7 +54,16 @@ export default function OrderDetailPage() {
 		nav.push(routerPaths.order);
 	};
 
-	if (isLoading) return <div className="p-10 text-center text-gray-500">Loading order details...</div>;
+	if (isLoading) {
+		return (
+			<div className="w-full max-w-[1120px] mx-auto py-8 px-4">
+				<div className="mb-6">
+					<div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+				</div>
+				<DetailPageSkeleton />
+			</div>
+		);
+	}
 	if (!order) return <div className="p-10 text-center text-red-500">Order not found.</div>;
 
 	return (

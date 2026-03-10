@@ -15,8 +15,8 @@ export const usePayment = () => {
 	const user = useAuthStore(state => state.user);
 	const clearCart = useCartStore(state => state.clearCart);
 	const cartItems = useCartStore(state => state.cartItems);
-	const { selectedAddress } = useCheckoutContext();
-	const { total, subtotal, taxAmount, shippingCost } = usePaymentSummary();
+	const { selectedAddress, selectedShippingMethod } = useCheckoutContext();
+	const { total, subtotal, taxAmount, shippingCost, deliveryDateForAPI } = usePaymentSummary();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
@@ -44,6 +44,7 @@ export const usePayment = () => {
 				taxAmount: taxAmount,
 				shippingCost: shippingCost,
 				items: cartItems as any,
+				scheduledDeliveryDate: deliveryDateForAPI,
 			});
 
 			clearCart();

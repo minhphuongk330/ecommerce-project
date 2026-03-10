@@ -35,7 +35,7 @@ export class UploadController {
   }
 
   @Post('images')
-  @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 files
+  @UseInterceptors(FilesInterceptor('images', 10))  
   async uploadMultipleImages(
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<UploadMultipleResponseDto> {

@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Product } from './product.entity';
-import { ProductVariant } from './product-variant.entity'; // Đảm bảo import đúng đường dẫn
+import { ProductVariant } from './product-variant.entity';  
 
 @Entity('favorites')
 export class Favorite {
@@ -20,7 +20,7 @@ export class Favorite {
   @Column()
   productId: number;
 
-  // 👇 SỬA Ở ĐÂY: Thêm '| null' vào kiểu dữ liệu
+ 
   @Column({ nullable: true })
   variantId: number | null; 
 

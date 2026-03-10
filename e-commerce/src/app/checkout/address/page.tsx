@@ -3,16 +3,17 @@ import { useRouter } from "next/navigation";
 import AddressList from "~/components/Address/List";
 import CreateAddress from "~/components/Address/Modal/Create";
 import StepButton from "~/components/checkout/Button";
+import { FormSkeleton } from "~/components/Skeletons";
 import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useNotification } from "~/contexts/Notification";
 import { useAddress } from "~/hooks/useAddress";
-import { routerPaths } from "~/utils/router";
 import { useCartStore } from "~/stores/cart";
+import { routerPaths } from "~/utils/router";
 
 export default function AddressPage() {
 	const router = useRouter();
 	const { showNotification } = useNotification();
-	const { addresses, refresh } = useAddress();
+	const { addresses, refresh, isLoading } = useAddress();
 	const { setSelectedAddress } = useCheckoutContext();
 	const selectedAddressId = useCartStore(state => state.selectedAddressId);
 	const setSelectedAddressId = useCartStore(state => state.setSelectedAddressId);
@@ -39,6 +40,16 @@ export default function AddressPage() {
 			showNotification("Selected address not found.", "error");
 		}
 	};
+
+	if (isLoading) {
+		return (
+			<div className="w-full flex flex-col gap-[64px]">
+				<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-[24px]">
+					<FormSkeleton fields={3} />
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="w-full flex flex-col gap-[64px]">

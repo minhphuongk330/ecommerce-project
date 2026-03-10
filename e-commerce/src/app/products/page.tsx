@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import Filters from "~/components/Catalog/Filters/Index";
 import ProductListArea from "~/components/Catalog/ProductsArea/Index";
+import { FilterSkeleton, ProductGridSkeleton } from "~/components/Skeletons";
 import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
 import { MobileFilterProvider } from "~/contexts/MobileFilterContext";
 import { useProductFilter } from "~/hooks/useProductFilter";
@@ -59,7 +60,20 @@ function ProductsContent() {
 	}, [categoryLabel, setBreadcrumbs]);
 
 	if (isLoading) {
-		return <div className="w-full h-screen flex items-center justify-center">Loading...</div>;
+		return (
+			<MobileFilterProvider>
+				<div className="w-full max-w-[1440px] mx-auto">
+					<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
+						<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
+							<FilterSkeleton />
+						</div>
+						<div className="flex-1">
+							<ProductGridSkeleton count={9} />
+						</div>
+					</div>
+				</div>
+			</MobileFilterProvider>
+		);
 	}
 
 	return (

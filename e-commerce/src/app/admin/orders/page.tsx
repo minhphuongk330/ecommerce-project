@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
 import ExportButton from "~/components/Admin/ExportButton";
+import { TableSkeleton } from "~/components/Skeletons";
 import OrdersTable from "~/components/Table/Orders";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { useNotification } from "~/contexts/Notification";
@@ -73,12 +74,12 @@ export default function OrdersPage() {
 		{
 			key: "totalAmount",
 			label: "Total Amount",
-			formatter: value => formatPrice(value),
+			formatter: value => (value != null ? formatPrice(value) : ""),
 		},
 		{
 			key: "createdAt",
 			label: "Order Date",
-			formatter: value => formatDate(value),
+			formatter: value => (value != null ? formatDate(value) : ""),
 		},
 		{
 			key: "scheduledDeliveryDate",
@@ -242,7 +243,12 @@ export default function OrdersPage() {
 	}, []);
 
 	if (loading) {
-		return <div className="p-8 text-gray-500">Loading order list...</div>;
+		return (
+			<div className="space-y-6">
+				<h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
+				<TableSkeleton rows={8} columns={7} />
+			</div>
+		);
 	}
 
 	return (
@@ -262,7 +268,7 @@ export default function OrdersPage() {
 						columns={exportColumns}
 						filename="orders"
 						label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
-						variant="excel"
+						variant="both"
 						showCount={false}
 						disabled={selectCount === 0}
 					/>

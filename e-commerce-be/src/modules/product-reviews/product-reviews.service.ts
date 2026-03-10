@@ -24,12 +24,10 @@ export class ProductReviewsService {
   ): Promise<ProductReview> {
     const { productId, rating, comment } = createProductReviewDto;
 
-    // Validate rating is between 1-5
     if (rating < 1 || rating > 5) {
       throw new BadRequestException('Rating must be between 1 and 5 stars');
     }
 
-    // Check if customer already reviewed this product
     const existingReview = await this.productReviewRepository.findOne({
       where: { productId, customerId },
     });
@@ -85,16 +83,15 @@ export class ProductReviewsService {
   ): Promise<ProductReview> {
     const review = await this.findOne(id);
 
-    // Check if the review belongs to the customer
     if (review.customerId !== customerId) {
-      throw new ForbiddenException(
-        'You can only update your own reviews',
-      );
+      throw new ForbiddenException('You can only update your own reviews');
     }
 
-    // Validate rating if provided
     if (updateProductReviewDto.rating !== undefined) {
-      if (updateProductReviewDto.rating < 1 || updateProductReviewDto.rating > 5) {
+      if (
+        updateProductReviewDto.rating < 1 ||
+        updateProductReviewDto.rating > 5
+      ) {
         throw new BadRequestException('Rating must be between 1 and 5 stars');
       }
     }
@@ -106,14 +103,10 @@ export class ProductReviewsService {
   async remove(id: number, customerId: number): Promise<void> {
     const review = await this.findOne(id);
 
-    // Check if the review belongs to the customer
     if (review.customerId !== customerId) {
-      throw new ForbiddenException(
-        'You can only delete your own reviews',
-      );
+      throw new ForbiddenException('You can only delete your own reviews');
     }
 
     await this.productReviewRepository.remove(review);
   }
 }
-

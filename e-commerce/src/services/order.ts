@@ -45,6 +45,7 @@ export const orderService = {
 		taxAmount: number;
 		shippingCost: number;
 		items: CartItemInput[];
+		scheduledDeliveryDate?: string | null;
 	}): Promise<Order> => {
 		const orderNo = `ORD-${Date.now()}`;
 
@@ -57,6 +58,7 @@ export const orderService = {
 			subtotal: params.subtotal,
 			taxAmount: params.taxAmount,
 			shippingCost: params.shippingCost,
+			scheduledDeliveryDate: params.scheduledDeliveryDate ?? undefined,
 			note: "Ordered via website",
 		});
 

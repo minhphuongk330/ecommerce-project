@@ -17,5 +17,6 @@ export class CreateOrderDto {
   orderItems?: OrderItemDto[];
   subtotal?: number;
   taxAmount?: number
-  shippingCost?: number; 
+  shippingCost?: number;
+  scheduleDeliveryDate?: string; 
 }

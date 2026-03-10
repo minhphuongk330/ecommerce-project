@@ -1,10 +1,21 @@
-import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable } from '@nestjs/common';
 import { Order } from '../../entities/order.entity';
 
 @Injectable()
 export class MailService {
   constructor(private readonly mailerService: MailerService) {}
+
+  private formatDate(date: string | Date | null | undefined): string {
+    if (!date) return 'Not scheduled';
+    const d = new Date(date);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    };
+    return d.toLocaleDateString('en-US', options);
+  }
 
   async sendOrderConfirmation(order: Order) {
     const total = Number(order.totalAmount);
@@ -66,6 +77,16 @@ export class MailService {
             <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding:40px 24px; text-align:center; color:white;">
               <h1 style="margin:0; font-size:28px; font-weight:700; letter-spacing:-0.5px;">Order Confirmed!</h1>
               <p style="margin:12px 0 0; font-size:15px; opacity:0.95;">Order #${order.orderNo || order.id}</p>
+              <div style="margin:12px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
+                <div>
+                  <p style="margin:0 0 4px; opacity:0.8; font-size:11px;">Place On</p>
+                  <p style="margin:0; font-weight:600;">${this.formatDate(order.createdAt)}</p>
+                </div>
+                <div>
+                  <p style="margin:0 0 4px; opacity:0.8; font-size:11px;">Expected Delivery</p>
+                  <p style="margin:0; font-weight:600;">${this.formatDate(order.scheduledDeliveryDate)}</p>
+                </div>
+              </div>
             </div>
             <div style="padding:32px 28px 40px;">
               <p style="margin:0 0 8px; font-size:16px; font-weight:600; color:#0f172a;">Hello ${order.address.receiverName},</p>

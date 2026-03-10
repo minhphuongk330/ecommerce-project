@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import MainInfo from "~/components/Products/DetailPage/MainInfo";
+import { useEffect, useMemo } from "react";
 import DetailsSection from "~/components/Products/DetailPage/DetailsSection";
-import SectionProductList from "~/components/Products/SectionProductList";
-import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
-import { routerPaths } from "~/utils/router";
-import { ProductDetailUI } from "~/types/component";
-import { useProductDetail } from "~/hooks/useProductDetail";
+import MainInfo from "~/components/Products/DetailPage/MainInfo";
 import ProductReviews from "~/components/Products/DetailPage/Reviews/Index";
+import SectionProductList from "~/components/Products/SectionProductList";
+import { ProductDetailSkeleton } from "~/components/Skeletons";
+import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
+import { useProductDetail } from "~/hooks/useProductDetail";
+import { ProductDetailUI } from "~/types/component";
+import { routerPaths } from "~/utils/router";
 
 export default function ProductDetailsPage() {
 	const params = useParams();
@@ -49,7 +50,11 @@ export default function ProductDetailsPage() {
 	}, [product]);
 
 	if (isLoading) {
-		return <div className="min-h-screen flex items-center justify-center">Loading product...</div>;
+		return (
+			<div className="w-full bg-white min-h-screen flex flex-col items-center">
+				<ProductDetailSkeleton />
+			</div>
+		);
 	}
 
 	if (!product || !uiProduct) {

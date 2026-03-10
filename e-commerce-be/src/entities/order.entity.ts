@@ -63,5 +63,7 @@ export class Order {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
-}
 
+  @Column({ type: 'timestamp', nullable: true, name: 'schedule_delivery_date' })
+  scheduledDeliveryDate: Date;
+}

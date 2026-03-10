@@ -1,25 +1,37 @@
 "use client";
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { TablePagination } from "@mui/material";
-import { AdminProduct, AdminCategory } from "~/types/admin";
-import { formatPrice } from "~/utils/format";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import DataTable from "~/components/Table/Data";
+import Checkbox from "~/components/atoms/Checkbox";
 import StatusChip from "~/components/atoms/StatusChip";
-import UpdateProduct from "../Admin/Products/Modal/Update";
+import { AdminCategory, AdminProduct } from "~/types/admin";
+import { formatPrice } from "~/utils/format";
 import DeleteProduct from "../Admin/Products/Modal/Delete";
+import UpdateProduct from "../Admin/Products/Modal/Update";
 
 interface Props {
 	products: AdminProduct[];
 	categories: AdminCategory[];
 	onRefresh: () => void;
+	selectedIds?: Set<string | number>;
+	onSelectChange?: (id: number) => void;
+	onSelectAll?: (selected: boolean, ids: number[]) => void;
 }
 
-export default function ProductsTable({ products, categories, onRefresh }: Props) {
+export default function ProductsTable({
+	products,
+	categories,
+	onRefresh,
+	selectedIds = new Set(),
+	onSelectChange,
+	onSelectAll,
+}: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
 	useEffect(() => {
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -28,12 +40,47 @@ export default function ProductsTable({ products, categories, onRefresh }: Props
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
+	const visibleIds = useMemo(() => {
+		const start = paginationModel.page * paginationModel.pageSize;
+		return products.slice(start, start + paginationModel.pageSize).map(p => p.id);
+	}, [products, paginationModel]);
+
 	const handleMobilePageChange = (event: unknown, newPage: number) => {
 		setMobilePage(newPage);
 	};
 
 	const columns: GridColDef[] = [
-		{ field: "id", headerName: "ID", width: 80, valueGetter: (_, row) => `#${row.id}` },
+		{
+			field: "checkbox",
+			headerName: "",
+			width: 50,
+			minWidth: 50,
+			sortable: false,
+			filterable: false,
+			align: "center" as const,
+			headerAlign: "center" as const,
+			renderHeader: () => {
+				const isAllVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+				const isIndeterminate =
+					visibleIds.length > 0 && visibleIds.some(id => selectedIds.has(id)) && !isAllVisibleSelected;
+
+				return (
+					<Checkbox
+						id="select-all"
+						checked={isAllVisibleSelected}
+						indeterminate={isIndeterminate}
+						onChange={() => onSelectAll?.(!isAllVisibleSelected, visibleIds)}
+					/>
+				);
+			},
+			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
+				<Checkbox
+					id={`select-product-${params.row.id}`}
+					checked={selectedIds.has(params.row.id)}
+					onChange={() => onSelectChange?.(params.row.id)}
+				/>
+			),
+		},
 		{
 			field: "mainImageUrl",
 			headerName: "Image",

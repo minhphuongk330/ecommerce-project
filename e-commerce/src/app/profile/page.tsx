@@ -1,18 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import Button from "~/components/atoms/Button";
+import ProfileForm from "~/components/Profile/Form";
+import ProfileHeader from "~/components/Profile/Header";
+import ChangePasswordModal from "~/components/Profile/Modal/ChangePassword";
+import { ProfileSkeleton } from "~/components/Skeletons";
+import { useNotification } from "~/contexts/Notification";
 import { authService } from "~/services/auth";
 import { useAuthStore } from "~/stores/useAuth";
-import { routerPaths } from "~/utils/router";
-import { useNotification } from "~/contexts/Notification";
 import { UpdateProfilePayload } from "~/types/auth";
+import { routerPaths } from "~/utils/router";
 import { updateProfileSchema } from "~/utils/validator/auth";
-import Button from "~/components/atoms/Button";
-import ProfileHeader from "~/components/Profile/Header";
-import ProfileForm from "~/components/Profile/Form";
-import ChangePasswordModal from "~/components/Profile/Modal/ChangePassword";
 
 export default function ProfilePage() {
 	const router = useRouter();
@@ -68,7 +69,15 @@ export default function ProfilePage() {
 		}
 	};
 
-	if (isLoading || !user) return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
+	if (isLoading || !user) {
+		return (
+			<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
+				<div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-6 py-8">
+					<ProfileSkeleton />
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
