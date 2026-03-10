@@ -20,7 +20,7 @@ export interface ProductColor {
 }
 
 export interface Product {
-	id: number | string;
+	id: number;
 	name: string;
 	categoryId: number;
 	category?: CategoryShort;
