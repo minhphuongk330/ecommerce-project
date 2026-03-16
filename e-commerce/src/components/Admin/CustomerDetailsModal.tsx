@@ -47,9 +47,9 @@ const ProfileSection = ({ customer }: { customer: AdminCustomer }) => {
 				label="Gender"
 				value={
 					customer.profile?.gender
-						? customer.profile.gender === "M"
+						? customer.profile.gender === "MALE"
 							? "Male"
-							: customer.profile.gender === "F"
+							: customer.profile.gender === "FEMALE"
 								? "Female"
 								: "Other"
 						: ""

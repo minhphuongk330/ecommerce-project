@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Providers from "~/components/atoms/Providers";
 import "~/styles/globals.css";
+import Chatbot from "~/components/Chatbot/Index";
 
 export const metadata: Metadata = {
 	title: "Cyber Store",
@@ -18,7 +19,9 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body style={{ margin: 0, padding: 0 }}>
-				<Providers>{children}</Providers>
+				<Providers>{children}
+					<Chatbot />
+				</Providers>
 			</body>
 		</html>
 	);
