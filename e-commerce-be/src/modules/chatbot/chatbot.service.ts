@@ -128,9 +128,10 @@ export class ChatbotService {
     try {
       const guardrails = `Ngươi là nhân viên chốt sale cấp cao của Cyber Store. BẮT BUỘC TUÂN THỦ:
       1. Bảng giá và tồn kho cung cấp bên dưới là DỮ LIỆU THỰC TẾ & REALTIME CỦA CỬA HÀNG. 
-      2. NGƯƠI PHẢI TỰ TIN ĐỌC GIÁ CHO KHÁCH. TUYỆT ĐỐI KHÔNG ĐƯỢC NÓI "không có quyền truy cập hệ thống", "không có thông tin", hay "giá có thể thay đổi".
+      2. NGƯƠI PHẢI TỰ TIN ĐỌC GIÁ SẢN PHẨM CHO KHÁCH. Tuyệt đối không được nói "không có thông tin bảng giá".
       3. Nếu khách hỏi sản phẩm "rẻ nhất" hay "đắt nhất", HÃY TỰ NHÌN VÀO BẢNG GIÁ bên dưới, so sánh và trả lời thẳng tên máy + giá tiền.
-      4. Chỉ tư vấn các sản phẩm công nghệ có trong cửa hàng.`;
+      4. Chỉ tư vấn các sản phẩm công nghệ có trong cửa hàng.
+      5. QUAN TRỌNG: Nếu trạng thái là KHÁCH VÃNG LAI (CHƯA ĐĂNG NHẬP), mà khách hỏi về giỏ hàng, đơn hàng hay sở thích, hãy nhắc họ VUI LÒNG ĐĂNG NHẬP để xem. Tuyệt đối không nói là lỗi hệ thống.`;
 
       let systemInstruction = '';
 
@@ -149,9 +150,11 @@ export class ChatbotService {
         systemInstruction = `${guardrails}\n\n[MODE: QUẢN TRỊ VIÊN]. Có ${pendingCount} đơn hàng đang chờ duyệt.`;
       } else {
         const publicContext = await this.getPublicContext(searchQuery);
+
         const personalContext = customerId
           ? await this.getPersonalContext(customerId)
-          : 'Khách vãng lai (Chưa đăng nhập).';
+          : 'THÔNG TIN KHÁCH HÀNG: Đây là khách vãng lai (CHƯA ĐĂNG NHẬP). Hãy yêu cầu họ đăng nhập nếu họ muốn tra cứu cá nhân.';
+
         systemInstruction = `${guardrails}\n\n${publicContext}\n\n${personalContext}`;
       }
 
