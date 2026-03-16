@@ -4,234 +4,15 @@ import GroupOutlined from "@mui/icons-material/GroupOutlined";
 import PendingActionsOutlined from "@mui/icons-material/PendingActionsOutlined";
 import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
 import Skeleton from "@mui/material/Skeleton";
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
 import { useEffect, useState } from "react";
 import LowStockAlert from "~/components/Admin/Dashboard/LowStockAlert";
 import OrderStatusChart from "~/components/Admin/Dashboard/OrderStatusChart";
 import RecentOrders from "~/components/Admin/Dashboard/RecentOrders";
 import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
 import TopSellingProducts from "~/components/Admin/Dashboard/TopSellingProducts";
-import StatCard from "~/components/atoms/StatCard";
+import DashboardMetricCard, { getDateRangeByPeriod } from "~/components/Admin/Dashboard/MetricCard";
 import { adminService } from "~/services/admin";
 import { AdminCustomer, AdminOrder } from "~/types/admin";
-
-dayjs.extend(isBetween);
-
-type TimePeriod = "weekly" | "monthly" | "yearly";
-
-interface DateRangeInfo {
-	startDate: dayjs.Dayjs;
-	endDate: dayjs.Dayjs;
-	previousStartDate: dayjs.Dayjs;
-	previousEndDate: dayjs.Dayjs;
-}
-
-function getDateRangeByPeriod(period: TimePeriod): DateRangeInfo {
-	const endDate = dayjs().endOf("day");
-	let startDate: dayjs.Dayjs;
-	let previousStartDate: dayjs.Dayjs;
-	let previousEndDate: dayjs.Dayjs;
-
-	switch (period) {
-		case "weekly":
-			startDate = dayjs().subtract(6, "day").startOf("day");
-			previousEndDate = startDate.subtract(1, "day").endOf("day");
-			previousStartDate = previousEndDate.subtract(6, "day").startOf("day");
-			break;
-		case "monthly":
-			startDate = dayjs().startOf("month");
-			previousEndDate = startDate.subtract(1, "day").endOf("day");
-			previousStartDate = previousEndDate.subtract(1, "month").startOf("month");
-			break;
-		case "yearly":
-			startDate = dayjs().startOf("year");
-			previousEndDate = startDate.subtract(1, "day").endOf("day");
-			previousStartDate = previousEndDate.subtract(1, "year").startOf("year");
-			break;
-	}
-	return { startDate, endDate, previousStartDate, previousEndDate };
-}
-
-function calculatePercentageChange(current: number, previous: number): number {
-	if (previous === 0) return current > 0 ? 100 : 0;
-	return Math.round(((current - previous) / previous) * 100);
-}
-
-function generateRealChartData(
-	items: any[],
-	startDate: dayjs.Dayjs,
-	endDate: dayjs.Dayjs,
-	period: TimePeriod,
-	type: "revenue" | "count",
-	statusFilter?: string,
-) {
-	const dataPoints: { name: string; value: number; _timestamp: number }[] = [];
-	let current = startDate.clone();
-	let stepUnit: dayjs.ManipulateType = period === "yearly" ? "month" : "day";
-	let formatString = period === "yearly" ? "MMM YYYY" : "DD/MM";
-
-	while (current.isBefore(endDate) || current.isSame(endDate, stepUnit)) {
-		dataPoints.push({
-			name: current.format(formatString),
-			value: 0,
-			_timestamp: current.startOf(stepUnit).valueOf(),
-		});
-		current = current.add(1, stepUnit);
-	}
-
-	items.forEach(item => {
-		if (statusFilter && item.status?.toLowerCase() !== statusFilter.toLowerCase()) return;
-
-		const itemDate = dayjs(item.createdAt);
-		if (itemDate.isBetween(startDate, endDate, null, "[]")) {
-			const targetTime = itemDate.startOf(stepUnit).valueOf();
-			const bucketIndex = dataPoints.findIndex(dp => dp._timestamp === targetTime);
-
-			if (bucketIndex !== -1) {
-				if (type === "revenue") {
-					const amount = parseFloat(String(item.totalAmount)) || 0;
-					dataPoints[bucketIndex].value += amount;
-				} else {
-					dataPoints[bucketIndex].value += 1;
-				}
-			}
-		}
-	});
-
-	return dataPoints.map(dp => ({
-		name: dp.name,
-		value: type === "revenue" ? Number(dp.value.toFixed(2)) : dp.value,
-	}));
-}
-
-function RevenueStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
-	const [period, setPeriod] = useState<TimePeriod>("weekly");
-	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
-
-	useEffect(() => {
-		const range = getDateRangeByPeriod(period);
-		const currentRev = allOrders
-			.filter(o => dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]"))
-			.reduce((s, o) => s + (parseFloat(String(o.totalAmount)) || 0), 0);
-		const prevRev = allOrders
-			.filter(o => dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"))
-			.reduce((s, o) => s + (parseFloat(String(o.totalAmount)) || 0), 0);
-		setStats({ current: currentRev, previous: prevRev });
-		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "revenue"));
-	}, [period, allOrders]);
-
-	return (
-		<StatCard
-			title="Total Earnings"
-			value={`$${stats.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-			icon={<AttachMoney />}
-			color="bg-teal-500"
-			percentage={calculatePercentageChange(stats.current, stats.previous)}
-			chartData={chartData}
-			onPeriodChange={setPeriod}
-		/>
-	);
-}
-
-function OrdersStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
-	const [period, setPeriod] = useState<TimePeriod>("weekly");
-	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
-
-	useEffect(() => {
-		const range = getDateRangeByPeriod(period);
-
-		const currCount = allOrders.filter(o =>
-			dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]"),
-		).length;
-		const prevCount = allOrders.filter(o =>
-			dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"),
-		).length;
-
-		setStats({ current: currCount, previous: prevCount });
-		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "count"));
-	}, [period, allOrders]);
-
-	return (
-		<StatCard
-			title="Total Orders"
-			value={stats.current}
-			icon={<ShoppingCartOutlined />}
-			color="bg-orange-500"
-			percentage={calculatePercentageChange(stats.current, stats.previous)}
-			chartData={chartData}
-			onPeriodChange={setPeriod}
-		/>
-	);
-}
-
-function CustomersStatCard({ allCustomers }: { allCustomers: AdminCustomer[] }) {
-	const [period, setPeriod] = useState<TimePeriod>("weekly");
-	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
-
-	useEffect(() => {
-		const range = getDateRangeByPeriod(period);
-		const currCount = allCustomers.filter(c =>
-			dayjs(c.createdAt).isBetween(range.startDate, range.endDate, null, "[]"),
-		).length;
-		const prevCount = allCustomers.filter(c =>
-			dayjs(c.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]"),
-		).length;
-		setStats({ current: currCount, previous: prevCount });
-		setChartData(generateRealChartData(allCustomers, range.startDate, range.endDate, period, "count"));
-	}, [period, allCustomers]);
-
-	return (
-		<StatCard
-			title="Customers"
-			value={stats.current}
-			icon={<GroupOutlined />}
-			color="bg-blue-500"
-			percentage={calculatePercentageChange(stats.current, stats.previous)}
-			chartData={chartData}
-			onPeriodChange={setPeriod}
-		/>
-	);
-}
-
-function PendingOrdersStatCard({ allOrders }: { allOrders: AdminOrder[] }) {
-	const [period, setPeriod] = useState<TimePeriod>("weekly");
-	const [stats, setStats] = useState({ current: 0, previous: 0 });
-	const [chartData, setChartData] = useState<Array<{ name?: string; value: number }>>([]);
-
-	useEffect(() => {
-		const range = getDateRangeByPeriod(period);
-
-		const currCount = allOrders.filter(
-			o =>
-				dayjs(o.createdAt).isBetween(range.startDate, range.endDate, null, "[]") &&
-				o.status.toLowerCase() === "pending",
-		).length;
-		const prevCount = allOrders.filter(
-			o =>
-				dayjs(o.createdAt).isBetween(range.previousStartDate, range.previousEndDate, null, "[]") &&
-				o.status.toLowerCase() === "pending",
-		).length;
-
-		setStats({ current: currCount, previous: prevCount });
-		setChartData(generateRealChartData(allOrders, range.startDate, range.endDate, period, "count", "pending"));
-	}, [period, allOrders]);
-
-	return (
-		<StatCard
-			title="Pending Orders"
-			value={stats.current}
-			icon={<PendingActionsOutlined />}
-			color="bg-rose-500"
-			percentage={calculatePercentageChange(stats.current, stats.previous)}
-			chartData={chartData}
-			onPeriodChange={setPeriod}
-		/>
-	);
-}
 
 export default function DashboardPage() {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
@@ -301,10 +82,35 @@ export default function DashboardPage() {
 			<h1 className="text-2xl font-bold text-gray-800 mb-[20px]">Dashboard Overview</h1>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-[40px]">
-				<RevenueStatCard allOrders={allOrders} />
-				<OrdersStatCard allOrders={allOrders} />
-				<CustomersStatCard allCustomers={allCustomers} />
-				<PendingOrdersStatCard allOrders={allOrders} />
+				<DashboardMetricCard
+					title="Total Earnings"
+					icon={<AttachMoney />}
+					color="bg-teal-500"
+					data={allOrders}
+					type="revenue"
+				/>
+				<DashboardMetricCard
+					title="Total Orders"
+					icon={<ShoppingCartOutlined />}
+					color="bg-orange-500"
+					data={allOrders}
+					type="count"
+				/>
+				<DashboardMetricCard
+					title="Customers"
+					icon={<GroupOutlined />}
+					color="bg-blue-500"
+					data={allCustomers}
+					type="count"
+				/>
+				<DashboardMetricCard
+					title="Pending Orders"
+					icon={<PendingActionsOutlined />}
+					color="bg-rose-500"
+					data={allOrders}
+					type="count"
+					statusFilter="pending"
+				/>
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">

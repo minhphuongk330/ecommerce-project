@@ -46,6 +46,7 @@ axiosClient.interceptors.response.use(
 			} catch (refreshError) {
 				useAuthStore.getState().logout();
 				if (typeof window !== "undefined") {
+					window.location.href = "/auth/login";
 				}
 				return Promise.reject(refreshError);
 			}
