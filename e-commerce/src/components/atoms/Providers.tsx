@@ -1,15 +1,16 @@
 "use client";
-import React, { useEffect } from "react";
 import { ThemeProvider } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme } from "@mui/material/styles";
-import Header from "~/components/atoms/layout/Header";
+import { usePathname } from "next/navigation";
+import React, { useEffect } from "react";
 import Footer from "~/components/atoms/layout/Footer";
+import Header from "~/components/atoms/layout/Header";
 import { NotificationProvider } from "~/contexts/Notification";
+import { useCartStore } from "~/stores/cart";
 import { useAuthStore } from "~/stores/useAuth";
 import { useFavoriteStore } from "~/stores/useFavorite";
 import BackToTop from "./layout/BackToTop";
-import { usePathname } from "next/navigation";
 
 const customTheme = createTheme({
 	palette: {
@@ -34,15 +35,18 @@ const customTheme = createTheme({
 export default function Providers({ children }: { children: React.ReactNode }) {
 	const user = useAuthStore(state => state.user);
 	const { fetchFavorites, clearFavorites } = useFavoriteStore();
+	const { fetchCart, resetLocalCart } = useCartStore();
 	const isAdminPage = usePathname().startsWith("/admin");
 
 	useEffect(() => {
 		if (user) {
 			fetchFavorites();
-		} else {
+			fetchCart();
+		} else { 
 			clearFavorites();
+			resetLocalCart();
 		}
-	}, [user, fetchFavorites, clearFavorites]);
+	}, [user, fetchFavorites, clearFavorites, fetchCart, resetLocalCart]);
 
 	return (
 		<ThemeProvider theme={customTheme}>

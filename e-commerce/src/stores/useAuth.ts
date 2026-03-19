@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { User, UserProfile } from "~/types/auth";
-import { useCartStore } from "./cart";
 
 interface AuthState {
 	user: User | UserProfile | null;
@@ -21,7 +20,6 @@ export const useAuthStore = create<AuthState>()(
 			accessToken: null,
 			refreshToken: null,
 			isAuthenticated: false,
-
 			setAuthSuccess: data => {
 				set({
 					user: data.user,
@@ -29,7 +27,6 @@ export const useAuthStore = create<AuthState>()(
 					refreshToken: data.refreshToken,
 					isAuthenticated: true,
 				});
-				useCartStore.getState().fetchCart();
 			},
 
 			setUser: user => {
@@ -47,8 +44,6 @@ export const useAuthStore = create<AuthState>()(
 					refreshToken: null,
 					isAuthenticated: false,
 				});
-
-				useCartStore.getState().resetLocalCart();
 			},
 		}),
 		{

@@ -4,49 +4,53 @@ import { productService } from "~/services/product";
 import { Product } from "~/types/product";
 import { productCache } from "~/utils/lruCache";
 
-const SORTERS: Record<string, (a: Product, b: Product) => number> = {
-	price_asc: (a, b) => Number(a.price) - Number(b.price),
-	price_desc: (a, b) => Number(b.price) - Number(a.price),
-	newest: (a, b) => Number(b.id) - Number(a.id),
-	rating: (a, b) => (Number(b.id) || 0) - (Number(a.id) || 0),
-};
-
 export const useProducts = () => {
-	const [products, setProducts] = useState<Product[]>([]);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const searchParams = useSearchParams();
-	const sort = searchParams.get("sort") || "";
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  const searchParams = useSearchParams();
+  const sort = searchParams.get("sort") || "newest";
+  const categoryId = searchParams.get("categoryId");
+  const name = searchParams.get("name");
+  const page = searchParams.get("page") || "1";
 
-	const fetchProducts = useCallback(async () => {
-		try {
-			setIsLoading(true);
+  const fetchProducts = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const params = {
+        sort,
+        categoryId: categoryId ? Number(categoryId) : undefined,
+        name: name || undefined,
+        page: Number(page),
+        limit: 9,
+      };
 
-			const cacheKey = `products_sort_${sort}`;
-			const cached = productCache.get(cacheKey);
-			if (cached) {
-				setProducts(cached);
-				setIsLoading(false);
-				return;
-			}
+      const cacheKey = `products_${JSON.stringify(params)}`;
+      const cached = productCache.get(cacheKey);
+      
+      if (cached && cached.items) {
+        setProducts(cached.items);
+        setTotalCount(cached.total);
+        setIsLoading(false);
+        return;
+      }
 
-			let data = await productService.getAll({ sort });
+      const response = await productService.getAll(params);
 
-			if (SORTERS[sort]) {
-				data = [...data].sort(SORTERS[sort]);
-			}
+      productCache.set(cacheKey, response);
+      setProducts(response.items);
+      setTotalCount(response.total);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sort, categoryId, name, page]);
 
-			productCache.set(cacheKey, data);
-			setProducts(data);
-		} catch (error) {
-			console.error("Failed to fetch products:", error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [sort]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
-	useEffect(() => {
-		fetchProducts();
-	}, [fetchProducts]);
-
-	return { products, isLoading };
+  return { products, totalCount, isLoading };
 };

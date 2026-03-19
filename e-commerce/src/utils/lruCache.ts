@@ -50,6 +50,6 @@ export class LRUCache<T> {
 	}
 }
 
-export const productCache = new LRUCache<any[]>(5 * 60 * 1000);
+export const productCache = new LRUCache<any>(5 * 60 * 1000);
 export const categoryCache = new LRUCache<any[]>(10 * 60 * 1000);
 export const bannerCache = new LRUCache<any[]>(10 * 60 * 1000);

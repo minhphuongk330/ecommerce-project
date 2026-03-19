@@ -1,23 +1,34 @@
-import axiosClient from "./axiosClient";
 import {
-	Product,
-	ProductDetail,
-	ProductImage,
-	ProductColor,
-	CreateProductInput,
 	CreateColorInput,
 	CreateImageInput,
+	CreateProductInput,
+	Product,
+	ProductColor,
+	ProductDetail,
+	ProductImage,
 } from "~/types/product";
+import axiosClient from "./axiosClient";
+
+interface ProductResponse {
+	items: Product[];
+	total: number;
+}
 
 interface ProductParams {
 	sort?: string;
+	categoryId?: number;
+	name?: string;
+	page?: number;
+	limit?: number;
 	[key: string]: any;
 }
 
 export const productService = {
-	getAll: async (params?: ProductParams): Promise<Product[]> => {
-		return await axiosClient.get("/products", { params });
-	},
+  // Sửa kiểu trả về từ Promise<Product[]> thành Promise<ProductResponse>
+  getAll: async (params?: ProductParams): Promise<ProductResponse> => {
+    const queryParams = { ...params };
+    return await axiosClient.get("/products", { params: queryParams });
+  },
 
 	getById: async (id: number | string): Promise<ProductDetail> => {
 		return await axiosClient.get(`/products/${id}`);
