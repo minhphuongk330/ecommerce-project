@@ -1,24 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
 import ExportButton from "~/components/Admin/ExportButton";
 import { TableSkeleton } from "~/components/Skeletons";
 import OrdersTable from "~/components/Table/Orders";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { useNotification } from "~/contexts/Notification";
-import { useTableFilter } from "~/hooks/useTableFilter";
+import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
-import { FilterConfig } from "~/types/filter";
-import { ExportColumn } from "~/utils/export";
-import { formatDate, formatPrice } from "~/utils/format";
+import { ORDER_EXPORT_COLUMNS, ORDER_FILTER_CONFIG, ORDER_FILTER_PREDICATES } from "~/utils/admin/orderConfigs";
 
 export default function OrdersPage() {
-	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-	const selectCount = selectedIds.size;
-
 	const [confirmModal, setConfirmModal] = useState<{
 		isOpen: boolean;
 		orderId: number | null;
@@ -28,168 +21,36 @@ export default function OrdersPage() {
 		orderId: null,
 		newStatus: null,
 	});
-
 	const { showNotification } = useNotification();
-
-	const filterConfig: FilterConfig = {
-		fields: [
-			{
-				name: "search",
-				label: "Search",
-				type: "text",
-				placeholder: "Search by order #, customer name, or email...",
-			},
-			{
-				name: "status",
-				label: "Status",
-				type: "select",
-				options: [
-					{ label: "Pending", value: "Pending" },
-					{ label: "Shipped", value: "Shipped" },
-					{ label: "Completed", value: "Completed" },
-					{ label: "Cancelled", value: "Cancelled" },
-				],
-			},
-			{
-				name: "createdAt",
-				label: "Order Date",
-				type: "daterange",
-			},
-		],
-	};
-
-	const exportColumns: ExportColumn<AdminOrder>[] = [
-		{ key: "orderNo", label: "Order #" },
-		{
-			key: "customer.fullName",
-			label: "Customer Name",
-			formatter: value => value || "---",
+	const fetchOrdersFn = useCallback(() => adminService.getOrders(), []);
+	const onFetchError = useCallback(
+		(error: any) => {
+			console.error("Failed to fetch orders", error);
+			showNotification("Unable to load the order list", "error");
 		},
-		{
-			key: "customer.email",
-			label: "Customer Email",
-			formatter: value => value || "---",
-		},
-		{ key: "status", label: "Status" },
-		{
-			key: "totalAmount",
-			label: "Total Amount",
-			formatter: value => (value != null ? formatPrice(value) : ""),
-		},
-		{
-			key: "createdAt",
-			label: "Order Date",
-			formatter: value => (value != null ? formatDate(value) : ""),
-		},
-		{
-			key: "scheduledDeliveryDate",
-			label: "Scheduled Delivery Date",
-			formatter: value => (value ? formatDate(value) : "---"),
-		},
-		{
-			key: "address.receiverName",
-			label: "Receiver Name",
-			formatter: value => value || "---",
-		},
-		{
-			key: "address.address",
-			label: "Delivery Address",
-			formatter: value => value || "---",
-		},
-		{
-			key: "address.phone",
-			label: "Phone",
-			formatter: value => value || "---",
-		},
-	];
+		[showNotification],
+	);
 
 	const {
+		allData: allOrders,
 		filteredData: filteredOrders,
+		loading,
+		selectCount,
+		selectedIds,
+		selectedItems,
 		filterState,
+		isFiltered,
 		setFilterValue,
 		resetFilters,
-		isFiltered,
-	} = useTableFilter({
-		data: allOrders,
-		config: filterConfig,
-		predicates: {
-			search: (item, filters) => {
-				const searchTerm = filters.search;
-				if (!searchTerm) return true;
-				const orderNo = item.orderNo || item.id;
-				const customerName = item.customer?.fullName || "";
-				const customerEmail = item.customer?.email || "";
-				return (
-					orderNo.toString().includes(searchTerm.toLowerCase()) ||
-					customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-				);
-			},
-			status: (item, filters) => {
-				const statusFilter = filters.status;
-				if (!statusFilter) return true;
-				return item.status === statusFilter;
-			},
-			createdAt: (item, filters) => {
-				const dateRange = filters.createdAt;
-				if (!dateRange || (!dateRange[0] && !dateRange[1])) return true;
-				const itemDate = new Date(item.createdAt);
-				const [startDateStr, endDateStr] = dateRange;
-				if (startDateStr) {
-					const startDate = new Date(startDateStr);
-					startDate.setHours(0, 0, 0, 0);
-					if (itemDate < startDate) return false;
-				}
-				if (endDateStr) {
-					const endDate = new Date(endDateStr);
-					endDate.setHours(23, 59, 59, 999);
-					if (itemDate > endDate) return false;
-				}
-				return true;
-			},
-			scheduledDeliveryDate: (item, filters) => {
-				const dateRange = filters.scheduledDeliveryDate;
-				if (!dateRange || (!dateRange[0] && !dateRange[1])) return true;
-				if (!item.scheduledDeliveryDate) return true;
-				const itemDate = new Date(item.scheduledDeliveryDate);
-				const [startDateStr, endDateStr] = dateRange;
-				if (startDateStr) {
-					const startDate = new Date(startDateStr);
-					startDate.setHours(0, 0, 0, 0);
-					if (itemDate < startDate) return false;
-				}
-				if (endDateStr) {
-					const endDate = new Date(endDateStr);
-					endDate.setHours(23, 59, 59, 999);
-					if (itemDate > endDate) return false;
-				}
-				return true;
-			},
-		},
+		handleSelectChange,
+		handleSelectAllVisible,
+		setData: setAllOrders,
+	} = useAdminTableManager<AdminOrder>({
+		filterConfig: ORDER_FILTER_CONFIG,
+		predicates: ORDER_FILTER_PREDICATES,
+		fetchFn: fetchOrdersFn,
+		onFetchError,
 	});
-
-	const selectedItems = filteredOrders.filter(order => selectedIds.has(order.id));
-
-	const handleSelectChange = (id: number) => {
-		setSelectedIds(prev => {
-			const newSet = new Set(prev);
-			if (newSet.has(id)) newSet.delete(id);
-			else newSet.add(id);
-			return newSet;
-		});
-	};
-
-	const handleSelectAllVisible = (selected: boolean, visibleIds: number[]) => {
-		setSelectedIds(prev => {
-			const newSet = new Set(prev);
-			if (selected) {
-				visibleIds.forEach(id => newSet.add(id));
-			} else {
-				visibleIds.forEach(id => newSet.delete(id));
-			}
-			return newSet;
-		});
-	};
 
 	const onRequestStatusChange = (orderId: number, newStatus: string) => {
 		const currentOrder = allOrders.find(o => o.id === orderId);
@@ -209,9 +70,8 @@ export default function OrdersPage() {
 		if (!orderId || !newStatus) return;
 		try {
 			await adminService.updateOrderStatus(orderId, newStatus);
-			setAllOrders(prevOrders =>
-				prevOrders.map(order => (order.id === orderId ? { ...order, status: newStatus } : order)),
-			);
+			const updatedOrders = allOrders.map(order => (order.id === orderId ? { ...order, status: newStatus } : order));
+			setAllOrders(updatedOrders);
 			showNotification("Status updated successfully!", "success");
 		} catch (error) {
 			console.error("Update status failed:", error);
@@ -227,20 +87,13 @@ export default function OrdersPage() {
 
 	const fetchOrders = async () => {
 		try {
-			setLoading(true);
 			const data = await adminService.getOrders();
 			setAllOrders(data);
 		} catch (error) {
 			console.error("Failed to fetch orders", error);
 			showNotification("Unable to load the order list", "error");
-		} finally {
-			setLoading(false);
 		}
 	};
-
-	useEffect(() => {
-		fetchOrders();
-	}, []);
 
 	if (loading) {
 		return (
@@ -265,7 +118,7 @@ export default function OrdersPage() {
 					</div>
 					<ExportButton
 						data={selectCount > 0 ? selectedItems : filteredOrders}
-						columns={exportColumns}
+						columns={ORDER_EXPORT_COLUMNS}
 						filename="orders"
 						label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
 						variant="both"
@@ -276,12 +129,11 @@ export default function OrdersPage() {
 			</div>
 
 			<AdminFilter
-				fields={filterConfig.fields}
+				fields={ORDER_FILTER_CONFIG.fields}
 				filterState={filterState}
 				onFilterChange={setFilterValue}
 				onReset={resetFilters}
 				isFiltered={isFiltered}
-				loading={loading}
 			/>
 
 			<OrdersTable

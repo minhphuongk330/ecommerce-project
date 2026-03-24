@@ -4,13 +4,13 @@ import GroupOutlined from "@mui/icons-material/GroupOutlined";
 import PendingActionsOutlined from "@mui/icons-material/PendingActionsOutlined";
 import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
 import Skeleton from "@mui/material/Skeleton";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import LowStockAlert from "~/components/Admin/Dashboard/LowStockAlert";
+import DashboardMetricCard, { getDateRangeByPeriod } from "~/components/Admin/Dashboard/MetricCard";
 import OrderStatusChart from "~/components/Admin/Dashboard/OrderStatusChart";
 import RecentOrders from "~/components/Admin/Dashboard/RecentOrders";
 import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
 import TopSellingProducts from "~/components/Admin/Dashboard/TopSellingProducts";
-import DashboardMetricCard, { getDateRangeByPeriod } from "~/components/Admin/Dashboard/MetricCard";
 import { adminService } from "~/services/admin";
 import { AdminCustomer, AdminOrder } from "~/types/admin";
 
@@ -19,24 +19,26 @@ export default function DashboardPage() {
 	const [allCustomers, setAllCustomers] = useState<AdminCustomer[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const weeklyDateRange = getDateRangeByPeriod("weekly");
+
+	const fetchRawData = useCallback(async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			const [ordersData, customersData] = await Promise.all([adminService.getOrders(), adminService.getCustomers()]);
+			setAllOrders(ordersData);
+			setAllCustomers(customersData);
+		} catch (err) {
+			console.error("Error fetching dashboard data:", err);
+			setError("Failed to load dashboard data.");
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		const fetchRawData = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const [ordersData, customersData] = await Promise.all([adminService.getOrders(), adminService.getCustomers()]);
-				setAllOrders(ordersData);
-				setAllCustomers(customersData);
-			} catch (err) {
-				console.error("Error fetching dashboard data:", err);
-				setError("Failed to load dashboard data.");
-			} finally {
-				setLoading(false);
-			}
-		};
 		fetchRawData();
-	}, []);
+	}, [fetchRawData]);
 
 	if (loading && allOrders.length === 0) {
 		return (
@@ -115,19 +117,19 @@ export default function DashboardPage() {
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-2">
-					<RevenueChart dateRange={getDateRangeByPeriod("weekly")} />
+					<RevenueChart dateRange={weeklyDateRange} />
 				</div>
 				<div>
-					<OrderStatusChart dateRange={getDateRangeByPeriod("weekly")} />
+					<OrderStatusChart dateRange={weeklyDateRange} />
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-1">
-					<TopSellingProducts dateRange={getDateRangeByPeriod("weekly")} />
+					<TopSellingProducts dateRange={weeklyDateRange} />
 				</div>
 				<div className="lg:col-span-2">
-					<RecentOrders dateRange={getDateRangeByPeriod("weekly")} />
+					<RecentOrders dateRange={weeklyDateRange} />
 				</div>
 			</div>
 

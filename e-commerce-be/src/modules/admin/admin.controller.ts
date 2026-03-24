@@ -1,22 +1,23 @@
-import { UpdateProductDto } from './../products/dto/update-product.dto';
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
-  UseGuards,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Put,
+    Query,
+    UseGuards,
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { Role } from '../../entities/customer.entity';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../../entities/customer.entity';
 import { CreateProductDto } from '../products/dto/create-product.dto';
+import { UpdateProductDto } from './../products/dto/update-product.dto';
+import { AdminService } from './admin.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Controller('admin')
@@ -28,6 +29,13 @@ export class AdminController {
   @Get('stats')
   getStats() {
     return this.adminService.getDashboardStats();
+  }
+
+  @Get('revenue')
+  getRevenue(
+    @Query('period') period: 'weekly' | 'monthly' | 'yearly' = 'monthly',
+  ) {
+    return this.adminService.getRevenueByPeriod(period);
   }
 
   @Get('customers')

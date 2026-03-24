@@ -10,8 +10,7 @@ export const useAddress = () => {
 
 	const fetchAddresses = useCallback(async () => {
 		if (!user?.id) {
-			setAddresses([]);
-
+			setAddresses([])
 			return;
 		}
 

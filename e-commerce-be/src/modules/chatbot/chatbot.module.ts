@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ChatbotService } from './chatbot.service';
-import { ChatbotController } from './chatbot.controller';
-import { ProductsModule } from '../products/products.module';
-import { CategoriesModule } from '../categories/categories.module';
+import { AdminModule } from '../admin/admin.module';
 import { CartModule } from '../cart/cart.module';
+import { CategoriesModule } from '../categories/categories.module';
+import { CustomersModule } from '../customers/customers.module';
 import { FavoritesModule } from '../favorites/favorites.module';
 import { OrdersModule } from '../orders/orders.module';
+import { ProductsModule } from '../products/products.module';
+import { ChatbotController } from './chatbot.controller';
+import { ChatbotService } from './chatbot.service';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { OrdersModule } from '../orders/orders.module';
     CartModule,
     FavoritesModule,
     OrdersModule,
+    AdminModule,
+    CustomersModule,
   ],
   controllers: [ChatbotController],
   providers: [ChatbotService],

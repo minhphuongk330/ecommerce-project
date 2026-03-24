@@ -1,76 +1,53 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
 import ExportButton from "~/components/Admin/ExportButton";
 import CreateProduct from "~/components/Admin/Products/Modal/Create";
 import { TableSkeleton } from "~/components/Skeletons";
 import ProductsTable from "~/components/Table/Products";
 import { useNotification } from "~/contexts/Notification";
-import { useTableFilter } from "~/hooks/useTableFilter";
+import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminCategory, AdminProduct } from "~/types/admin";
-import { FilterConfig } from "~/types/filter";
+import {
+	getProductFilterConfig,
+	PRODUCT_EXPORT_COLUMNS,
+	PRODUCT_FILTER_PREDICATES,
+} from "~/utils/admin/productConfigs";
 
 export default function ProductsPage() {
-	const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
 	const [categories, setCategories] = useState<AdminCategory[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-	const selectCount = selectedIds.size;
 	const { showNotification } = useNotification();
+	const filterConfig = useMemo(() => getProductFilterConfig(categories), [categories]);
+	const fetchProductsFn = useCallback(() => adminService.getProducts(), []);
 
-	const filterConfig: FilterConfig = {
-		fields: [
-			{
-				name: "name",
-				label: "Product Name",
-				type: "text",
-				placeholder: "Search by product name...",
-			},
-			{
-				name: "category.name",
-				label: "Category",
-				type: "select",
-				options: categories.map(cat => ({
-					label: cat.name,
-					value: cat.name,
-				})),
-			},
-		],
-	};
+	const onFetchError = useCallback(
+		(error: any) => {
+			console.error(error);
+			showNotification("Failed to load product list", "error");
+		},
+		[showNotification],
+	);
 
 	const {
 		filteredData: filteredProducts,
+		loading,
+		selectCount,
+		selectedIds,
+		selectedItems,
 		filterState,
+		isFiltered,
 		setFilterValue,
 		resetFilters,
-		isFiltered,
-	} = useTableFilter({
-		data: allProducts,
-		config: filterConfig,
-		predicates: {
-			name: (item, filters) => {
-				const searchTerm = filters.name;
-				if (!searchTerm) return true;
-				return item.name.toLowerCase().includes(searchTerm.toLowerCase());
-			},
-			"category.name": (item, filters) => {
-				const categoryFilter = filters["category.name"];
-				if (!categoryFilter) return true;
-				return item.category?.name === categoryFilter;
-			},
-		},
+		handleSelectChange,
+		handleSelectAllVisible,
+		fetchData: fetchProducts,
+	} = useAdminTableManager<AdminProduct>({
+		filterConfig,
+		predicates: PRODUCT_FILTER_PREDICATES,
+		fetchFn: fetchProductsFn,
+		onFetchError,
 	});
-
-	const fetchProducts = async () => {
-		try {
-			const data = await adminService.getProducts();
-			setAllProducts(data);
-		} catch (error) {
-			console.error(error);
-			showNotification("Failed to load product list", "error");
-		}
-	};
 
 	const fetchCategories = async () => {
 		try {
@@ -82,49 +59,9 @@ export default function ProductsPage() {
 		}
 	};
 
-	const initData = async () => {
-		setLoading(true);
-		await Promise.all([fetchProducts(), fetchCategories()]);
-		setLoading(false);
-	};
-
 	useEffect(() => {
-		initData();
+		fetchCategories();
 	}, []);
-
-	const handleSelectChange = (id: number) => {
-		setSelectedIds(prev => {
-			const newSet = new Set(prev);
-			if (newSet.has(id)) newSet.delete(id);
-			else newSet.add(id);
-			return newSet;
-		});
-	};
-
-	const handleSelectAllVisible = (selected: boolean, visibleIds: number[]) => {
-		setSelectedIds(prev => {
-			const newSet = new Set(prev);
-			if (selected) {
-				visibleIds.forEach(id => newSet.add(id));
-			} else {
-				visibleIds.forEach(id => newSet.delete(id));
-			}
-			return newSet;
-		});
-	};
-
-	const selectedItems = filteredProducts.filter(product => selectedIds.has(product.id));
-
-	const productExportColumns = [
-		{ key: "name" as const, label: "Product Name" },
-		{ key: "category.name" as any, label: "Category" },
-		{
-			key: "price" as const,
-			label: "Price",
-			formatter: (value: any) => (value != null && !isNaN(value) ? `$${Number(value).toFixed(2)}` : ""),
-		},
-		{ key: "stock" as const, label: "Stock" },
-	];
 
 	if (loading) {
 		return (
@@ -150,7 +87,7 @@ export default function ProductsPage() {
 					<div className="flex gap-2">
 						<ExportButton
 							data={selectCount > 0 ? selectedItems : filteredProducts}
-							columns={productExportColumns}
+							columns={PRODUCT_EXPORT_COLUMNS}
 							filename="products"
 							label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
 							variant="both"

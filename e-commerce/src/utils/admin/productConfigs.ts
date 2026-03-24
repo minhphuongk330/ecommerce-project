@@ -1,0 +1,47 @@
+import { AdminCategory, AdminProduct } from "~/types/admin";
+import { FilterConfig } from "~/types/filter";
+import { ExportColumn } from "~/utils/export";
+
+export const getProductFilterConfig = (categories: AdminCategory[]): FilterConfig => ({
+	fields: [
+		{
+			name: "name",
+			label: "Product Name",
+			type: "text",
+			placeholder: "Search by product name...",
+		},
+		{
+			name: "category.name",
+			label: "Category",
+			type: "select",
+			options: categories.map(cat => ({
+				label: cat.name,
+				value: cat.name,
+			})),
+		},
+	],
+});
+
+export const PRODUCT_FILTER_PREDICATES = {
+	name: (item: AdminProduct, filters: any) => {
+		const searchTerm = filters.name;
+		if (!searchTerm) return true;
+		return item.name.toLowerCase().includes(searchTerm.toLowerCase());
+	},
+	"category.name": (item: AdminProduct, filters: any) => {
+		const categoryFilter = filters["category.name"];
+		if (!categoryFilter) return true;
+		return item.category?.name === categoryFilter;
+	},
+};
+
+export const PRODUCT_EXPORT_COLUMNS: ExportColumn<AdminProduct>[] = [
+	{ key: "name" as const, label: "Product Name" },
+	{ key: "category.name" as any, label: "Category" },
+	{
+		key: "price" as const,
+		label: "Price",
+		formatter: (value: any) => (value != null && !isNaN(value) ? `$${Number(value).toFixed(2)}` : ""),
+	},
+	{ key: "stock" as const, label: "Stock" },
+];

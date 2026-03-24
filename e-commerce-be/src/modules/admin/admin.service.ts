@@ -21,15 +21,33 @@ export class AdminService {
   ) {}
 
   async getDashboardStats() {
-    const revenueResult = await this.orderRepository
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const monthStart = new Date(currentYear, currentMonth, 1);
+    const monthEnd = new Date(currentYear, currentMonth + 1, 1);
+
+    const monthRevenueResult = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.totalAmount)', 'total')
+      .where('order.status = :status', { status: 'Completed' })
+      .andWhere('order.createdAt >= :startDate', { startDate: monthStart })
+      .andWhere('order.createdAt < :endDate', { endDate: monthEnd })
+      .getRawOne();
+
+    const monthRevenue =
+      monthRevenueResult && monthRevenueResult.total
+        ? parseFloat(monthRevenueResult.total)
+        : 0;
+    const totalRevenueResult = await this.orderRepository
       .createQueryBuilder('order')
       .select('SUM(order.totalAmount)', 'total')
       .where('order.status = :status', { status: 'Completed' })
       .getRawOne();
 
     const totalRevenue =
-      revenueResult && revenueResult.total
-        ? parseFloat(revenueResult.total)
+      totalRevenueResult && totalRevenueResult.total
+        ? parseFloat(totalRevenueResult.total)
         : 0;
 
     const today = new Date();
@@ -48,6 +66,7 @@ export class AdminService {
     });
 
     return {
+      monthRevenue,
       totalRevenue,
       todayOrders,
       totalOrders,
@@ -118,6 +137,70 @@ export class AdminService {
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
     return this.productRepository.remove(product);
+  }
+
+  async getRevenueByPeriod(period: 'weekly' | 'monthly' | 'yearly') {
+    const allOrders = await this.orderRepository.find();
+
+    let startDate: Date;
+    let prevStartDate: Date;
+    const now = new Date();
+    const endDate = new Date();
+
+    if (period === 'yearly') {
+      startDate = new Date(now.getFullYear(), 0, 1);
+      prevStartDate = new Date(now.getFullYear() - 1, 0, 1);
+    } else if (period === 'monthly') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      prevStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    } else {
+      const dayOfWeek = now.getDay();
+      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      startDate = new Date(now.getFullYear(), now.getMonth(), diff);
+      startDate.setHours(0, 0, 0, 0);
+
+      prevStartDate = new Date(startDate);
+      prevStartDate.setDate(prevStartDate.getDate() - 7);
+    }
+
+    let currentRevenue = 0;
+    let currentOrders = 0;
+    let prevRevenue = 0;
+    let prevOrders = 0;
+
+    allOrders.forEach((order) => {
+      const orderDate = new Date(order.createdAt);
+      const amount = parseFloat(String(order.totalAmount || 0));
+
+      if (orderDate >= startDate && orderDate <= endDate) {
+        currentRevenue += amount;
+        currentOrders += 1;
+      }
+
+      if (orderDate >= prevStartDate && orderDate < startDate) {
+        prevRevenue += amount;
+        prevOrders += 1;
+      }
+    });
+
+    const calcPercent = (curr: number, prev: number) =>
+      prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev) * 100;
+
+    const periodLabel =
+      period === 'yearly'
+        ? `Year ${now.getFullYear()}`
+        : period === 'monthly'
+          ? `${now.toLocaleString('en-US', { month: 'long' })} ${now.getFullYear()}`
+          : `This Week`;
+
+    return {
+      period,
+      periodLabel,
+      revenue: currentRevenue,
+      revenuePercent: calcPercent(currentRevenue, prevRevenue),
+      orders: currentOrders,
+      ordersPercent: calcPercent(currentOrders, prevOrders),
+    };
   }
 
   async getOrders() {

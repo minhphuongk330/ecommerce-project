@@ -13,13 +13,14 @@ export const useProductDetail = (productId: string) => {
 		try {
 			setIsLoading(true);
 
-			const [productData, allProducts] = await Promise.all([
+			const [productData, productResponse] = await Promise.all([
 				productService.getById(productId),
 				productService.getAll(),
 			]);
 
 			setProduct(productData);
 
+			const allProducts = productResponse.items;
 			const related = allProducts
 				.filter(p => Number(p.categoryId) === Number(productData.categoryId) && Number(p.id) !== Number(productId))
 				.slice(0, 4);

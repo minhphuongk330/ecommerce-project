@@ -56,9 +56,4 @@ export class ProductsController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
   }
-
-  @Get('migration/fix-attributes')
-  async fixAttributes() {
-    return await this.productsService.migrateOldAttributesToNewFormat();
-  }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { productService } from "~/services/product";
 import { Product } from "~/types/product";
 
@@ -9,7 +9,8 @@ export const useDiscountProducts = () => {
 	const fetchProducts = async () => {
 		try {
 			setIsLoadingProducts(true);
-			const allProducts = await productService.getAll();
+			const response = await productService.getAll();
+			const allProducts = Array.isArray(response) ? response : response?.items || [];
 			setDiscountData(allProducts.slice(0, 4));
 		} catch (error) {
 			console.error("Failed to fetch discount products:", error);

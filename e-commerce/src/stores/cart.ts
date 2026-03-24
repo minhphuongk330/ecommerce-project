@@ -33,9 +33,7 @@ export const useCartStore = create<CartState>()(
 			selectedAddressId: null,
 			_hasHydrated: false,
 			setHasHydrated: state => set({ _hasHydrated: state }),
-
 			setSelectedAddressId: id => set({ selectedAddressId: id }),
-
 			fetchCart: async () => {
 				try {
 					const data = await cartService.getAll();

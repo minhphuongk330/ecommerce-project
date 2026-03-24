@@ -5,57 +5,118 @@ import { Product } from "~/types/product";
 import { routerPaths, router as appRouter } from "~/utils/router";
 
 export const useProductSearch = (scope: "global" | "category", categoryId?: number | null) => {
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const searchCache = useRef<Record<string, Product[]>>({});
+	const router = useRouter();
+	const [searchTerm, setSearchTerm] = useState("");
+	const [isOpen, setIsOpen] = useState(false);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const wrapperRef = useRef<HTMLDivElement>(null);
+	const searchCache = useRef<Record<string, Product[]>>({});
 
-  const fetchProducts = async (term: string) => {
-    const cacheKey = scope === "category" ? `${term}_cat_${categoryId}` : `global_${term}`;
-    if (searchCache.current[cacheKey]) {
-      setProducts(searchCache.current[cacheKey]);
-      return;
-    }
+	const fetchProducts = async (term: string) => {
+		const cacheKey = scope === "category" ? `${term}_cat_${categoryId}` : `global_${term}`;
+		if (searchCache.current[cacheKey]) {
+			setProducts(searchCache.current[cacheKey]);
+			return;
+		}
 
-    try {
-      setIsLoading(true);
-      const params: any = { name: term, limit: 5 };
-      if (scope === "category" && categoryId) params.categoryId = categoryId;
+		try {
+			setIsLoading(true);
+			const params: any = { name: term, limit: 5 };
+			if (scope === "category" && categoryId) params.categoryId = categoryId;
+			const response: any = await productService.getAll(params);
+			let data = Array.isArray(response) ? response : response?.items || [];
+			data = data.slice(0, 5); 
+			searchCache.current[cacheKey] = data;
+			setProducts(data);
+		} catch (error) {
+			setProducts([]);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-      const response = await productService.getAll(params);
-      const data = response.items; // Lấy đúng mảng items từ object BE trả về
+	const handleClickOutside = (event: MouseEvent) => {
+		if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+			setIsOpen(false);
+		}
+	};
 
-      searchCache.current[cacheKey] = data;
-      setProducts(data);
-    } catch (error) {
-      setProducts([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	useEffect(() => {
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
 
-  useEffect(() => {
-    if (!isOpen || !searchTerm) return;
-    const timeoutId = setTimeout(() => fetchProducts(searchTerm), 500);
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, isOpen, scope, categoryId]);
+	useEffect(() => {
+		if (!isOpen) return;
+		if (scope === "category" && !searchTerm) {
+			setIsOpen(false);
+			setProducts([]);
+			setIsLoading(false);
+			return;
+		}
+		if (!searchTerm) {
+			fetchProducts("");
+			return;
+		}
 
-  return {
-    searchTerm, isOpen, products, isLoading, wrapperRef,
-    handleChange: (e: any) => { setSearchTerm(e.target.value); setIsOpen(true); },
-    handleFocus: () => setIsOpen(true),
-    handleProductClick: (id: number) => { setIsOpen(false); router.push(appRouter.product(id)); },
-    handleKeyDown: (e: any) => {
-      if (e.key === "Enter") {
-        setIsOpen(false);
-        const query: any = { name: searchTerm };
-        if (scope === "category" && categoryId) query.categoryId = categoryId;
-        router.push(`${routerPaths.productDetail}?${new URLSearchParams(query).toString()}`);
-      }
-    },
-    handleViewMore: () => { /* tương tự enter */ }
-  };
+		setIsLoading(true);
+		const timeoutId = setTimeout(() => fetchProducts(searchTerm), 500);
+		return () => clearTimeout(timeoutId);
+	}, [searchTerm, isOpen, scope, categoryId]);
+
+	const handleFocus = () => {
+		if (scope === "global") setIsOpen(true);
+		else if (scope === "category" && searchTerm) setIsOpen(true);
+	};	
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const val = e.target.value;
+		setSearchTerm(val);
+		if (scope === "global") setIsOpen(true);
+		else setIsOpen(!!val);
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key === "Enter") {
+			setIsOpen(false);
+			const query: any = {};
+			if (searchTerm.trim()) query.name = searchTerm;
+			if (scope === "category" && categoryId) query.categoryId = categoryId;
+
+			const queryString = new URLSearchParams(query as any).toString();
+			router.push(`${routerPaths.productDetail}?${queryString}`);
+			setSearchTerm("");
+		}
+	};
+
+	const handleProductClick = (id: number) => {
+		setIsOpen(false);
+		router.push(appRouter.product(id));
+		setSearchTerm("");
+	};
+
+	const handleViewMore = () => {
+		setIsOpen(false);
+		const query: any = {};
+		if (searchTerm.trim()) query.name = searchTerm;
+		if (scope === "category" && categoryId) query.categoryId = categoryId;
+
+		const queryString = new URLSearchParams(query as any).toString();
+		router.push(`${routerPaths.productDetail}?${queryString}`);
+		setSearchTerm("");
+	};
+
+	return {
+		searchTerm,
+		isOpen,
+		products,
+		isLoading,
+		wrapperRef,
+		handleFocus,
+		handleChange,
+		handleKeyDown,
+		handleProductClick,
+		handleViewMore,
+	};
 };

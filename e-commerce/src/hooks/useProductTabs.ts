@@ -10,7 +10,8 @@ export const useProductTabs = (defaultTab: string) => {
 	const fetchProducts = async () => {
 		try {
 			setIsLoading(true);
-			const data = await productService.getAll();
+			const response = await productService.getAll();
+			const data = Array.isArray(response) ? response : response?.items || [];
 			setProducts(data);
 		} catch (error) {
 			console.error("Failed to fetch products for tabs:", error);

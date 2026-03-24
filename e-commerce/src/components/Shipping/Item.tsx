@@ -1,7 +1,7 @@
 "use client";
 import React, { memo, useMemo } from "react";
 import { ShippingMethod } from "~/types/shipping";
-import { calculateSchedulePrice, calculateShippingDays, getPriceLabel } from "~/utils/shippingCalculator";
+import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
 
 interface ShippingListItemProps {
 	method: ShippingMethod;
