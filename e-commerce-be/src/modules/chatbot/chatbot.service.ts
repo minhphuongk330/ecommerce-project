@@ -84,7 +84,7 @@ export class ChatbotService {
     const productsList = finalProducts
       .map(
         (p) =>
-          `- [ID: ${p.id}] ${p.name} (Giá: ${p.price} VNĐ) - Còn ${p.stock} cái`,
+          `- [ID: ${p.id}] ${p.name} (Giá: ${p.price} VNĐ) - ${p.stock > 0 ? 'Còn hàng' : 'Hết hàng'}`,
       )
       .join('\n');
 
