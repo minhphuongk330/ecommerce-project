@@ -109,14 +109,14 @@ const ProductSearch = () => {
 			</div>
 
 			{isOpen && (
-				<div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999] flex flex-col max-h-[60vh]">
+				<div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999] flex flex-col">
 					<div className="px-3 md:px-4 py-2.5 md:py-3 border-b border-gray-100 bg-gray-50 flex-shrink-0">
 						<span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
 							{searchTerm ? "Search Results" : "Newest Products"}
 						</span>
 					</div>
 
-					<div className="flex-1 overflow-y-auto relative">
+					<div className="flex-1 overflow-hidden relative">
 						{isLoading ? (
 							<div className="flex flex-col items-center justify-center p-6 text-gray-400 gap-3 min-h-[200px]">
 								<div className="w-6 h-6 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin"></div>

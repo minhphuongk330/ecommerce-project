@@ -22,7 +22,7 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 
 		try {
 			setIsLoading(true);
-			const params: any = { name: term, limit: 5 };
+			const params: any = { name: term, limit: 5, sort: "newest" };
 			if (scope === "category" && categoryId) params.categoryId = categoryId;
 			const response: any = await productService.getAll(params);
 			let data = Array.isArray(response) ? response : response?.items || [];
@@ -57,6 +57,12 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 		}
 		if (!searchTerm) {
 			fetchProducts("");
+			return;
+		}
+
+		const cacheKey = scope === "category" ? `${searchTerm}_cat_${categoryId}` : `global_${searchTerm}`;
+		if (searchCache.current[cacheKey]) {
+			setProducts(searchCache.current[cacheKey]);
 			return;
 		}
 
