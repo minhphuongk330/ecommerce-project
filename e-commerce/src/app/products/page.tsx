@@ -24,21 +24,16 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const categoryIdParam = searchParams.get("categoryId");
   const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;
-  
-  // FIX 1: Lấy thêm totalCount từ useProducts
   const { products: allProducts = [], totalCount, isLoading } = useProducts();
   const { setBreadcrumbs } = useBreadcrumb();
 
   const categoryLabel = useMemo(() => {
-    // FIX 2: Dùng Optional Chaining (?.) để an toàn khi data chưa về
     if (categoryId && allProducts?.length > 0) {
       const foundProduct = allProducts.find(p => Number(p.categoryId) === categoryId);
       return foundProduct?.category?.name || "Products";
     }
     return "Products";
   }, [categoryId, allProducts]);
-
-  // FIX 3: Truyền totalCount vào useProductFilter đúng vị trí tham số thứ 2
   const { 
     selectedFilters, 
     toggleFilter, 

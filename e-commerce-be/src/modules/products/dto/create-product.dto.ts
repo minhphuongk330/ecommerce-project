@@ -25,6 +25,7 @@ export class CreateProductDto {
   extraImage4?: string;
   isActive?: boolean;
   attributes?: any;
+  isFeatured?: boolean;
   colors?: CreateProductColorDto[];
   variants?: CreateProductVariantDto[];
 }

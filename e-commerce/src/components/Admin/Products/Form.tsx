@@ -88,6 +88,24 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 						disabled={variantFields.length > 0}
 					/>
 				</div>
+
+				<div className="flex items-center gap-3 mt-1">
+					<Controller
+						control={control}
+						name="isFeatured"
+						render={({ field }) => (
+							<label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-700">
+								<input
+									type="checkbox"
+									checked={!!field.value}
+									onChange={e => field.onChange(e.target.checked)}
+									className="w-4 h-4 accent-black"
+								/>
+								Featured Product
+							</label>
+						)}
+					/>
+				</div>
 			</div>
 
 			{currentCategoryConfig && (

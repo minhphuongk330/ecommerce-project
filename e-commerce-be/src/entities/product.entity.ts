@@ -64,6 +64,9 @@ export class Product {
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
+  @Column({ type: 'boolean', default: false, name: 'is_featured' })
+  isFeatured: boolean;
+
   @Column({ type: 'json', nullable: true })
   attributes: any;
 

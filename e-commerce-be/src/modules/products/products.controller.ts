@@ -1,13 +1,13 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -29,6 +29,7 @@ export class ProductsController {
     @Query('name') name?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('collection') collection?: string,
   ) {
     return this.productsService.findAll({
       sort,
@@ -36,6 +37,7 @@ export class ProductsController {
       name,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 20,
+      collection,
     });
   }
 

@@ -8,7 +8,6 @@ export const useProducts = () => {
 	const [products, setProducts] = useState<Product[]>([]);
 	const [totalCount, setTotalCount] = useState(0);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-
 	const searchParams = useSearchParams();
 	const sort = searchParams.get("sort") || "newest";
 	const categoryId = searchParams.get("categoryId");

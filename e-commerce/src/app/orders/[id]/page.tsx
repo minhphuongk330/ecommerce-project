@@ -1,55 +1,19 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import SingleBtn from "~/components/atoms/SingleBtn";
 import OrderAddress from "~/components/Order/Detail/Address";
 import OrderHeader from "~/components/Order/Detail/Header";
 import OrderItems from "~/components/Order/Detail/Item";
 import OrderSummary from "~/components/Order/Detail/Summary";
 import { DetailPageSkeleton } from "~/components/Skeletons";
-import { useNotification } from "~/contexts/Notification";
-import { orderService } from "~/services/order";
-import { Order } from "~/types/order";
+import { useOrderDetail } from "~/hooks/useOrderDetail";
 import { routerPaths } from "~/utils/router";
 
 export default function OrderDetailPage() {
 	const nav = useRouter();
 	const params = useParams();
 	const orderId = params?.id ? Number(params.id) : null;
-	const { showNotification } = useNotification();
-	const [order, setOrder] = useState<Order | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-
-	const fetchOrder = async () => {
-		if (!orderId) return;
-		try {
-			setIsLoading(true);
-			const data = await orderService.getOrderById(orderId);
-			setOrder(data);
-		} catch (error) {
-			console.error("Failed to fetch order detail:", error);
-			showNotification("Unable to load order information.", "error");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		fetchOrder();
-	}, [orderId]);
-
-	const handleCancelOrder = async () => {
-		if (!orderId) return;
-		try {
-			const updatedOrder = await orderService.cancelOrder(orderId);
-			setOrder(updatedOrder);
-			showNotification("Order canceled successfully.", "success");
-		} catch (error) {
-			console.error(error);
-			showNotification("Failed to cancel the order.", "error");
-		}
-	};
-
+	const { order, isLoading, cancelOrder } = useOrderDetail(orderId);
 	const handleBack = () => {
 		nav.push(routerPaths.order);
 	};
@@ -81,7 +45,7 @@ export default function OrderDetailPage() {
 
 				<div className="w-full lg:w-[360px] flex flex-col gap-6">
 					<OrderAddress address={order.address} />
-					<OrderSummary order={order} onCancelOrder={handleCancelOrder} />
+					<OrderSummary order={order} onCancelOrder={cancelOrder} />
 				</div>
 			</div>
 		</div>

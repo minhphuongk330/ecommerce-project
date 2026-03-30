@@ -18,6 +18,7 @@ export const productSchema = z.object({
 	extraImage4: z.string().optional().or(z.literal("")),
 	isActive: z.boolean().optional(),
 	attributes: z.record(z.string(), z.any()).optional(),
+	isFeatured: z.boolean().optional().default(false),
 	variants: z
 		.array(
 			z.object({
@@ -51,6 +52,7 @@ export interface ProductFormValues {
 	extraImage4?: string;
 	isActive?: boolean;
 	attributes?: Record<string, any>;
+	isFeatured?: boolean;
 	variants?: {
 		sku?: string;
 		price: number | string;

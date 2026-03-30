@@ -24,11 +24,18 @@ interface ProductParams {
 }
 
 export const productService = {
-  // Sửa kiểu trả về từ Promise<Product[]> thành Promise<ProductResponse>
-  getAll: async (params?: ProductParams): Promise<ProductResponse> => {
-    const queryParams = { ...params };
-    return await axiosClient.get("/products", { params: queryParams });
-  },
+	getAll: async (params?: ProductParams): Promise<ProductResponse> => {
+		const queryParams = { ...params };
+		return await axiosClient.get("/products", { params: queryParams });
+	},
+
+	getByCollection: async (collection: string, limit = 8): Promise<Product[]> => {
+		const response: ProductResponse = await axiosClient.get("/products", {
+			params: { collection, limit },
+		});
+		const items = Array.isArray(response) ? response : response?.items || [];
+		return items;
+	},
 
 	getById: async (id: number | string): Promise<ProductDetail> => {
 		return await axiosClient.get(`/products/${id}`);

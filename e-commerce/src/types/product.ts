@@ -38,7 +38,7 @@ export interface Product {
 	isFavorite?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
-	collection?: "New Arrival" | "Bestseller" | "Featured Products" | "Discount";
+	isFeatured?: boolean;
 	variants?: any[];
 }
 

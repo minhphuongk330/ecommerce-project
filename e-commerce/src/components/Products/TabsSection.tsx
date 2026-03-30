@@ -13,7 +13,6 @@ const ProductTabsSection: React.FC = () => {
 		<div className="w-full bg-white">
 			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-1 md:py-[5px]">
 				<CommonTabs options={TABS} value={activeTab} onChange={setActiveTab} className="mb-6 md:mb-8" />
-
 				{isLoading ? (
 					<div className="w-full h-[400px] flex items-center justify-center text-gray-400">Loading products...</div>
 				) : (
