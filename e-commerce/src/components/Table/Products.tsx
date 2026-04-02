@@ -86,6 +86,8 @@ export default function ProductsTable({
 			headerName: "Image",
 			width: 100,
 			sortable: false,
+			align: "center" as const,
+			headerAlign: "center" as const,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center justify-center h-full w-full">
 					<div className="relative w-16 h-16 rounded overflow-hidden border border-gray-200 bg-white">
@@ -100,7 +102,7 @@ export default function ProductsTable({
 				</div>
 			),
 		},
-		{ field: "name", headerName: "Product name", width: 250, cellClassName: "font-medium text-gray-800" },
+		{ field: "name", headerName: "Product name", width: 250, flex: 1, cellClassName: "font-medium text-gray-800" },
 		{
 			field: "category",
 			headerName: "Category",

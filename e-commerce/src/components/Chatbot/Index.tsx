@@ -32,7 +32,7 @@ function ChatbotComponent() {
 
 	useEffect(() => {
 		try {
-			const stored = localStorage.getItem(STORAGE_KEY);
+			const stored = sessionStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				setMessages(JSON.parse(stored));
 			} else {
@@ -49,7 +49,7 @@ function ChatbotComponent() {
 
 	useEffect(() => {
 		try {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+			sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
 		} catch (error) {
 			console.error("Failed to save chat history:", error);
 		}

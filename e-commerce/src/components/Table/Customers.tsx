@@ -98,6 +98,7 @@ export default function CustomerTable({
 			field: "email",
 			headerName: "Email",
 			width: 250,
+			flex: 1,
 		},
 		{
 			field: "phoneNumber",

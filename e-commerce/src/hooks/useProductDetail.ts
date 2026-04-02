@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { productService } from "~/services/product";
 import { Product, ProductDetail } from "~/types/product";
 
@@ -7,35 +7,31 @@ export const useProductDetail = (productId: string) => {
 	const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		if (!productId) return;
 
 		try {
 			setIsLoading(true);
-
 			const [productData, productResponse] = await Promise.all([
 				productService.getById(productId),
 				productService.getAll(),
 			]);
-
 			setProduct(productData);
-
 			const allProducts = productResponse.items;
 			const related = allProducts
 				.filter(p => Number(p.categoryId) === Number(productData.categoryId) && Number(p.id) !== Number(productId))
 				.slice(0, 4);
-
 			setRelatedProducts(related.length > 0 ? related : allProducts.slice(0, 4));
 		} catch (error) {
 			console.error("Failed to fetch product detail:", error);
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [productId]);
 
 	useEffect(() => {
 		fetchData();
-	}, [productId]);
+	}, [fetchData]);
 
-	return { product, relatedProducts, isLoading };
+	return { product, relatedProducts, isLoading, refetch: fetchData };
 };

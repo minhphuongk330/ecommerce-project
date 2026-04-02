@@ -10,6 +10,7 @@ import { PersonOutline, Dashboard } from "@mui/icons-material";
 import Logout from "@mui/icons-material/Logout";
 import ShoppingBagOutlined from "@mui/icons-material/ShoppingBagOutlined";
 import CommonIconButton from "~/components/atoms/IconButton";
+import { useScrollLock } from "~/hooks/useScrollLock";
 import { User, UserProfile } from "~/types/auth";
 import { routerPaths } from "~/utils/router";
 
@@ -21,6 +22,7 @@ interface UserMenuProps {
 
 const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	useScrollLock(!!anchorEl);
 
 	const handleClick = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -44,6 +46,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 				open={!!anchorEl}
 				onClose={handleClose}
 				onClick={handleClose}
+				disableScrollLock
 				transformOrigin={{ horizontal: "right", vertical: "top" }}
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 				sx={{ mt: 2 }}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 
@@ -50,10 +50,8 @@ function generateRealChartData(
 ) {
 	const data: any[] = [];
 	let current = startDate.clone();
-
 	const step = period === "yearly" ? "month" : "day";
 	const format = period === "yearly" ? "MMM YYYY" : "DD/MM";
-
 	while (current.isBefore(endDate) || current.isSame(endDate, step)) {
 		data.push({
 			name: current.format(format),
@@ -65,12 +63,9 @@ function generateRealChartData(
 
 	items.forEach(item => {
 		if (statusFilter && item.status?.toLowerCase() !== statusFilter) return;
-
 		const itemDate = dayjs(item.createdAt);
-
 		if (itemDate.isBetween(startDate, endDate, null, "[]")) {
 			const bucket = data.find(d => d.time === itemDate.startOf(step).valueOf());
-
 			if (bucket) {
 				if (type === "revenue") {
 					bucket.value += Number(item.totalAmount) || 0;
@@ -91,7 +86,7 @@ export function useStatCard({ items, period, type, statusFilter }: any) {
 	const [stats, setStats] = useState({ current: 0, previous: 0 });
 	const [chartData, setChartData] = useState<any[]>([]);
 
-	useEffect(() => {
+	const calculateStats = useCallback(() => {
 		const range = getDateRangeByPeriod(period);
 
 		const currentItems = items.filter((i: any) =>
@@ -113,9 +108,12 @@ export function useStatCard({ items, period, type, statusFilter }: any) {
 				: previousItems.length;
 
 		setStats({ current, previous });
-
 		setChartData(generateRealChartData(items, range.startDate, range.endDate, period, type, statusFilter));
 	}, [items, period, type, statusFilter]);
+
+	useEffect(() => {
+		calculateStats();
+	}, [calculateStats]);
 
 	return { stats, chartData };
 }

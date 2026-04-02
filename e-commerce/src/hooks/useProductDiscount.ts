@@ -23,5 +23,5 @@ export const useDiscountProducts = () => {
 		fetchProducts();
 	}, []);
 
-	return { discountData, isLoadingProducts };
+	return { discountData, isLoadingProducts, refetch: fetchProducts };
 };
