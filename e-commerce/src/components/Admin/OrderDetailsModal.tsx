@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AdminOrder } from "~/types/admin";
-import { formatDate } from "~/utils/format";
+import { formatDate, formatPrice } from "~/utils/format";
 import { router } from "~/utils/router";
 
 interface OrderDetailsModalProps {
@@ -65,7 +65,7 @@ const OrderItemRow = ({ item }: OrderItemRowProps) => {
 					</div>
 				</div>
 			</div>
-			<span className="font-bold text-gray-900 text-sm">${Number(item.unitPrice).toFixed(2)}</span>
+			<span className="font-bold text-gray-900 text-sm">{formatPrice(item.unitPrice)}</span>
 		</li>
 	);
 };

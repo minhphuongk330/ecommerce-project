@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 import { AdminProduct } from "~/types/admin";
+import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
@@ -144,7 +145,7 @@ export default function TopSellingProducts({ dateRange }: TopSellingProps) {
 											</h3>
 										</Link>
 										<p className="text-sm font-semibold text-gray-500 mt-1">
-											${product.price.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+											{formatPrice(product.price)}
 										</p>
 									</div>
 								</div>

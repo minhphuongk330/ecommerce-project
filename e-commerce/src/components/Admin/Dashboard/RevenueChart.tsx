@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { adminService } from "~/services/admin";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
+import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
@@ -26,7 +27,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 							<span className="text-xs text-gray-500 font-medium">Revenue</span>
 						</div>
 						<span className="text-sm font-bold text-gray-800">
-							${payload[0]?.value?.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+							{formatPrice(payload[0]?.value)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between gap-6">
@@ -159,7 +160,7 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Revenue</p>
 					<div className="flex items-center gap-3">
 						<h3 className="text-3xl font-bold text-gray-900">
-							${stats.revenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+							{formatPrice(stats.revenue)}
 						</h3>
 						<div className="flex items-center gap-1">
 							{stats.revenuePercent >= 0 ? (

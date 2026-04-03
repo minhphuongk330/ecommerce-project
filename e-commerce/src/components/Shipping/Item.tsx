@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 import React, { memo, useMemo } from "react";
 import { ShippingMethod } from "~/types/shipping";
 import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
+import { formatPrice } from "~/utils/format";
 
 interface ShippingListItemProps {
 	method: ShippingMethod;
@@ -41,11 +42,11 @@ const ShippingListItem: React.FC<ShippingListItemProps> = ({
 		() =>
 			isSchedule
 				? scheduledDate
-					? `$${dynamicPrice.toFixed(2)}`
+					? formatPrice(dynamicPrice)
 					: "SCHEDULE"
 				: method.price === 0
 					? "FREE"
-					: `$${method.price.toFixed(2)}`,
+					: formatPrice(method.price),
 		[isSchedule, scheduledDate, dynamicPrice, method.price],
 	);
 

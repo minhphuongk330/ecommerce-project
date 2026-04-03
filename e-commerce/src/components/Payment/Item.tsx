@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { CartItem, formatPrice } from "~/hooks/usePaymentSummary";
+import { CartItem } from "~/hooks/usePaymentSummary";
+import { formatPrice } from "~/utils/format";
 
 interface SummaryItemProps {
 	item: CartItem;

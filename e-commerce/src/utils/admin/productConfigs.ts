@@ -1,6 +1,7 @@
 import { AdminCategory, AdminProduct } from "~/types/admin";
 import { FilterConfig } from "~/types/filter";
 import { ExportColumn } from "~/utils/export";
+import { formatPrice } from "~/utils/format";
 
 export const getProductFilterConfig = (categories: AdminCategory[]): FilterConfig => ({
 	fields: [
@@ -41,7 +42,7 @@ export const PRODUCT_EXPORT_COLUMNS: ExportColumn<AdminProduct>[] = [
 	{
 		key: "price" as const,
 		label: "Price",
-		formatter: (value: any) => (value != null && !isNaN(value) ? `$${Number(value).toFixed(2)}` : ""),
+		formatter: (value: any) => (value != null && !isNaN(value) ? formatPrice(value) : ""),
 	},
 	{ key: "stock" as const, label: "Stock" },
 ];

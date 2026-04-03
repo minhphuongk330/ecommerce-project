@@ -44,7 +44,7 @@ function OrderListContent() {
 			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
 			<div className="flex flex-col">
 				{paginatedOrders.map(order => (
-					<OrderItem key={order.id} data={order} />
+					<OrderItem key={order.id} order={order} />
 				))}
 			</div>
 			{totalPages > 1 && (

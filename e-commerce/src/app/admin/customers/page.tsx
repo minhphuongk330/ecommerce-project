@@ -1,8 +1,8 @@
 "use client";
 import { useCallback, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
+import AdminPageHeader from "~/components/Admin/AdminPageHeader";
 import CustomerDetailsModal from "~/components/Admin/CustomerDetailsModal";
-import ExportButton from "~/components/Admin/ExportButton";
 import { TableSkeleton } from "~/components/Skeletons";
 import CustomerTable from "~/components/Table/Customers";
 import { useNotification } from "~/contexts/Notification";
@@ -57,27 +57,15 @@ export default function CustomersPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold text-gray-800">Customer Management</h1>
-				<div className="flex items-center gap-4">
-					<div className="text-sm text-gray-500">
-						{selectCount > 0 && (
-							<span className="mr-4 font-semibold">
-								Selected: <span className="text-blue-600">{selectCount}</span> / {filteredCustomers.length}
-							</span>
-						)}
-					</div>
-					<ExportButton
-						data={selectCount > 0 ? selectedItems : filteredCustomers}
-						columns={CUSTOMER_EXPORT_COLUMNS}
-						filename="customers"
-						label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
-						variant="both"
-						showCount={false}
-						disabled={selectCount === 0}
-					/>
-				</div>
-			</div>
+			<AdminPageHeader
+				title="Customer Management"
+				selectCount={selectCount}
+				totalCount={filteredCustomers.length}
+				exportData={selectCount > 0 ? selectedItems : filteredCustomers}
+				exportColumns={CUSTOMER_EXPORT_COLUMNS}
+				exportFilename="customers"
+				exportLabel="Export"
+			/>
 
 			<AdminFilter
 				fields={CUSTOMER_FILTER_CONFIG.fields}

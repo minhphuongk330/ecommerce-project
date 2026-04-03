@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sendChatMessage } from "~/services/chatbot";
+import { useCartStore } from "~/stores/cart";
 
 interface ChatMessage {
 	id: number;
@@ -19,6 +20,16 @@ function TypingIndicator() {
 	);
 }
 
+function BotIcon({ size = 16 }: { size?: number }) {
+	return (
+		<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+			<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+			<circle cx="9" cy="14" r="1" fill="currentColor" stroke="none" />
+			<circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
+		</svg>
+	);
+}
+
 function ChatbotComponent() {
 	const pathname = usePathname();
 	const mode = pathname?.startsWith("/admin") ? "admin" : "client";
@@ -29,6 +40,7 @@ function ChatbotComponent() {
 	const [isLoading, setIsLoading] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const abortControllerRef = useRef<AbortController | null>(null);
+	const fetchCart = useCartStore(state => state.fetchCart);
 
 	useEffect(() => {
 		try {
@@ -78,6 +90,9 @@ function ChatbotComponent() {
 			if (res?.reply) {
 				setMessages(prev => [...prev, { id: Date.now(), sender: "bot", text: res.reply }]);
 			}
+			if (res?.cartUpdated) {
+				await fetchCart();
+			}
 		} catch (error: any) {
 			if (error.name !== "AbortError") {
 				setMessages(prev => [...prev, { id: Date.now(), sender: "bot", text: "Xin lỗi, hiện tại tôi không thể kết nối tới server." }]);
@@ -113,11 +128,7 @@ function ChatbotComponent() {
 					<div className="flex items-center justify-between bg-black text-white px-4 py-3">
 						<div className="flex items-center gap-3">
 							<div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-									<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
-									<circle cx="9" cy="14" r="1" fill="currentColor" stroke="none" />
-									<circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
-								</svg>
+								<BotIcon size={16} />
 							</div>
 							<div>
 								<p className="text-sm font-semibold leading-none">AI Assistant</p>
@@ -141,11 +152,7 @@ function ChatbotComponent() {
 							<div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
 								{msg.sender === "bot" && (
 									<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black text-white mr-2 mt-1">
-										<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
-											<circle cx="9" cy="14" r="1" fill="currentColor" stroke="none" />
-											<circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
-										</svg>
+										<BotIcon size={13} />
 									</div>
 								)}
 								<div
@@ -163,11 +170,7 @@ function ChatbotComponent() {
 						{isLoading && (
 							<div className="flex justify-start">
 								<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-black text-white mr-2 mt-1">
-									<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-										<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
-										<circle cx="9" cy="14" r="1" fill="currentColor" stroke="none" />
-										<circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
-									</svg>
+									<BotIcon size={13} />
 								</div>
 								<TypingIndicator />
 							</div>

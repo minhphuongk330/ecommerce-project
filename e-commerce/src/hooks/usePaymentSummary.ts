@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useCartStore } from "~/stores/cart";
+import { formatPrice } from "~/utils/format";
 import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
 
 export interface CartItem {
@@ -13,7 +14,6 @@ export interface CartItem {
 }
 
 const TAX_RATE = 0.1;
-export const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 export const usePaymentSummary = () => {
 	const { selectedAddress, selectedShippingMethod, scheduledDate } = useCheckoutContext();
 	const rawItems = useCartStore(state => state.cartItems) as unknown as CartItem[];

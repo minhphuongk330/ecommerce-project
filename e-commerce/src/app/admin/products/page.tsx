@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
-import ExportButton from "~/components/Admin/ExportButton";
+import AdminPageHeader from "~/components/Admin/AdminPageHeader";
 import CreateProduct from "~/components/Admin/Products/Modal/Create";
 import { TableSkeleton } from "~/components/Skeletons";
 import ProductsTable from "~/components/Table/Products";
@@ -49,7 +49,7 @@ export default function ProductsPage() {
 		onFetchError,
 	});
 
-	const fetchCategories = async () => {
+	const fetchCategories = useCallback(async () => {
 		try {
 			const data = await adminService.getCategories();
 			setCategories(data);
@@ -57,11 +57,11 @@ export default function ProductsPage() {
 			console.error(error);
 			showNotification("Error loading catalog", "error");
 		}
-	};
+	}, [showNotification]);
 
 	useEffect(() => {
 		fetchCategories();
-	}, []);
+	}, [fetchCategories]);
 
 	if (loading) {
 		return (
@@ -74,30 +74,16 @@ export default function ProductsPage() {
 
 	return (
 		<div className="space-y-4">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl md:text-2xl font-bold text-gray-800">Product Management</h1>
-				<div className="flex items-center gap-4">
-					<div className="text-sm text-gray-500">
-						{selectCount > 0 && (
-							<span className="mr-4 font-semibold">
-								Selected: <span className="text-blue-600">{selectCount}</span> / {filteredProducts.length}
-							</span>
-						)}
-					</div>
-					<div className="flex gap-2">
-						<ExportButton
-							data={selectCount > 0 ? selectedItems : filteredProducts}
-							columns={PRODUCT_EXPORT_COLUMNS}
-							filename="products"
-							label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
-							variant="both"
-							showCount={false}
-							disabled={selectCount === 0}
-						/>
-						<CreateProduct categories={categories} onSuccess={fetchProducts} />
-					</div>
-				</div>
-			</div>
+			<AdminPageHeader
+				title="Product Management"
+				selectCount={selectCount}
+				totalCount={filteredProducts.length}
+				exportData={selectCount > 0 ? selectedItems : filteredProducts}
+				exportColumns={PRODUCT_EXPORT_COLUMNS}
+				exportFilename="products"
+				exportLabel="Export"
+				actions={<CreateProduct categories={categories} onSuccess={fetchProducts} />}
+			/>
 
 			<AdminFilter
 				fields={filterConfig.fields}

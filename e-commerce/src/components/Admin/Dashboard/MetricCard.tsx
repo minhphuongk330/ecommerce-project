@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import StatCard from "~/components/atoms/StatCard";
+import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
@@ -143,8 +144,7 @@ export default function DashboardMetricCard({
 		};
 	}, [period, data, type, statusFilter]);
 
-	const displayValue =
-		type === "revenue" ? `$${stats.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : stats.current;
+	const displayValue = type === "revenue" ? formatPrice(stats.current) : stats.current;
 
 	return (
 		<StatCard

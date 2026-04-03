@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
 import AdminFilter from "~/components/Admin/AdminFilter";
-import ExportButton from "~/components/Admin/ExportButton";
+import AdminPageHeader from "~/components/Admin/AdminPageHeader";
 import { TableSkeleton } from "~/components/Skeletons";
 import OrdersTable from "~/components/Table/Orders";
 import ConfirmationModal from "~/components/atoms/Confirmation";
@@ -10,6 +10,9 @@ import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { ORDER_EXPORT_COLUMNS, ORDER_FILTER_CONFIG, ORDER_FILTER_PREDICATES } from "~/utils/admin/orderConfigs";
+import { OrderStatus } from "~/types/order";
+
+const FINAL_ORDER_STATUSES: OrderStatus[] = ["Completed", "Cancelled"];
 
 export default function OrdersPage() {
 	const [confirmModal, setConfirmModal] = useState<{
@@ -45,6 +48,7 @@ export default function OrdersPage() {
 		handleSelectChange,
 		handleSelectAllVisible,
 		setData: setAllOrders,
+		fetchData: fetchOrders,
 	} = useAdminTableManager<AdminOrder>({
 		filterConfig: ORDER_FILTER_CONFIG,
 		predicates: ORDER_FILTER_PREDICATES,
@@ -54,7 +58,7 @@ export default function OrdersPage() {
 
 	const onRequestStatusChange = (orderId: number, newStatus: string) => {
 		const currentOrder = allOrders.find(o => o.id === orderId);
-		if (currentOrder && ["Completed", "Cancelled"].includes(currentOrder.status)) {
+		if (currentOrder && FINAL_ORDER_STATUSES.includes(currentOrder.status as OrderStatus)) {
 			showNotification("Cannot change status of a finalized order.", "error");
 			return;
 		}
@@ -85,16 +89,6 @@ export default function OrdersPage() {
 		setConfirmModal(prev => ({ ...prev, isOpen: false }));
 	};
 
-	const fetchOrders = async () => {
-		try {
-			const data = await adminService.getOrders();
-			setAllOrders(data);
-		} catch (error) {
-			console.error("Failed to fetch orders", error);
-			showNotification("Unable to load the order list", "error");
-		}
-	};
-
 	if (loading) {
 		return (
 			<div className="space-y-6">
@@ -106,27 +100,15 @@ export default function OrdersPage() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
-				<div className="flex items-center gap-4">
-					<div className="text-sm text-gray-500">
-						{selectCount > 0 && (
-							<span className="mr-4 font-semibold">
-								Selected: <span className="text-blue-600">{selectCount}</span> / {filteredOrders.length}
-							</span>
-						)}
-					</div>
-					<ExportButton
-						data={selectCount > 0 ? selectedItems : filteredOrders}
-						columns={ORDER_EXPORT_COLUMNS}
-						filename="orders"
-						label={selectCount > 0 ? `Export Selected (${selectCount})` : "Export"}
-						variant="both"
-						showCount={false}
-						disabled={selectCount === 0}
-					/>
-				</div>
-			</div>
+			<AdminPageHeader
+				title="Order Management"
+				selectCount={selectCount}
+				totalCount={filteredOrders.length}
+				exportData={selectCount > 0 ? selectedItems : filteredOrders}
+				exportColumns={ORDER_EXPORT_COLUMNS}
+				exportFilename="orders"
+				exportLabel="Export"
+			/>
 
 			<AdminFilter
 				fields={ORDER_FILTER_CONFIG.fields}

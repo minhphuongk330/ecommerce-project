@@ -7,6 +7,7 @@ import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
+import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
@@ -106,7 +107,7 @@ const RecentOrders = memo(({ dateRange }: RecentOrdersProps) => {
 												<div className="text-xs text-gray-500">{order.customer?.email}</div>
 											</td>
 											<td className="py-3 px-3 text-right font-bold text-gray-800">
-												${Number(order.totalAmount).toFixed(2)}
+												{formatPrice(order.totalAmount)}
 											</td>
 											<td className="py-3 px-3 text-center">
 												<span

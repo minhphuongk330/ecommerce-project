@@ -1,4 +1,4 @@
-import { formatPrice } from "~/hooks/usePaymentSummary";
+import { formatPrice } from "~/utils/format";
 
 interface SummaryTotalsProps {
 	subtotal: number;

@@ -7,6 +7,8 @@ import { FavoritesModule } from '../favorites/favorites.module';
 import { OrdersModule } from '../orders/orders.module';
 import { ProductsModule } from '../products/products.module';
 import { ChatbotController } from './chatbot.controller';
+import { ChatbotAdminService } from './chatbot-admin.service';
+import { ChatbotClientService } from './chatbot-client.service';
 import { ChatbotService } from './chatbot.service';
 
 @Module({
@@ -20,6 +22,6 @@ import { ChatbotService } from './chatbot.service';
     CustomersModule,
   ],
   controllers: [ChatbotController],
-  providers: [ChatbotService],
+  providers: [ChatbotService, ChatbotClientService, ChatbotAdminService],
 })
 export class ChatbotModule {}
