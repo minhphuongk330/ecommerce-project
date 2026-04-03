@@ -8,6 +8,8 @@ import StatusChip, { ChipColor } from "~/components/atoms/StatusChip";
 import DataTable from "~/components/Table/Data";
 import { AdminOrder } from "~/types/admin";
 import { formatDate, formatPrice } from "~/utils/format";
+import { useScrollLock } from "~/hooks/useScrollLock";
+import { FINAL_ORDER_STATUSES } from "~/utils/order";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
 
 const STATUS_COLORS: Record<string, ChipColor> = {
@@ -42,32 +44,17 @@ export default function OrdersTable({
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
-	const [mounted, setMounted] = useState(false);
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
-
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+
+	useScrollLock(!!selectedOrder);
+
 	useEffect(() => {
-		setMounted(true);
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
 		handleResize();
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
-
-	useEffect(() => {
-		if (selectedOrder) {
-			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-			document.body.style.overflow = "hidden";
-			document.body.style.paddingRight = `${scrollBarWidth}px`;
-		} else {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		}
-		return () => {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		};
-	}, [selectedOrder]);
 
 	const handleMobilePageChange = (event: unknown, newPage: number) => {
 		setMobilePage(newPage);
@@ -187,7 +174,7 @@ export default function OrdersTable({
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
 				const currentStatus = params.row.status;
-				const isFinalStatus = ["Completed", "Cancelled"].includes(currentStatus);
+				const isFinalStatus = FINAL_ORDER_STATUSES.includes(currentStatus as any);
 
 				return (
 					<div className={`flex items-center h-full w-full ${isFinalStatus ? "pointer-events-none opacity-50" : ""}`}>
@@ -226,7 +213,7 @@ export default function OrdersTable({
 						orders
 							.slice(mobilePage * MOBILE_ROWS_PER_PAGE, mobilePage * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
 							.map(order => {
-								const isFinalStatus = ["Completed", "Cancelled"].includes(order.status);
+								const isFinalStatus = FINAL_ORDER_STATUSES.includes(order.status as any);
 
 								return (
 									<div

@@ -3,6 +3,7 @@ import Close from "@mui/icons-material/Close";
 import React, { useState } from "react";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { CartListProps } from "~/types/cart";
+import { formatPrice } from "~/utils/format";
 import CommonIconButton from "../atoms/IconButton";
 import QuantitySelector from "../atoms/QuantitySelection";
 
@@ -55,7 +56,7 @@ const CartList: React.FC<CartListProps> = ({ items, onRemove, onIncrease, onDecr
 									onDecrease={() => (item.quantity > 1 ? onDecrease(item.cartItemId!) : setDeleteId(item.cartItemId!))}
 								/>
 								<span className="text-base sm:text-xl font-medium text-black">
-									${selectedVariant ? selectedVariant.price : item.price}
+									{formatPrice(selectedVariant ? selectedVariant.price : item.price)}
 								</span>
 								<div className="absolute top-4 right-0 sm:static">
 									<CommonIconButton

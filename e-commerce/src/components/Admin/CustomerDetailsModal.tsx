@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AdminCustomer } from "~/types/admin";
 import { formatDate } from "~/utils/format";
+import { useScrollLock } from "~/hooks/useScrollLock";
 
 interface CustomerDetailsModalProps {
 	customer: AdminCustomer | null;
@@ -83,21 +84,7 @@ const CustomerDetailsModal = ({ customer, onClose }: CustomerDetailsModalProps) 
 		setMounted(true);
 	}, []);
 
-	useEffect(() => {
-		if (customer) {
-			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-			document.body.style.overflow = "hidden";
-			document.body.style.paddingRight = `${scrollBarWidth}px`;
-		} else {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		}
-
-		return () => {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		};
-	}, [customer]);
+	useScrollLock(!!customer);
 
 	if (!mounted || !customer) return null;
 

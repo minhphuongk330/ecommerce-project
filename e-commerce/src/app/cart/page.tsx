@@ -1,12 +1,13 @@
 "use client";
 import { useMemo, useEffect, useState } from "react";
 import CartList from "~/components/Cart/List";
-import OrderSummary from "~/components/Cart/OderSummary";
+import OrderSummary from "~/components/Cart/OrderSummary";
 import EmptyState from "~/components/atoms/EmptyState";
 import { useNotification } from "~/contexts/Notification";
 import { useCartStore } from "~/stores/cart";
-import HydrationGuard from "~/components/HydrationGuard";
+import { TAX_RATE } from "~/hooks/usePaymentSummary";
 import { CartPageSkeleton } from "~/components/Skeletons/index";
+import HydrationGuard from "~/components/HydrationGuard";
 
 export default function CartPage() {
 	return (
@@ -46,7 +47,7 @@ function CartContent() {
 			const finalPrice = selectedVariant ? Number(selectedVariant.price) : Number(item.price);
 			return sum + finalPrice * Number(item.quantity);
 		}, 0);
-		const calculatedTax = subtotal * 0.1;
+		const calculatedTax = subtotal * TAX_RATE;
 
 		return { subtotal, tax: calculatedTax, shipping: null, total: subtotal + calculatedTax };
 	}, [cartItems]);

@@ -13,7 +13,7 @@ export interface CartItem {
 	selectedColor?: string;
 }
 
-const TAX_RATE = 0.1;
+export const TAX_RATE = 0.1;
 export const usePaymentSummary = () => {
 	const { selectedAddress, selectedShippingMethod, scheduledDate } = useCheckoutContext();
 	const rawItems = useCartStore(state => state.cartItems) as unknown as CartItem[];

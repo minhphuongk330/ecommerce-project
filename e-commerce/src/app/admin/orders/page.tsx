@@ -10,9 +10,8 @@ import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { ORDER_EXPORT_COLUMNS, ORDER_FILTER_CONFIG, ORDER_FILTER_PREDICATES } from "~/utils/admin/orderConfigs";
+import { FINAL_ORDER_STATUSES } from "~/utils/order";
 import { OrderStatus } from "~/types/order";
-
-const FINAL_ORDER_STATUSES: OrderStatus[] = ["Completed", "Cancelled"];
 
 export default function OrdersPage() {
 	const [confirmModal, setConfirmModal] = useState<{

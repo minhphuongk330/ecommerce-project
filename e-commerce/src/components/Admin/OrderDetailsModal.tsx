@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AdminOrder } from "~/types/admin";
 import { formatDate, formatPrice } from "~/utils/format";
+import { useScrollLock } from "~/hooks/useScrollLock";
 import { router } from "~/utils/router";
 
 interface OrderDetailsModalProps {
@@ -149,21 +150,8 @@ const OrderDetailsModal = ({ order, onClose }: OrderDetailsModalProps) => {
 	useEffect(() => {
 		setMounted(true);
 	}, []);
-	useEffect(() => {
-		if (order) {
-			const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-			document.body.style.overflow = "hidden";
-			document.body.style.paddingRight = `${scrollBarWidth}px`;
-		} else {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		}
 
-		return () => {
-			document.body.style.overflow = "";
-			document.body.style.paddingRight = "";
-		};
-	}, [order]);
+	useScrollLock(!!order);
 
 	if (!mounted || !order) return null;
 

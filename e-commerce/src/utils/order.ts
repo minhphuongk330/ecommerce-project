@@ -1,5 +1,7 @@
 import { OrderStatus } from "~/types/order";
 
+export const FINAL_ORDER_STATUSES: OrderStatus[] = ["Completed", "Cancelled"];
+
 export const getOrderStatusColor = (status: OrderStatus) => {
   switch (status) {
     case "Pending":

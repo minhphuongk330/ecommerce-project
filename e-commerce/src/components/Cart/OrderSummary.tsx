@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { OrderSummaryProps } from "~/types/cart";
 import Button from "@mui/material/Button";
 import { routerPaths } from "~/utils/router";
+import { formatPrice } from "~/utils/format";
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => {
 	const router = useRouter();
@@ -15,12 +16,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => 
 			<div className="flex flex-col gap-3 md:gap-4 w-full">
 				<div className="flex justify-between items-center text-black">
 					<span className="text-sm md:text-base font-medium">Subtotal</span>
-					<span className="text-sm md:text-base font-medium">${subtotal}</span>
+					<span className="text-sm md:text-base font-medium">{formatPrice(subtotal)}</span>
 				</div>
 
 				<div className="flex justify-between items-center text-[#545454]">
 					<span className="text-sm md:text-base font-normal">Tax (10%)</span>
-					<span className="text-sm md:text-base font-medium">${tax}</span>
+					<span className="text-sm md:text-base font-medium">{formatPrice(tax)}</span>
 				</div>
 
 				<div className="flex justify-between items-center text-[#545454]">
@@ -30,7 +31,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => 
 
 				<div className="flex justify-between items-center text-black mt-2">
 					<span className="text-sm md:text-base font-medium">Total</span>
-					<span className="text-sm md:text-base font-bold">${total}</span>
+					<span className="text-sm md:text-base font-bold">{formatPrice(total)}</span>
 				</div>
 			</div>
 
