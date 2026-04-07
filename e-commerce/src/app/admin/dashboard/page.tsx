@@ -6,7 +6,7 @@ import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
 import Skeleton from "@mui/material/Skeleton";
 import { useCallback, useEffect, useState } from "react";
 import LowStockAlert from "~/components/Admin/Dashboard/LowStockAlert";
-import DashboardMetricCard, { getDateRangeByPeriod } from "~/components/Admin/Dashboard/MetricCard";
+import DashboardMetricCard from "~/components/Admin/Dashboard/MetricCard";
 import OrderStatusChart from "~/components/Admin/Dashboard/OrderStatusChart";
 import RecentOrders from "~/components/Admin/Dashboard/RecentOrders";
 import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
@@ -19,7 +19,6 @@ export default function DashboardPage() {
 	const [allCustomers, setAllCustomers] = useState<AdminCustomer[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const weeklyDateRange = getDateRangeByPeriod("weekly");
 
 	const fetchRawData = useCallback(async () => {
 		try {
@@ -117,19 +116,19 @@ export default function DashboardPage() {
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-2">
-					<RevenueChart dateRange={weeklyDateRange} />
+					<RevenueChart />
 				</div>
 				<div>
-					<OrderStatusChart dateRange={weeklyDateRange} />
+					<OrderStatusChart />
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-1">
-					<TopSellingProducts dateRange={weeklyDateRange} />
+					<TopSellingProducts />
 				</div>
 				<div className="lg:col-span-2">
-					<RecentOrders dateRange={weeklyDateRange} />
+					<RecentOrders />
 				</div>
 			</div>
 

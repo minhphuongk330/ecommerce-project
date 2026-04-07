@@ -1,5 +1,5 @@
 "use client";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useEffect, useMemo, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -8,11 +8,7 @@ import { adminService } from "~/services/admin";
 
 dayjs.extend(isBetween);
 
-interface OrderStatusChartProps {
-	dateRange?: { startDate: Dayjs; endDate: Dayjs };
-}
-
-export default function OrderStatusChart({ dateRange }: OrderStatusChartProps) {
+export default function OrderStatusChart() {
 	const [allOrders, setAllOrders] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");

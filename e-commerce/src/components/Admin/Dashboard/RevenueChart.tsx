@@ -11,10 +11,6 @@ import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
-interface RevenueChartProps {
-	dateRange?: { startDate: Dayjs; endDate: Dayjs };
-}
-
 const CustomTooltip = ({ active, payload, label }: any) => {
 	if (active && payload && payload.length) {
 		return (

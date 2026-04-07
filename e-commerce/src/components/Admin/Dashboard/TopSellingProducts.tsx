@@ -1,5 +1,5 @@
 "use client";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -10,11 +10,7 @@ import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
-interface TopSellingProps {
-	dateRange?: { startDate: Dayjs; endDate: Dayjs };
-}
-
-export default function TopSellingProducts({ dateRange }: TopSellingProps) {
+export default function TopSellingProducts() {
 	const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
 	const [allOrders, setAllOrders] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);

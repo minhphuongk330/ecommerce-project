@@ -1,5 +1,5 @@
 "use client";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { memo, useEffect, useMemo, useState } from "react";
 import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
@@ -11,11 +11,7 @@ import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
-interface RecentOrdersProps {
-	dateRange?: { startDate: Dayjs; endDate: Dayjs };
-}
-
-const RecentOrders = memo(({ dateRange }: RecentOrdersProps) => {
+const RecentOrders = memo(() => {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [mounted, setMounted] = useState(false);
@@ -141,5 +137,4 @@ const RecentOrders = memo(({ dateRange }: RecentOrdersProps) => {
 	);
 });
 
-RecentOrders.displayName = "RecentOrders";
 export default RecentOrders;
