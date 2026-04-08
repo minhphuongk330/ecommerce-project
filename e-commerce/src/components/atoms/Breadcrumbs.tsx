@@ -3,12 +3,15 @@ import NextLink from "next/link";
 import { Breadcrumbs as MuiBreadcrumbs } from "@mui/material";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
+import { BreadcrumbSkeleton } from "~/components/Skeletons";
 
 const Breadcrumb = () => {
-	const { items } = useBreadcrumb();
+	const { items, isLoading } = useBreadcrumb();
+
+	if (isLoading) return <BreadcrumbSkeleton />;
 
 	return (
-		<div className="w-full bg-white pt-[40px] md:py-[40px] px-[160px]">
+		<div className="w-full bg-white pt-[40px] md:pt-[40px] px-4 md:px-[160px]">
 			<MuiBreadcrumbs
 				separator={<KeyboardArrowRight sx={{ color: "#A0A0A0" }} fontSize="small" />}
 				aria-label="breadcrumb"

@@ -20,7 +20,7 @@ export default function AddressPage() {
 
 	const handleCreateSuccess = async (newAddress?: any) => {
 		await refresh();
-		if (newAddress && (addresses.length === 0 || newAddress.isDefault)) {
+		if (newAddress) {
 			setSelectedAddressId(newAddress.id);
 		}
 	};

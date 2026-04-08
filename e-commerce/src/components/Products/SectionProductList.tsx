@@ -3,10 +3,10 @@ import React from "react";
 import ProductCard from "~/components/Products/Card";
 import { SectionProductListProps } from "~/types/component";
 
-const SectionProductList: React.FC<SectionProductListProps> = ({ title, products, className = "py-2 md:py-[5px]" }) => {
+const SectionProductList: React.FC<SectionProductListProps> = ({ title, products }) => {
 	return (
-		<div className={`w-full bg-white ${className}`}>
-			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px]">
+		<div className={`w-full bg-white`}>
+			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] pt-8">
 				<div className="mb-6 md:mb-[32px]">
 					<h2 className="text-lg md:text-[24px] font-medium text-black">{title}</h2>
 				</div>

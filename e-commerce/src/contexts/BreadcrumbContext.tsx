@@ -7,8 +7,15 @@ const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undef
 
 export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
 	const [items, setItems] = useState<BreadcrumbItem[]>([{ label: "Home", href: "/" }]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	const setBreadcrumbs = (newItems: BreadcrumbItem[]) => {
+		setItems(newItems);
+		setIsLoading(false);
+	};
+
 	return (
-		<BreadcrumbContext.Provider value={{ items, setBreadcrumbs: setItems }}>{children}</BreadcrumbContext.Provider>
+		<BreadcrumbContext.Provider value={{ items, setBreadcrumbs, isLoading }}>{children}</BreadcrumbContext.Provider>
 	);
 };
 

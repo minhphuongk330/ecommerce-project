@@ -281,3 +281,17 @@ export function CartPageSkeleton() {
 		</div>
 	);
 }
+
+export function BreadcrumbSkeleton() {
+	return (
+		<div className="w-full bg-white pt-[40px] md:pt-[40px] px-4 md:px-[160px]">
+			<div className="flex items-center gap-2">
+				<Skeleton width={40} height={16} />
+				<Skeleton variant="circular" width={16} height={16} />
+				<Skeleton width={80} height={16} />
+				<Skeleton variant="circular" width={16} height={16} />
+				<Skeleton width={120} height={16} />
+			</div>
+		</div>
+	);
+}

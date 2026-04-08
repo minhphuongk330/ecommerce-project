@@ -29,6 +29,12 @@ export const productService = {
 		return await axiosClient.get("/products", { params: queryParams });
 	},
 
+	getPriceRange: async (categoryId?: number): Promise<{ minPrice: number; maxPrice: number }> => {
+		return await axiosClient.get("/products/price-range", {
+			params: categoryId ? { categoryId } : {},
+		});
+	},
+
 	getByCollection: async (collection: string, limit = 8): Promise<Product[]> => {
 		const response: ProductResponse = await axiosClient.get("/products", {
 			params: { collection, limit },

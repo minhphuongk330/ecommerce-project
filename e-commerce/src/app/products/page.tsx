@@ -11,88 +11,98 @@ import { useProducts } from "~/hooks/useProducts";
 import { routerPaths } from "~/utils/router";
 
 function ProductsContent() {
-  const [isMobile, setIsMobile] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 1023px)");
-    setIsMobile(mediaQuery.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
+	useEffect(() => {
+		const mediaQuery = window.matchMedia("(max-width: 1023px)");
+		setIsMobile(mediaQuery.matches);
+		const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+		mediaQuery.addEventListener("change", handler);
+		return () => mediaQuery.removeEventListener("change", handler);
+	}, []);
 
-  const searchParams = useSearchParams();
-  const categoryIdParam = searchParams.get("categoryId");
-  const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;
-  const { products: allProducts = [], totalCount, isLoading } = useProducts();
-  const { setBreadcrumbs } = useBreadcrumb();
+	const searchParams = useSearchParams();
+	const categoryIdParam = searchParams.get("categoryId");
+	const categoryId = categoryIdParam ? Number(categoryIdParam) : undefined;
+	const { products: allProducts = [], totalCount, isLoading } = useProducts();
+	const [initialLoaded, setInitialLoaded] = useState(false);
 
-  const categoryLabel = useMemo(() => {
-    if (categoryId && allProducts?.length > 0) {
-      const foundProduct = allProducts.find(p => Number(p.categoryId) === categoryId);
-      return foundProduct?.category?.name || "Products";
-    }
-    return "Products";
-  }, [categoryId, allProducts]);
-  const { 
-    selectedFilters, 
-    toggleFilter, 
-    paginatedProducts, 
-    totalCount: filteredTotal, 
-    totalPages, 
-    currentPage, 
-    handleChangePage 
-  } = useProductFilter(allProducts, totalCount, { itemsPerPage: isMobile ? 10 : 9 });
+	useEffect(() => {
+		if (!isLoading) setInitialLoaded(true);
+	}, [isLoading]);
+	const { setBreadcrumbs } = useBreadcrumb();
 
-  useEffect(() => {
-    setBreadcrumbs([
-      { label: "Home", href: routerPaths.index },
-      { label: categoryLabel, href: routerPaths.productDetail },
-    ]);
-  }, [categoryLabel, setBreadcrumbs]);
+	const categoryLabel = useMemo(() => {
+		if (categoryId && allProducts?.length > 0) {
+			const foundProduct = allProducts.find(p => Number(p.categoryId) === categoryId);
+			return foundProduct?.category?.name || "Products";
+		}
+		return "Products";
+	}, [categoryId, allProducts]);
+	const {
+		selectedFilters,
+		toggleFilter,
+		paginatedProducts,
+		totalCount: filteredTotal,
+		totalPages,
+		currentPage,
+		handleChangePage,
+	} = useProductFilter(allProducts, totalCount, { itemsPerPage: isMobile ? 10 : 9 });
 
-  if (isLoading) {
-    return (
-      <MobileFilterProvider>
-        <div className="w-full max-w-[1440px] mx-auto">
-          <div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
-            <div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
-              <FilterSkeleton />
-            </div>
-            <div className="flex-1">
-              <ProductGridSkeleton count={9} />
-            </div>
-          </div>
-        </div>
-      </MobileFilterProvider>
-    );
-  }
+	useEffect(() => {
+		if (!isLoading && allProducts?.length > 0) {
+			setBreadcrumbs([
+				{ label: "Home", href: routerPaths.index },
+				{ label: categoryLabel, href: routerPaths.productDetail },
+			]);
+		}
+	}, [categoryLabel, setBreadcrumbs, isLoading, allProducts]);
 
-  return (
-    <MobileFilterProvider>
-      <div className="w-full max-w-[1440px] mx-auto">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
-          <div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
-            <Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
-          </div>
+	if (isLoading && !initialLoaded) {
+		return (
+			<MobileFilterProvider>
+				<div className="w-full max-w-[1440px] mx-auto">
+					<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
+						<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
+							<FilterSkeleton />
+						</div>
+						<div className="flex-1">
+							<ProductGridSkeleton count={9} />
+						</div>
+					</div>
+				</div>
+			</MobileFilterProvider>
+		);
+	}
 
-          <ProductListArea
-            products={paginatedProducts}
-            totalCount={filteredTotal}
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={handleChangePage}
-          />
-        </div>
-      </div>
-    </MobileFilterProvider>
-  );
+	return (
+		<MobileFilterProvider>
+			<div className="w-full max-w-[1440px] mx-auto">
+				<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[40px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
+					<div
+						className={`w-full md:w-[256px] md:min-w-[256px] flex-shrink-0 ${!categoryId ? "md:sticky md:top-[81px] md:self-start" : ""}`}
+					>
+						<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
+					</div>
+
+					<ProductListArea
+						products={paginatedProducts}
+						totalCount={filteredTotal}
+						totalPages={totalPages}
+						currentPage={currentPage}
+						onPageChange={handleChangePage}
+						isLoading={isLoading}
+					/>
+				</div>
+			</div>
+		</MobileFilterProvider>
+	);
 }
 
 export default function ProductsPage() {
-  return (
-    <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
-      <ProductsContent />
-    </Suspense>
-  );
+	return (
+		<Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
+			<ProductsContent />
+		</Suspense>
+	);
 }

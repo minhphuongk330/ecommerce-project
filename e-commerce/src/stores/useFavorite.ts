@@ -28,26 +28,44 @@ export const useFavoriteStore = create<FavoriteState>()(
 				}
 			},
 			toggleFavorite: async (productId: number, variantId?: number) => {
-				const { favorites, fetchFavorites } = get();
+				const { favorites } = get();
 				const existingItem = favorites.find(item => {
 					const sameProduct = Number(item.productId) === Number(productId);
 					const sameVariant = variantId ? Number(item.variantId) === Number(variantId) : !item.variantId;
 					return sameProduct && sameVariant;
 				});
-				try {
-					if (existingItem) {
-						set(state => ({
-							favorites: state.favorites.filter(item => item.id !== existingItem.id),
-						}));
+				if (existingItem) {
+					set(state => ({
+						favorites: state.favorites.filter(item => item.id !== existingItem.id),
+					}));
+					try {
 						await favoriteService.delete(productId, variantId);
-					} else {
-						await favoriteService.create(productId, variantId);
-						await fetchFavorites();
+					} catch (error) {
+						set(state => ({ favorites: [...state.favorites, existingItem] }));
+						console.error("Error removing favorite:", error);
+						throw error;
 					}
-				} catch (error) {
-					console.error("Error toggling favorite:", error);
-					await fetchFavorites();
-					throw error;
+				} else {
+					const tempItem = {
+						id: -Date.now(),
+						productId,
+						variantId: variantId ?? null,
+						customerId: 0,
+						product: null,
+						variant: null,
+					} as unknown as FavoriteItem;
+					set(state => ({ favorites: [...state.favorites, tempItem] }));
+					try {
+						await favoriteService.create(productId, variantId);
+						const data = await favoriteService.getAll();
+						set({ favorites: data });
+					} catch (error) {
+						set(state => ({
+							favorites: state.favorites.filter(item => item.id !== tempItem.id),
+						}));
+						console.error("Error adding favorite:", error);
+						throw error;
+					}
 				}
 			},
 			checkIsFavorite: (productId: number, variantId?: number) => {

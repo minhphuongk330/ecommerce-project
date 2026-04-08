@@ -18,7 +18,7 @@ const CategoryBrowser: React.FC = () => {
 	};
 
 	return (
-		<div className="flex flex-col w-full max-w-[1440px] mx-auto pt-10 pd-5 md:py-10 px-4 md:px-40 gap-4 md:gap-8">
+		<div className="flex flex-col w-full max-w-[1440px] mx-auto pt-8 px-4 md:px-[160px] gap-4 md:gap-8">
 			<div className="flex justify-between items-center w-full h-auto">
 				<Typography variant="h5" className="!font-medium !text-xl md:!text-2xl !text-black !leading-8">
 					Browse By Category

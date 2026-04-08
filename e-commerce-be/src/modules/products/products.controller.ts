@@ -22,15 +22,16 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('price-range')
+  getPriceRange(@Query('categoryId') categoryId?: string) {
+    return this.productsService.getPriceRange(
+      categoryId ? parseInt(categoryId) : undefined,
+    );
+  }
+
   @Get()
-  findAll(
-    @Query('sort') sort?: string,
-    @Query('categoryId') categoryId?: string,
-    @Query('name') name?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('collection') collection?: string,
-  ) {
+  findAll(@Query() query: Record<string, string>) {
+    const { sort, categoryId, name, page, limit, collection, minPrice, maxPrice, ...rest } = query;
     return this.productsService.findAll({
       sort,
       categoryId: categoryId ? parseInt(categoryId) : undefined,
@@ -38,6 +39,9 @@ export class ProductsController {
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 20,
       collection,
+      minPrice: minPrice ? parseFloat(minPrice) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
+      ...rest,
     });
   }
 

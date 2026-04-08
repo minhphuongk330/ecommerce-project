@@ -5,4 +5,5 @@ export interface BreadcrumbItem {
 export interface BreadcrumbContextType {
 	items: BreadcrumbItem[];
 	setBreadcrumbs: (items: BreadcrumbItem[]) => void;
+	isLoading: boolean;
 }

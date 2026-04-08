@@ -1,10 +1,13 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import FiltersAccordion from "./Accordion";
+import CategoryList from "./CategoryList";
+import PriceRangeFilter from "./PriceRangeFilter";
 import SearchField from "../../atoms/SearchField";
 import Checkbox from "~/components/atoms/Checkbox";
 import { FiltersProps, FilterCategory, FilterOption } from "~/types/catalog";
 import { attributeService, AttributeDef } from "~/services/attribute";
+import { productService } from "~/services/product";
 import FilterDrawer from "./Drawer";
 import { useMobileFilter } from "~/contexts/MobileFilterContext";
 
@@ -20,8 +23,10 @@ const transformAttributeToFilter = (attr: AttributeDef): FilterCategory => {
 			}))
 		: [];
 
+	const normalizedId = attr.name.toLowerCase().replace(/\s+/g, "_");
+
 	return {
-		id: attr.name.toLowerCase(),
+		id: normalizedId,
 		title: attr.name,
 		hasSearch: options.length > 1,
 		defaultOpen: false,
@@ -33,45 +38,46 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	const [searchTerms, setSearchTerms] = useState<Record<string, string>>({});
 	const [filterCategories, setFilterCategories] = useState<FilterCategory[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [priceRange, setPriceRange] = useState<{ minPrice: number; maxPrice: number } | null>(null);
 	const { isMobileDrawerOpen, tempFilters, setTempFilters, toggleTempFilter } = useMobileFilter();
+
 	useEffect(() => {
 		if (isMobileDrawerOpen) {
 			setTempFilters(selectedFilters);
 		}
 	}, [isMobileDrawerOpen, selectedFilters, setTempFilters]);
 
-	const fetchAttributes = async () => {
-		try {
-			setLoading(true);
-			const allAttributes = await attributeService.getAllAttributes();
-			const relevantAttributes = categoryId
-				? allAttributes.filter(attr => Number(attr.categoryId) === Number(categoryId))
-				: allAttributes;
-			const uniqueMap = new Map<string, FilterCategory>();
-			relevantAttributes.forEach(attr => {
-				const newCat = transformAttributeToFilter(attr);
-				if (uniqueMap.has(newCat.id)) {
-					const existingCat = uniqueMap.get(newCat.id)!;
-					const combinedOptions = [...existingCat.options, ...newCat.options];
-					const uniqueOptionsMap = new Map();
-					combinedOptions.forEach(opt => uniqueOptionsMap.set(opt.name, opt));
-					existingCat.options = Array.from(uniqueOptionsMap.values());
-					existingCat.hasSearch = existingCat.options.length > 1;
-				} else {
-					uniqueMap.set(newCat.id, newCat);
-				}
-			});
-
-			setFilterCategories(Array.from(uniqueMap.values()));
-		} catch (error) {
-			console.error("Failed to fetch filter attributes", error);
-		} finally {
+	useEffect(() => {
+		if (!categoryId) {
 			setLoading(false);
+			return;
 		}
-	};
+		const run = async () => {
+			try {
+				setLoading(true);
+				const allAttributes = await attributeService.getAllAttributes();
+				setFilterCategories(
+					allAttributes
+						.filter(attr => Number(attr.categoryId) === Number(categoryId))
+						.map(transformAttributeToFilter),
+				);
+			} catch (error) {
+				console.error("Failed to fetch filter attributes", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		run();
+	}, [categoryId]);
 
 	useEffect(() => {
-		fetchAttributes();
+		if (!categoryId) return;
+		productService
+			.getPriceRange(categoryId)
+			.then(setPriceRange)
+			.catch(() => {
+				setPriceRange({ minPrice: 0, maxPrice: 10000 });
+			});
 	}, [categoryId]);
 
 	const handleSearchChange = (catId: string, value: string) => {
@@ -90,11 +96,24 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	}, [searchTerms, filterCategories]);
 
 	if (loading) return <div className="py-4 text-gray-500 text-sm">Loading filters...</div>;
-	if (!loading && filterCategories.length === 0) return null;
+
+	if (!categoryId) {
+		return (
+			<FilterDrawer>
+				<CategoryList showTitle />
+			</FilterDrawer>
+		);
+	}
+
+	if (filterCategories.length === 0) return null;
 
 	return (
 		<FilterDrawer>
 			<div className="flex flex-col gap-[24px] w-full">
+				<FiltersAccordion title="All Categories" defaultOpen={false}>
+					<CategoryList />
+				</FiltersAccordion>
+				{priceRange && <PriceRangeFilter minPrice={priceRange.minPrice} maxPrice={priceRange.maxPrice} />}
 				{filteredCategories.map(category => (
 					<FiltersAccordion key={category.id} title={category.title} defaultOpen={category.defaultOpen}>
 						{category.hasSearch && (

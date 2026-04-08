@@ -100,7 +100,7 @@ export default function Home() {
 			</Suspense>
 
 			{gridBanners && gridBanners.length > 0 && (
-				<div className="w-full pb-8 md:pb-16">
+				<div className="w-full pt-8">
 					<div className="block md:hidden">
 						<BannerSlider items={gridSliderItems} />
 					</div>
@@ -133,13 +133,15 @@ export default function Home() {
 			</Suspense>
 
 			{bottomBanner && (
-				<Banner
-					data={bottomBanner}
-					className="h-[300px] md:h-[448px] bg-[#2C2C2C]"
-					titleClass="text-white text-3xl md:text-5xl lg:text-7xl"
-					contentClass="justify-center items-center text-center px-4 md:px-20"
-					link={router.product(30)}
-				/>
+				<div className="pt-8">
+					<Banner
+						data={bottomBanner}
+						className="h-[300px] md:h-[448px] bg-[#2C2C2C]"
+						titleClass="text-white text-3xl md:text-5xl lg:text-7xl"
+						contentClass="justify-center items-center text-center px-4 md:px-20"
+						link={router.product(30)}
+					/>
+				</div>
 			)}
 		</div>
 	);

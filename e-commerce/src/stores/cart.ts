@@ -119,10 +119,17 @@ export const useCartStore = create<CartState>()(
 				const item = cartItems.find(i => i.cartItemId === cartItemId);
 
 				if (item && item.cartItemId && item.quantity > 1) {
+					const oldQuantity = item.quantity;
+					set({
+						cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: i.quantity - 1 } : i)),
+					});
 					try {
 						await cartService.update(item.cartItemId, item.quantity - 1);
 						await fetchCart();
 					} catch (error) {
+						set({
+							cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: oldQuantity } : i)),
+						});
 						console.error("Decrease failed:", error);
 						throw error;
 					}

@@ -11,9 +11,15 @@ const ProductListArea: React.FC<ProductListAreaProps> = ({
 	currentPage,
 	totalPages,
 	onPageChange,
+	isLoading,
 }) => {
 	return (
-		<div className="flex-1 w-full">
+		<div className="flex-1 w-full relative">
+			{isLoading && (
+				<div className="absolute inset-0 bg-white/60 z-10 flex items-start justify-center pt-20">
+					<div className="w-6 h-6 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+				</div>
+			)}
 			<div className="mb-4 md:mb-[24px]">
 				<ListHeader count={totalCount} />
 			</div>

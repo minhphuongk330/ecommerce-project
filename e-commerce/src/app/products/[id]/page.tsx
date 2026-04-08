@@ -62,7 +62,7 @@ export default function ProductDetailsPage() {
 	}
 
 	return (
-		<div className="w-full bg-white min-h-screen flex flex-col items-center px-4 md:px-0">
+		<div className="w-full bg-white min-h-screen flex flex-col items-center pt-8 md:px-0 pb-8">
 			<MainInfo product={uiProduct} />
 			<DetailsSection product={product} />
 			<ProductReviews productId={Number(product.id)} />

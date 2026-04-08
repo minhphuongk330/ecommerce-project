@@ -105,6 +105,7 @@ export interface ProductCardProps {
 export interface ProductListAreaProps extends PaginationProps {
 	products: Product[];
 	totalCount: number;
+	isLoading?: boolean;
 }
 
 export interface ProductDetailUI extends ProductDetail {

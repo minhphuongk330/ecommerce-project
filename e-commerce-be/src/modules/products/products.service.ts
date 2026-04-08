@@ -25,6 +25,9 @@ export class ProductsService {
     page?: number;
     limit?: number;
     collection?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    [key: string]: any;
   }): Promise<{ items: Product[]; total: number }> {
     const {
       sort = 'newest',
@@ -33,7 +36,27 @@ export class ProductsService {
       page = 1,
       limit = 9,
       collection,
+      minPrice,
+      maxPrice,
+      ...attributeFilters
     } = options || {};
+
+    const systemKeys = [
+      'sort',
+      'categoryId',
+      'name',
+      'page',
+      'limit',
+      'collection',
+      'minPrice',
+      'maxPrice',
+    ];
+    const attrFilters: Record<string, string> = {};
+    Object.entries(attributeFilters).forEach(([key, value]) => {
+      if (!systemKeys.includes(key) && value !== undefined) {
+        attrFilters[key] = String(value);
+      }
+    });
 
     if (collection === 'New Arrival') {
       const query = this.productRepository
@@ -80,6 +103,30 @@ export class ProductsService {
     if (categoryId) {
       query.andWhere('product.categoryId = :categoryId', { categoryId });
     }
+
+    if (minPrice !== undefined) {
+      query.andWhere('product.price >= :minPrice', { minPrice });
+    }
+
+    if (maxPrice !== undefined) {
+      query.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+    let attrParamIndex = 0;
+    Object.entries(attrFilters).forEach(([key, value]) => {
+      const values = value.split(',').filter(Boolean);
+      if (values.length > 0) {
+        const safeKey = key.replace(/[^a-zA-Z0-9]/g, '_');
+        const conditions = values.map(
+          (_, i) => `JSON_UNQUOTE(JSON_EXTRACT(product.attributes, '$.${key}')) LIKE :attrVal_${safeKey}_${attrParamIndex + i}`,
+        );
+        const params: Record<string, string> = {};
+        values.forEach((v, i) => {
+          params[`attrVal_${safeKey}_${attrParamIndex + i}`] = `%${v}%`;
+        });
+        attrParamIndex += values.length;
+        query.andWhere(`(${conditions.join(' OR ')})`, params);
+      }
+    });
 
     if (collection === 'Featured Products') {
       query.andWhere('product.isFeatured = :isFeatured', { isFeatured: true });
@@ -187,5 +234,24 @@ export class ProductsService {
   async remove(id: number): Promise<void> {
     const product = await this.findOne(id);
     await this.productRepository.remove(product);
+  }
+
+  async getPriceRange(
+    categoryId?: number,
+  ): Promise<{ minPrice: number; maxPrice: number }> {
+    const query = this.productRepository
+      .createQueryBuilder('product')
+      .select('MIN(product.price)', 'minPrice')
+      .addSelect('MAX(product.price)', 'maxPrice');
+
+    if (categoryId) {
+      query.where('product.categoryId = :categoryId', { categoryId });
+    }
+
+    const result = await query.getRawOne();
+    return {
+      minPrice: Math.floor(Number(result?.minPrice ?? 0)),
+      maxPrice: Math.ceil(Number(result?.maxPrice ?? 10000)),
+    };
   }
 }

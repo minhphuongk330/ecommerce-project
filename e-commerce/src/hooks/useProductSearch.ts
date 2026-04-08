@@ -105,11 +105,10 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 	const handleViewMore = () => {
 		setIsOpen(false);
 		const query: any = {};
-		if (searchTerm.trim()) query.name = searchTerm;
 		if (scope === "category" && categoryId) query.categoryId = categoryId;
 
 		const queryString = new URLSearchParams(query as any).toString();
-		router.push(`${routerPaths.productDetail}?${queryString}`);
+		router.push(`${routerPaths.productDetail}${queryString ? `?${queryString}` : ""}`);
 		setSearchTerm("");
 	};
 

@@ -19,18 +19,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => 
 					<span className="text-sm md:text-base font-medium">{formatPrice(subtotal)}</span>
 				</div>
 
-				<div className="flex justify-between items-center text-[#545454]">
-					<span className="text-sm md:text-base font-normal">Tax (10%)</span>
+				<div className="flex justify-between items-center text-black">
+					<span className="text-sm md:text-base font-medium">Tax (10%)</span>
 					<span className="text-sm md:text-base font-medium">{formatPrice(tax)}</span>
 				</div>
 
-				<div className="flex justify-between items-center text-[#545454]">
-					<span className="text-sm md:text-base font-normal">Shipping & Handling</span>
-					<span className="text-sm md:text-base font-medium">Calculated at checkout</span>
-				</div>
-
 				<div className="flex justify-between items-center text-black mt-2">
-					<span className="text-sm md:text-base font-medium">Total</span>
+					<span className="text-sm md:text-base font-bold">Total</span>
 					<span className="text-sm md:text-base font-bold">{formatPrice(total)}</span>
 				</div>
 			</div>
