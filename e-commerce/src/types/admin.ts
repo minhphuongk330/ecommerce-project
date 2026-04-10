@@ -49,6 +49,7 @@ export interface AdminProduct {
 	stock: number;
 	mainImageUrl: string;
 	isActive: boolean;
+	createdAt: string;
 	category?: AdminCategory;
 	categoryId?: number;
 	description?: string;

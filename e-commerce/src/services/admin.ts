@@ -51,6 +51,14 @@ export const adminService = {
 		return axiosClient.delete(`/products/${id}`);
 	},
 
+	deleteOrder(id: number): Promise<void> {
+		return axiosClient.delete(`/admin/orders/${id}`);
+	},
+
+	deleteCustomer(id: number): Promise<void> {
+		return axiosClient.delete(`/admin/customers/${id}`);
+	},
+
 	getOrders(): Promise<AdminOrder[]> {
 		return axiosClient.get("/admin/orders");
 	},

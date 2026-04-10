@@ -66,7 +66,6 @@ export class UploadService {
       throw new BadRequestException('No file provided');
     }
 
-     
     const allowedMimeTypes = [
       'image/jpeg',
       'image/jpg',
@@ -80,14 +79,12 @@ export class UploadService {
       );
     }
 
-    
-    const maxSize = 10 * 1024 * 1024;  
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException('File size exceeds 10MB limit');
     }
 
     try {
-    
       const base64Image = file.buffer.toString('base64');
 
       const formData = new FormData();

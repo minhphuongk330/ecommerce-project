@@ -1,7 +1,7 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
 import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
@@ -11,40 +11,37 @@ import { formatPrice } from "~/utils/format";
 
 dayjs.extend(isBetween);
 
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+	pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
+	processing: { bg: "bg-blue-100", text: "text-blue-700" },
+	shipped: { bg: "bg-purple-100", text: "text-purple-700" },
+	delivered: { bg: "bg-green-100", text: "text-green-700" },
+	cancelled: { bg: "bg-red-100", text: "text-red-700" },
+};
+
 const RecentOrders = memo(() => {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [mounted, setMounted] = useState(false);
-
 	const [period, setPeriod] = useState<Period>("weekly");
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 5;
-
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
-	const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-		pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
-		processing: { bg: "bg-blue-100", text: "text-blue-700" },
-		shipped: { bg: "bg-purple-100", text: "text-purple-700" },
-		delivered: { bg: "bg-green-100", text: "text-green-700" },
-		cancelled: { bg: "bg-red-100", text: "text-red-700" },
-	};
+	const fetchOrders = useCallback(async () => {
+		try {
+			setLoading(true);
+			const orders = await adminService.getOrders();
+			setAllOrders(orders);
+		} catch (error) {
+			console.error("Error fetching recent orders:", error);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		setMounted(true);
-		const fetchRecentOrders = async () => {
-			try {
-				setLoading(true);
-				const orders = await adminService.getOrders();
-				setAllOrders(orders);
-			} catch (error) {
-				console.error("Error fetching recent orders:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-		fetchRecentOrders();
-	}, []);
+		fetchOrders();
+	}, [fetchOrders]);
 
 	const filteredAndSortedOrders = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -65,11 +62,11 @@ const RecentOrders = memo(() => {
 	const totalPages = Math.ceil(filteredAndSortedOrders.length / itemsPerPage);
 	const paginatedOrders = filteredAndSortedOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-	if (loading) return <div className="bg-white p-6 rounded-lg shadow-md min-h-[465px]">Loading...</div>;
+	if (loading) return <div className="bg-white p-6 rounded-xl shadow-md min-h-[465px]">Loading...</div>;
 
 	return (
 		<>
-			<div className="bg-white p-6 rounded-lg shadow-md h-full flex flex-col">
+			<div className="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">
 				<div className="flex justify-between items-start mb-4">
 					<h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
 					<PeriodDropdown period={period} onPeriodChange={setPeriod} />
@@ -102,9 +99,7 @@ const RecentOrders = memo(() => {
 												<div className="font-medium text-gray-800">{order.customer?.fullName || "Unknown"}</div>
 												<div className="text-xs text-gray-500">{order.customer?.email}</div>
 											</td>
-											<td className="py-3 px-3 text-right font-bold text-gray-800">
-												{formatPrice(order.totalAmount)}
-											</td>
+											<td className="py-3 px-3 text-right font-bold text-gray-800">{formatPrice(order.totalAmount)}</td>
 											<td className="py-3 px-3 text-center">
 												<span
 													className={`${STATUS_COLORS[order.status.toLowerCase()]?.bg} ${STATUS_COLORS[order.status.toLowerCase()]?.text} px-3 py-1 rounded-full text-xs font-semibold uppercase`}

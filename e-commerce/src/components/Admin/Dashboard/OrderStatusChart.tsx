@@ -1,41 +1,41 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 
 dayjs.extend(isBetween);
 
+const COLORS: Record<string, string> = {
+	pending: "#FFA726",
+	processing: "#42A5F5",
+	shipped: "#66BB6A",
+	delivered: "#29B6F6",
+	cancelled: "#EF5350",
+};
+
 export default function OrderStatusChart() {
 	const [allOrders, setAllOrders] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");
 
-	const COLORS: Record<string, string> = {
-		pending: "#FFA726",
-		processing: "#42A5F5",
-		shipped: "#66BB6A",
-		delivered: "#29B6F6",
-		cancelled: "#EF5350",
-	};
+	const fetchOrders = useCallback(async () => {
+		try {
+			setLoading(true);
+			const orders = await adminService.getOrders();
+			setAllOrders(orders);
+		} catch (error) {
+			console.error("Error fetching order status:", error);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		const fetchOrderStatus = async () => {
-			try {
-				setLoading(true);
-				const orders = await adminService.getOrders();
-				setAllOrders(orders);
-			} catch (error) {
-				console.error("Error fetching order status:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchOrderStatus();
-	}, []);
+		fetchOrders();
+	}, [fetchOrders]);
 
 	const data = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -66,11 +66,11 @@ export default function OrderStatusChart() {
 
 	if (loading)
 		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[350px]">Loading...</div>
+			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[350px]">Loading...</div>
 		);
 
 	return (
-		<div className="bg-white p-6 rounded-lg shadow-md h-full flex flex-col">
+		<div className="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">
 			<div className="flex justify-between items-start mb-6 relative">
 				<h2 className="text-2xl font-bold text-gray-900">Order Status Distribution</h2>
 				<PeriodDropdown period={period} onPeriodChange={setPeriod} />

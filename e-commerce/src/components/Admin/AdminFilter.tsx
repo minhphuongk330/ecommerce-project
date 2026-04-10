@@ -95,25 +95,62 @@ const AdminFilter = memo<AdminFilterProps>(
 
 				case "daterange":
 					return (
-						<div className="flex gap-2">
+						<div className="flex gap-2 items-start">
+							<div className="flex flex-col gap-1 flex-1 min-w-0">
+								<input
+									type="date"
+									value={Array.isArray(value) ? value[0] || "" : ""}
+									onChange={e => {
+										const endDate = Array.isArray(value) ? value[1] : null;
+										const newEnd = endDate && e.target.value && endDate < e.target.value ? null : endDate;
+										onFilterChange(field.name, [e.target.value, newEnd]);
+									}}
+									max={Array.isArray(value) && value[1] ? value[1] : undefined}
+									disabled={loading}
+									className={commonInputClasses}
+								/>
+								<span className="text-[10px] text-gray-400 pl-1">From</span>
+							</div>
+							<span className="text-gray-400 flex-shrink-0 mt-2">—</span>
+							<div className="flex flex-col gap-1 flex-1 min-w-0">
+								<input
+									type="date"
+									value={Array.isArray(value) ? value[1] || "" : ""}
+									onChange={e => {
+										const startDate = Array.isArray(value) ? value[0] : null;
+										onFilterChange(field.name, [startDate, e.target.value]);
+									}}
+									min={Array.isArray(value) && value[0] ? value[0] : undefined}
+									disabled={loading}
+									className={commonInputClasses}
+								/>
+								<span className="text-[10px] text-gray-400 pl-1">To</span>
+							</div>
+						</div>
+					);
+
+				case "numberrange":
+					return (
+						<div className="flex gap-2 items-center">
 							<input
-								type="date"
-								placeholder="From"
-								value={Array.isArray(value) ? value[0] || "" : ""}
+								type="number"
+								placeholder="Min"
+								value={Array.isArray(value) ? (value[0] ?? "") : ""}
 								onChange={e => {
-									const endDate = Array.isArray(value) ? value[1] : null;
-									onFilterChange(field.name, [e.target.value, endDate]);
+									const max = Array.isArray(value) ? value[1] : null;
+									onFilterChange(field.name, [e.target.value, max]);
 								}}
 								disabled={loading}
 								className={commonInputClasses}
 							/>
+							<span className="text-gray-400 flex-shrink-0">—</span>
 							<input
-								type="date"
-								placeholder="To"
-								value={Array.isArray(value) ? value[1] || "" : ""}
+								type="number"
+								placeholder="Max"
+								value={Array.isArray(value) ? (value[1] ?? "") : ""}
 								onChange={e => {
-									const startDate = Array.isArray(value) ? value[0] : null;
-									onFilterChange(field.name, [startDate, e.target.value]);
+									const min = Array.isArray(value) ? value[0] : null;
+									onFilterChange(field.name, [min, e.target.value]);
 								}}
 								disabled={loading}
 								className={commonInputClasses}
@@ -140,7 +177,7 @@ const AdminFilter = memo<AdminFilterProps>(
 					)}
 				</div>
 
-				<div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 					{fields.map(field => (
 						<div key={field.name} className="flex flex-col gap-1">
 							<label className="text-xs font-medium text-gray-600">{field.label}</label>
@@ -152,7 +189,5 @@ const AdminFilter = memo<AdminFilterProps>(
 		);
 	},
 );
-
-AdminFilter.displayName = "AdminFilter";
 
 export default AdminFilter;

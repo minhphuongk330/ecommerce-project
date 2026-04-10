@@ -1,6 +1,7 @@
 "use client";
 import { Control, UseFormSetValue, useFieldArray, Controller, useWatch } from "react-hook-form";
 import { useMemo, useEffect } from "react";
+import React from "react";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
@@ -89,7 +90,7 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 					/>
 				</div>
 
-				<div className="flex items-center gap-3 mt-1">
+				<div className="flex items-center gap-6 mt-1">
 					<Controller
 						control={control}
 						name="isFeatured"
@@ -102,6 +103,21 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 									className="w-4 h-4 accent-black"
 								/>
 								Featured Product
+							</label>
+						)}
+					/>
+					<Controller
+						control={control}
+						name="isActive"
+						render={({ field }) => (
+							<label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-700">
+								<input
+									type="checkbox"
+									checked={field.value !== false}
+									onChange={e => field.onChange(e.target.checked)}
+									className="w-4 h-4 accent-black"
+								/>
+								Active
 							</label>
 						)}
 					/>
@@ -241,23 +257,61 @@ const ProductForm = ({ control, setValue, categories }: Props) => {
 						name="mainImageUrl"
 						control={control}
 						setValue={setValue}
-						label="Main image (URL)"
+						label="Main image"
 						required
+						onRemove={() => setValue("mainImageUrl", "", { shouldValidate: true })}
 					/>
 
-					<div className="grid grid-cols-2 gap-3">
-						{[1, 2, 3, 4].map(index => (
-							<ImageUploadInput
-								key={index}
-								name={`extraImage${index}` as keyof ProductFormValues}
-								control={control}
-								setValue={setValue}
-								label={`Extra image ${index}`}
-							/>
-						))}
-					</div>
+					<ExtraImages control={control} setValue={setValue} />
 				</div>
 			</div>
+		</div>
+	);
+};
+
+const EXTRA_IMAGE_KEYS = ["extraImage1", "extraImage2", "extraImage3", "extraImage4"] as const;
+
+interface ExtraImagesProps {
+	control: Control<ProductFormValues>;
+	setValue: UseFormSetValue<ProductFormValues>;
+}
+
+const ExtraImages = ({ control, setValue }: ExtraImagesProps) => {
+	const values = useWatch({ control, name: EXTRA_IMAGE_KEYS });
+	const filledCount = values.filter(Boolean).length;
+	const [visibleCount, setVisibleCount] = React.useState(() => Math.max(filledCount, 0));
+	const canAddMore = visibleCount < EXTRA_IMAGE_KEYS.length;
+
+	const handleRemove = (index: number) => {
+		for (let i = index; i < visibleCount - 1; i++) {
+			setValue(EXTRA_IMAGE_KEYS[i], (values[i + 1] || "") as any, { shouldValidate: true });
+		}
+		setValue(EXTRA_IMAGE_KEYS[visibleCount - 1], "" as any, { shouldValidate: true });
+		setVisibleCount(c => c - 1);
+	};
+
+	return (
+		<div className="space-y-3">
+			{EXTRA_IMAGE_KEYS.slice(0, visibleCount).map((key, index) => (
+				<ImageUploadInput
+					key={key}
+					name={key}
+					control={control}
+					setValue={setValue}
+					label={`Extra image ${index + 1}`}
+					onRemove={() => handleRemove(index)}
+				/>
+			))}
+			{canAddMore && (
+				<Button
+					type="button"
+					variant="outline"
+					className="!p-0 !h-auto text-blue-600 hover:bg-transparent"
+					onClick={() => setVisibleCount(c => c + 1)}
+				>
+					<Add fontSize="small" className="mr-1" /> Add more images
+				</Button>
+			)}
 		</div>
 	);
 };

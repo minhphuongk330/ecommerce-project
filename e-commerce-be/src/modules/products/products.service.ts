@@ -94,7 +94,8 @@ export class ProductsService {
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.productColors', 'productColors')
-      .leftJoinAndSelect('product.variants', 'variants');
+      .leftJoinAndSelect('product.variants', 'variants')
+      .where('product.isActive = :isActive', { isActive: true });
 
     if (name) {
       query.andWhere('product.name LIKE :name', { name: `%${name}%` });

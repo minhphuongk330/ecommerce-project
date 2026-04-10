@@ -7,8 +7,7 @@ import DataTable from "~/components/Table/Data";
 import Checkbox from "~/components/atoms/Checkbox";
 import StatusChip from "~/components/atoms/StatusChip";
 import { AdminCategory, AdminProduct } from "~/types/admin";
-import { formatPrice } from "~/utils/format";
-import DeleteProduct from "../Admin/Products/Modal/Delete";
+import { formatDate, formatPrice } from "~/utils/format";
 import UpdateProduct from "../Admin/Products/Modal/Update";
 
 interface Props {
@@ -132,6 +131,23 @@ export default function ProductsTable({
 			),
 		},
 		{
+			field: "isActive",
+			headerName: "Status",
+			width: 120,
+			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
+				<div className="flex items-center h-full">
+					<StatusChip label={params.value ? "Active" : "Inactive"} color={params.value ? "success" : "default"} />
+				</div>
+			),
+		},
+		{
+			field: "createdAt",
+			headerName: "Created At",
+			width: 130,
+			valueFormatter: value => formatDate(value),
+			cellClassName: "text-gray-500 text-sm",
+		},
+		{
 			field: "actions",
 			headerName: "Actions",
 			width: 120,
@@ -139,7 +155,6 @@ export default function ProductsTable({
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center gap-2 h-full">
 					<UpdateProduct product={params.row} categories={categories} onSuccess={onRefresh} />
-					<DeleteProduct id={params.row.id} onSuccess={onRefresh} />
 				</div>
 			),
 		},
@@ -199,9 +214,14 @@ export default function ProductsTable({
 
 									<div className="flex items-center justify-between">
 										<span className="text-base font-bold text-black">{formatPrice(product.price)}</span>
-										<div className="flex gap-2">
+										<div className="flex items-center gap-3">
+											<StatusChip
+												label={product.isActive ? "Active" : "Inactive"}
+												color={product.isActive ? "success" : "default"}
+												className="!h-6 !text-xs"
+											/>
+											<span className="text-xs text-gray-400">{formatDate(product.createdAt)}</span>
 											<UpdateProduct product={product} categories={categories} onSuccess={onRefresh} />
-											<DeleteProduct id={product.id} onSuccess={onRefresh} />
 										</div>
 									</div>
 								</div>

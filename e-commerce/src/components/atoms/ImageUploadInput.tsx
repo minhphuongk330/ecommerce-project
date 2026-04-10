@@ -1,9 +1,12 @@
-import React, { useState, useRef } from "react";
-import { Control, FieldValues, Path, UseFormSetValue, PathValue } from "react-hook-form";
-import { CircularProgress, Tooltip } from "@mui/material";
+"use client";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CommonInput from "~/components/atoms/Input";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { CircularProgress, Tooltip } from "@mui/material";
+import { useRef, useState } from "react";
+import { Control, FieldValues, Path, PathValue, UseFormSetValue, useWatch } from "react-hook-form";
 import CommonIconButton from "~/components/atoms/IconButton";
+import ImagePreview from "~/components/atoms/ImagePreview";
+import ImageCropModal from "~/components/atoms/ImageCropModal";
 import { uploadService } from "~/services/upload";
 
 interface ImageUploadInputProps<T extends FieldValues> {
@@ -12,6 +15,7 @@ interface ImageUploadInputProps<T extends FieldValues> {
 	label: string;
 	required?: boolean;
 	setValue: UseFormSetValue<T>;
+	onRemove?: () => void;
 }
 
 const ImageUploadInput = <T extends FieldValues>({
@@ -20,53 +24,95 @@ const ImageUploadInput = <T extends FieldValues>({
 	label,
 	required = false,
 	setValue,
+	onRemove,
 }: ImageUploadInputProps<T>) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [cropSrc, setCropSrc] = useState<string | null>(null);
+	const currentUrl = useWatch({ control, name }) as string | undefined;
 
-	const handleTriggerUpload = () => {
-		fileInputRef.current?.click();
-	};
-	const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
 		if (!file) return;
+		const objectUrl = URL.createObjectURL(file);
+		setCropSrc(objectUrl);
+		if (fileInputRef.current) fileInputRef.current.value = "";
+	};
+
+	const handleCropConfirm = async (blob: Blob) => {
+		if (cropSrc) URL.revokeObjectURL(cropSrc);
+		setCropSrc(null);
 		setIsUploading(true);
 		try {
+			const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
 			const response = await uploadService.upload(file);
 			const url = response?.data?.url || response?.data?.display_url;
-			if (url) {
-				setValue(name, url as PathValue<T, Path<T>>, { shouldValidate: true });
-			}
+			if (url) setValue(name, url as PathValue<T, Path<T>>, { shouldValidate: true });
 		} catch (error) {
-			console.error("Error upload component:", error);
+			console.error("Upload error:", error);
 		} finally {
 			setIsUploading(false);
-			if (fileInputRef.current) fileInputRef.current.value = "";
 		}
 	};
 
 	return (
-		<div className="flex gap-2 items-center">
-			<input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
-			<div className="flex-1">
-				<CommonInput name={name} control={control} label={label} placeholder="https://..." required={required} />
-			</div>
-			<Tooltip title="Upload image">
-				<div className="mt-4">
-					<CommonIconButton
-						icon={
-							isUploading ? (
-								<CircularProgress size={24} color="inherit" />
-							) : (
-								<CloudUploadIcon className={required ? "text-blue-600" : "text-gray-500"} />
-							)
-						}
-						onClick={handleTriggerUpload}
-						disabled={isUploading}
-					/>
+		<>
+			<div className="flex gap-3 items-center">
+				<input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
+				<ImagePreview src={currentUrl} alt={label} size={64} />
+				<div className="flex-1 flex flex-col gap-1">
+					<label className="text-xs font-medium text-gray-600">
+						{label} {required && <span className="text-red-500">*</span>}
+					</label>
+					<div className="flex gap-2 items-center">
+						<input
+							type="text"
+							value={currentUrl || ""}
+							readOnly
+							disabled
+							placeholder="No image selected"
+							className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed truncate"
+						/>
+						<Tooltip title="Upload image">
+							<div>
+								<CommonIconButton
+									icon={
+										isUploading ? (
+											<CircularProgress size={20} color="inherit" />
+										) : (
+											<CloudUploadIcon className={required ? "text-blue-600" : "text-gray-500"} fontSize="small" />
+										)
+									}
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isUploading}
+								/>
+							</div>
+						</Tooltip>
+						{onRemove && (
+							<Tooltip title="Remove">
+								<div>
+									<CommonIconButton
+										icon={<DeleteOutlineIcon fontSize="small" className="text-red-400" />}
+										onClick={onRemove}
+									/>
+								</div>
+							</Tooltip>
+						)}
+					</div>
 				</div>
-			</Tooltip>
-		</div>
+			</div>
+
+			{cropSrc && (
+				<ImageCropModal
+					imageSrc={cropSrc}
+					onConfirm={handleCropConfirm}
+					onCancel={() => {
+						URL.revokeObjectURL(cropSrc);
+						setCropSrc(null);
+					}}
+				/>
+			)}
+		</>
 	);
 };
 

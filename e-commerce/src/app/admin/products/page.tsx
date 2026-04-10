@@ -34,7 +34,6 @@ export default function ProductsPage() {
 		loading,
 		selectCount,
 		selectedIds,
-		selectedItems,
 		filterState,
 		isFiltered,
 		setFilterValue,
@@ -42,6 +41,7 @@ export default function ProductsPage() {
 		handleSelectChange,
 		handleSelectAllVisible,
 		fetchData: fetchProducts,
+		clearSelection,
 	} = useAdminTableManager<AdminProduct>({
 		filterConfig,
 		predicates: PRODUCT_FILTER_PREDICATES,
@@ -63,6 +63,12 @@ export default function ProductsPage() {
 		fetchCategories();
 	}, [fetchCategories]);
 
+	const handleBulkDelete = async (ids: number[]) => {
+		await Promise.all(ids.map(id => adminService.deleteProduct(id)));
+		clearSelection?.();
+		fetchProducts();
+	};
+
 	if (loading) {
 		return (
 			<div className="space-y-6">
@@ -78,11 +84,13 @@ export default function ProductsPage() {
 				title="Product Management"
 				selectCount={selectCount}
 				totalCount={filteredProducts.length}
-				exportData={selectCount > 0 ? selectedItems : filteredProducts}
+				allData={filteredProducts}
 				exportColumns={PRODUCT_EXPORT_COLUMNS}
 				exportFilename="products"
 				exportLabel="Export"
 				actions={<CreateProduct categories={categories} onSuccess={fetchProducts} />}
+				selectedIds={selectedIds}
+				onBulkDelete={handleBulkDelete}
 			/>
 
 			<AdminFilter

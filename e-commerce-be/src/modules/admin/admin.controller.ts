@@ -88,4 +88,14 @@ export class AdminController {
   ) {
     return this.adminService.updateOrderStatus(id, dto);
   }
+
+  @Delete('orders/:id')
+  deleteOrder(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.deleteOrder(id);
+  }
+
+  @Delete('customers/:id')
+  deleteCustomer(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.deleteCustomer(id);
+  }
 }

@@ -1,4 +1,4 @@
-export type FilterFieldType = "text" | "select" | "multiselect" | "date" | "daterange" | "number";
+export type FilterFieldType = "text" | "select" | "multiselect" | "date" | "daterange" | "number" | "numberrange";
 
 export interface FilterOption {
 	label: string;

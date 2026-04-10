@@ -9,6 +9,7 @@ import { cartService } from "~/services/cart";
 import { TAX_RATE } from "~/hooks/usePaymentSummary";
 import { CartPageSkeleton } from "~/components/Skeletons/index";
 import HydrationGuard from "~/components/HydrationGuard";
+import YouMayAlsoLike from "~/components/Products/YouMayAlsoLike";
 
 export default function CartPage() {
 	return (
@@ -28,7 +29,6 @@ function CartContent() {
 	const fetchCart = useCartStore(state => state.fetchCart);
 	const _hasHydrated = useCartStore(state => state._hasHydrated);
 	const { showNotification } = useNotification();
-
 	const [isLoading, setIsLoading] = useState(true);
 	const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 	const pendingQuantity = useRef<Record<number, number>>({});
@@ -65,20 +65,16 @@ function CartContent() {
 			const items = useCartStore.getState().cartItems;
 			const item = items.find(i => i.cartItemId === cartItemId);
 			if (!item) return;
-
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
 			if (item.stock && current >= item.stock) {
 				showNotification(`Only ${item.stock} items available. Cannot add more.`, "error");
 				return;
 			}
-
 			const next = current + 1;
 			pendingQuantity.current[cartItemId] = next;
-
 			useCartStore.setState({
 				cartItems: items.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: next } : i)),
 			});
-
 			if (debounceTimers.current[cartItemId]) clearTimeout(debounceTimers.current[cartItemId]);
 			debounceTimers.current[cartItemId] = setTimeout(async () => {
 				try {
@@ -104,13 +100,11 @@ function CartContent() {
 			const items = useCartStore.getState().cartItems;
 			const item = items.find(i => i.cartItemId === cartItemId);
 			if (!item) return;
-
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
 			if (current <= 1) return;
 
 			const next = current - 1;
 			pendingQuantity.current[cartItemId] = next;
-
 			useCartStore.setState({
 				cartItems: items.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: next } : i)),
 			});
@@ -134,22 +128,23 @@ function CartContent() {
 		},
 		[showNotification],
 	);
-
 	if (isLoading) return <CartPageSkeleton />;
-
 	if (cartItems.length === 0) {
 		return <EmptyState title="Your Cart is Empty" description="Looks like you haven't made your choice yet." />;
 	}
 
 	return (
-		<div className="flex flex-col md:flex-row gap-6 md:gap-[48px]">
-			<div className="w-full md:w-[536px] flex flex-col gap-6 md:gap-[40px]">
-				<h1 className="text-2xl md:text-3xl font-bold text-black">Shopping Cart</h1>
-				<CartList items={cartItems} onRemove={handleRemove} onIncrease={handleIncrease} onDecrease={handleDecrease} />
+		<div className="flex flex-col gap-10 md:gap-[64px]">
+			<div className="flex flex-col md:flex-row gap-6 md:gap-[48px]">
+				<div className="w-full md:w-[536px] flex flex-col gap-6 md:gap-[40px]">
+					<h1 className="text-2xl md:text-3xl font-bold text-black">Shopping Cart</h1>
+					<CartList items={cartItems} onRemove={handleRemove} onIncrease={handleIncrease} onDecrease={handleDecrease} />
+				</div>
+				<div className="w-full md:w-[536px]">
+					<OrderSummary subtotal={subtotal} tax={tax} shipping={shipping} total={total} />
+				</div>
 			</div>
-			<div className="w-full md:w-[536px]">
-				<OrderSummary subtotal={subtotal} tax={tax} shipping={shipping} total={total} />
-			</div>
+			<YouMayAlsoLike />
 		</div>
 	);
 }

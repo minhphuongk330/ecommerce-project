@@ -32,19 +32,26 @@ export default function CustomersPage() {
 		loading,
 		selectCount,
 		selectedIds,
-		selectedItems,
 		filterState,
 		isFiltered,
 		setFilterValue,
 		resetFilters,
 		handleSelectChange,
 		handleSelectAllVisible,
+		clearSelection,
+		fetchData: fetchCustomers,
 	} = useAdminTableManager<AdminCustomer>({
 		filterConfig: CUSTOMER_FILTER_CONFIG,
 		predicates: CUSTOMER_FILTER_PREDICATES,
 		fetchFn: fetchCustomersFn,
 		onFetchError,
 	});
+
+	const handleBulkDelete = async (ids: number[]) => {
+		await Promise.all(ids.map(id => adminService.deleteCustomer(id)));
+		clearSelection?.();
+		fetchCustomers();
+	};
 
 	if (loading) {
 		return (
@@ -61,10 +68,12 @@ export default function CustomersPage() {
 				title="Customer Management"
 				selectCount={selectCount}
 				totalCount={filteredCustomers.length}
-				exportData={selectCount > 0 ? selectedItems : filteredCustomers}
+				allData={filteredCustomers}
 				exportColumns={CUSTOMER_EXPORT_COLUMNS}
 				exportFilename="customers"
 				exportLabel="Export"
+				selectedIds={selectedIds}
+				onBulkDelete={handleBulkDelete}
 			/>
 
 			<AdminFilter

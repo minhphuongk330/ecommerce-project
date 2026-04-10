@@ -2,7 +2,7 @@
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 import { AdminProduct } from "~/types/admin";
@@ -16,22 +16,22 @@ export default function TopSellingProducts() {
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");
 
-	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				setLoading(true);
-				const [products, orders] = await Promise.all([adminService.getProducts(), adminService.getOrders()]);
-				setAllProducts(products);
-				setAllOrders(orders);
-			} catch (error) {
-				console.error("Error fetching top products:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchData();
+	const fetchData = useCallback(async () => {
+		try {
+			setLoading(true);
+			const [products, orders] = await Promise.all([adminService.getProducts(), adminService.getOrders()]);
+			setAllProducts(products);
+			setAllOrders(orders);
+		} catch (error) {
+			console.error("Error fetching top products:", error);
+		} finally {
+			setLoading(false);
+		}
 	}, []);
+
+	useEffect(() => {
+		fetchData();
+	}, [fetchData]);
 
 	const data = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -89,7 +89,7 @@ export default function TopSellingProducts() {
 
 	if (loading) {
 		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[400px]">
+			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[400px]">
 				<div className="flex flex-col items-center gap-2">
 					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 					<div className="text-gray-500 text-sm font-medium">Calculating top sales...</div>
@@ -99,7 +99,7 @@ export default function TopSellingProducts() {
 	}
 
 	return (
-		<div className="bg-white p-6 md:p-8 rounded-lg shadow-md h-full flex flex-col relative">
+		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">
 			<div className="flex justify-between items-start mb-6 relative">
 				<h2 className="text-2xl font-bold text-gray-900">Top sale</h2>
 				<PeriodDropdown period={period} onPeriodChange={setPeriod} />
@@ -140,9 +140,7 @@ export default function TopSellingProducts() {
 												{product.name}
 											</h3>
 										</Link>
-										<p className="text-sm font-semibold text-gray-500 mt-1">
-											{formatPrice(product.price)}
-										</p>
+										<p className="text-sm font-semibold text-gray-500 mt-1">{formatPrice(product.price)}</p>
 									</div>
 								</div>
 

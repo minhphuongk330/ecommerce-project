@@ -3,7 +3,7 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { adminService } from "~/services/admin";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
@@ -26,9 +26,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 							<span className="w-3 h-3 rounded-full bg-[#FF8A4C]"></span>
 							<span className="text-xs text-gray-500 font-medium">Revenue</span>
 						</div>
-						<span className="text-sm font-bold text-gray-800">
-							{formatPrice(payload[0]?.value)}
-						</span>
+						<span className="text-sm font-bold text-gray-800">{formatPrice(payload[0]?.value)}</span>
 					</div>
 					<div className="flex items-center justify-between gap-6">
 						<div className="flex items-center gap-2">
@@ -49,20 +47,21 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("yearly");
 
-	useEffect(() => {
-		const fetchRevenueData = async () => {
-			try {
-				setLoading(true);
-				const orders = await adminService.getOrders();
-				setAllOrders(orders);
-			} catch (error) {
-				console.error("Error fetching revenue data:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-		fetchRevenueData();
+	const fetchOrders = useCallback(async () => {
+		try {
+			setLoading(true);
+			const orders = await adminService.getOrders();
+			setAllOrders(orders);
+		} catch (error) {
+			console.error("Error fetching revenue data:", error);
+		} finally {
+			setLoading(false);
+		}
 	}, []);
+
+	useEffect(() => {
+		fetchOrders();
+	}, [fetchOrders]);
 
 	const { chartData, stats } = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -141,14 +140,14 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 
 	if (loading) {
 		return (
-			<div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center min-h-[400px]">
+			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[400px]">
 				Loading chart data...
 			</div>
 		);
 	}
 
 	return (
-		<div className="bg-white p-6 md:p-8 rounded-lg shadow-md h-full flex flex-col relative">
+		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">
 			<div className="flex justify-between items-start mb-6 relative">
 				<h2 className="text-2xl font-bold text-gray-900">Revenue</h2>
 
@@ -159,9 +158,7 @@ export default function RevenueChart({ dateRange }: RevenueChartProps) {
 				<div className="flex flex-col items-start gap-1.5">
 					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Revenue</p>
 					<div className="flex items-center gap-3">
-						<h3 className="text-3xl font-bold text-gray-900">
-							{formatPrice(stats.revenue)}
-						</h3>
+						<h3 className="text-3xl font-bold text-gray-900">{formatPrice(stats.revenue)}</h3>
 						<div className="flex items-center gap-1">
 							{stats.revenuePercent >= 0 ? (
 								<TrendingUpIcon sx={{ fontSize: "18px", color: "#14B8A6" }} />

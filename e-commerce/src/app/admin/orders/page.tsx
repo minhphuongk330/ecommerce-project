@@ -39,7 +39,6 @@ export default function OrdersPage() {
 		loading,
 		selectCount,
 		selectedIds,
-		selectedItems,
 		filterState,
 		isFiltered,
 		setFilterValue,
@@ -48,6 +47,7 @@ export default function OrdersPage() {
 		handleSelectAllVisible,
 		setData: setAllOrders,
 		fetchData: fetchOrders,
+		clearSelection,
 	} = useAdminTableManager<AdminOrder>({
 		filterConfig: ORDER_FILTER_CONFIG,
 		predicates: ORDER_FILTER_PREDICATES,
@@ -88,6 +88,12 @@ export default function OrdersPage() {
 		setConfirmModal(prev => ({ ...prev, isOpen: false }));
 	};
 
+	const handleBulkDelete = async (ids: number[]) => {
+		await Promise.all(ids.map(id => adminService.deleteOrder(id)));
+		clearSelection?.();
+		fetchOrders();
+	};
+
 	if (loading) {
 		return (
 			<div className="space-y-6">
@@ -103,10 +109,12 @@ export default function OrdersPage() {
 				title="Order Management"
 				selectCount={selectCount}
 				totalCount={filteredOrders.length}
-				exportData={selectCount > 0 ? selectedItems : filteredOrders}
+				allData={filteredOrders}
 				exportColumns={ORDER_EXPORT_COLUMNS}
 				exportFilename="orders"
 				exportLabel="Export"
+				selectedIds={selectedIds}
+				onBulkDelete={handleBulkDelete}
 			/>
 
 			<AdminFilter

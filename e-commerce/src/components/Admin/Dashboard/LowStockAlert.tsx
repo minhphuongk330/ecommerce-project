@@ -1,37 +1,38 @@
 "use client";
 import WarningAmber from "@mui/icons-material/WarningAmber";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { adminService } from "~/services/admin";
+
+const LOW_STOCK_THRESHOLD = 10;
 
 export default function LowStockAlert() {
 	const [products, setProducts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const LOW_STOCK_THRESHOLD = 10;
-
-	useEffect(() => {
-		const fetchLowStockProducts = async () => {
-			try {
-				setLoading(true);
-				const allProducts = await adminService.getProducts();
-				const lowStockProducts = allProducts
+	const fetchLowStockProducts = useCallback(async () => {
+		try {
+			setLoading(true);
+			const allProducts = await adminService.getProducts();
+			setProducts(
+				allProducts
 					.filter(p => p.stock < LOW_STOCK_THRESHOLD && p.isActive)
 					.sort((a, b) => a.stock - b.stock)
-					.slice(0, 10);
-				setProducts(lowStockProducts);
-			} catch (error) {
-				console.error("Error fetching low stock products:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchLowStockProducts();
+					.slice(0, 10),
+			);
+		} catch (error) {
+			console.error("Error fetching low stock products:", error);
+		} finally {
+			setLoading(false);
+		}
 	}, []);
+
+	useEffect(() => {
+		fetchLowStockProducts();
+	}, [fetchLowStockProducts]);
 
 	if (loading) {
 		return (
-			<div className="bg-white p-6 rounded-lg shadow-md">
+			<div className="bg-white p-6 rounded-xl shadow-md">
 				<div className="flex items-center gap-2 mb-4">
 					<WarningAmber className="text-yellow-500" />
 					<h2 className="text-xl font-bold text-gray-800">Cảnh báo kho hàng</h2>
@@ -42,7 +43,7 @@ export default function LowStockAlert() {
 	}
 
 	return (
-		<div className="bg-white p-6 rounded-lg shadow-md">
+		<div className="bg-white p-6 rounded-xl shadow-md">
 			<div className="flex items-center gap-2 mb-4">
 				<WarningAmber className="text-yellow-500" />
 				<h2 className="text-xl font-bold text-gray-800">Low Stock Alert</h2>
@@ -52,7 +53,6 @@ export default function LowStockAlert() {
 					</span>
 				)}
 			</div>
-
 			{products.length === 0 ? (
 				<div className="text-center py-8">
 					<div className="text-green-500 text-4xl mb-2">✓</div>

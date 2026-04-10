@@ -240,4 +240,16 @@ export class AdminService {
     order.status = dto.status;
     return this.orderRepository.save(order);
   }
+
+  async deleteOrder(id: number) {
+    const order = await this.orderRepository.findOne({ where: { id } });
+    if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
+    return this.orderRepository.remove(order);
+  }
+
+  async deleteCustomer(id: number) {
+    const customer = await this.customerRepository.findOne({ where: { id } });
+    if (!customer) throw new NotFoundException('Khách hàng không tồn tại');
+    return this.customerRepository.remove(customer);
+  }
 }

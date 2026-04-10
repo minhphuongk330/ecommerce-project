@@ -1,4 +1,5 @@
 "use client";
+import BulkDeleteButton from "~/components/Admin/BulkDeleteButton";
 import ExportButton from "~/components/Admin/ExportButton";
 import { ExportColumn } from "~/utils/export";
 
@@ -6,22 +7,26 @@ interface AdminPageHeaderProps<T> {
 	title: string;
 	selectCount: number;
 	totalCount: number;
-	exportData: T[];
+	allData: T[];
 	exportColumns: ExportColumn<T>[];
 	exportFilename: string;
 	exportLabel?: string;
 	actions?: React.ReactNode;
+	selectedIds?: Set<string | number>;
+	onBulkDelete?: (ids: number[]) => Promise<void>;
 }
 
 export default function AdminPageHeader<T>({
 	title,
 	selectCount,
 	totalCount,
-	exportData,
+	allData,
 	exportColumns,
 	exportFilename,
 	exportLabel = "Export",
 	actions,
+	selectedIds = new Set(),
+	onBulkDelete,
 }: AdminPageHeaderProps<T>) {
 	return (
 		<div className="flex justify-between items-center">
@@ -33,14 +38,19 @@ export default function AdminPageHeader<T>({
 					</span>
 				)}
 				<div className="flex gap-2">
+					{onBulkDelete && (
+						<BulkDeleteButton
+							selectedIds={selectedIds}
+							onDelete={onBulkDelete}
+						/>
+					)}
 					<ExportButton
-						data={exportData}
+						data={allData}
 						columns={exportColumns}
 						filename={exportFilename}
-						label={selectCount > 0 ? `${exportLabel} (${selectCount})` : exportLabel}
+						label={exportLabel}
 						variant="both"
 						showCount={false}
-						disabled={selectCount === 0}
 					/>
 					{actions}
 				</div>
