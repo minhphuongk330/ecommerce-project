@@ -31,16 +31,14 @@ export default function CreateProduct({ categories, onSuccess }: Props) {
 
 	return (
 		<>
-			<Button
-				variant="solid"
-				theme="dark"
-				className="!w-10 !h-10 !p-0 md:!w-auto md:!h-auto md:!px-4 flex items-center justify-center md:gap-2 min-w-0 flex-shrink-0"
+			<button
+				type="button"
 				onClick={() => setIsOpen(true)}
+				className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white border border-black rounded-md text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-[#333] active:scale-95"
 			>
-				<Add fontSize="small" />
-
-				<span className="hidden md:inline">Add Product</span>
-			</Button>
+				<Add sx={{ fontSize: 18 }} />
+				<span>Add Product</span>
+			</button>
 
 			<ProductFormModal
 				isOpen={isOpen}

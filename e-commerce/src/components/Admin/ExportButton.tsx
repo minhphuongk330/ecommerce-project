@@ -122,7 +122,7 @@ const ExportButton = memo<ExportButtonProps<any>>(
 				<Button
 					onClick={handleMainButtonClick}
 					disabled={isButtonDisabled}
-					className="!w-auto !h-auto px-4 py-2"
+					className="!w-auto !h-auto !px-4 !py-2 !text-sm"
 					theme="dark"
 					variant="solid"
 					type="button"
