@@ -369,7 +369,7 @@ export class SeederService {
     const attributeDefs = [
       {
         name: 'RAM',
-        categoryId: categories[0].id, // Điện thoại
+        categoryId: categories[0].id,
         value: '8GB, 12GB, 16GB',
       },
       {
@@ -384,7 +384,7 @@ export class SeederService {
       },
       {
         name: 'CPU',
-        categoryId: categories[1].id, // Laptop
+        categoryId: categories[1].id, 
         value: 'Intel Core i5, i7, i9 / AMD Ryzen 5, 7, 9',
       },
       {
@@ -399,7 +399,7 @@ export class SeederService {
       },
       {
         name: 'Kết nối',
-        categoryId: categories[2].id, // Tai nghe
+        categoryId: categories[2].id,
         value: 'Bluetooth 5.0, 5.1, 5.2, 5.3',
       },
       {

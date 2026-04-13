@@ -7,6 +7,7 @@ import {
   Request,
   Patch,
   Put,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -63,5 +64,11 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Delete('account')
+  @UseGuards(JwtAuthGuard)
+  async deactivateAccount(@Request() req) {
+    return this.authService.deactivateAccount(req.user.id);
   }
 }

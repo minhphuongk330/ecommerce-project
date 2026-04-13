@@ -66,8 +66,12 @@ function CartContent() {
 			const item = items.find(i => i.cartItemId === cartItemId);
 			if (!item) return;
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
-			if (item.stock && current >= item.stock) {
-				showNotification(`Only ${item.stock} items available. Cannot add more.`, "error");
+			const activeVariant = item.variantId
+				? item.variants?.find((v: any) => Number(v.id) === Number(item.variantId))
+				: null;
+			const maxStock = activeVariant ? Number(activeVariant.stock) : Number(item.stock);
+			if (maxStock && current >= maxStock) {
+				showNotification(`Only ${maxStock} items available. Cannot add more.`, "error");
 				return;
 			}
 			const next = current + 1;
@@ -79,7 +83,6 @@ function CartContent() {
 			debounceTimers.current[cartItemId] = setTimeout(async () => {
 				try {
 					await cartService.update(cartItemId, next);
-					await useCartStore.getState().fetchCart();
 				} catch (error: any) {
 					useCartStore.setState({
 						cartItems: useCartStore
@@ -113,7 +116,6 @@ function CartContent() {
 			debounceTimers.current[cartItemId] = setTimeout(async () => {
 				try {
 					await cartService.update(cartItemId, next);
-					await useCartStore.getState().fetchCart();
 				} catch (error: any) {
 					useCartStore.setState({
 						cartItems: useCartStore

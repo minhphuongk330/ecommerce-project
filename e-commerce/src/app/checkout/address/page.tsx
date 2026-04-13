@@ -43,8 +43,8 @@ export default function AddressPage() {
 
 	if (isLoading) {
 		return (
-			<div className="w-full flex flex-col gap-[64px]">
-				<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-[24px]">
+			<div className="w-full flex flex-col gap-8 md:gap-[64px]">
+				<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-4 md:gap-[24px]">
 					<FormSkeleton fields={3} />
 				</div>
 			</div>
@@ -52,8 +52,8 @@ export default function AddressPage() {
 	}
 
 	return (
-		<div className="w-full flex flex-col gap-[64px]">
-			<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-[24px]">
+		<div className="w-full flex flex-col gap-8 md:gap-[64px]">
+			<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-4 md:gap-[24px]">
 				<AddressList
 					addresses={addresses}
 					selectedId={selectedAddressId}
@@ -71,8 +71,8 @@ export default function AddressPage() {
 					disabled={!addresses.length || !selectedAddressId}
 					secondaryLabel="Back"
 					onSecondaryClick={() => router.back()}
-					className="mt-[40px] lg:mt-[100px]"
-					buttonClassName="!w-[210px] !h-[64px]"
+					className="mt-6 lg:mt-[100px]"
+					buttonClassName="!w-full md:!w-[210px] !h-12 md:!h-[64px]"
 				/>
 			</div>
 		</div>

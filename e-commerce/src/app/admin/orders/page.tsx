@@ -23,6 +23,7 @@ export default function OrdersPage() {
 		orderId: null,
 		newStatus: null,
 	});
+	const [isMobileSelectMode, setIsMobileSelectMode] = useState(false);
 	const { showNotification } = useNotification();
 	const fetchOrdersFn = useCallback(() => adminService.getOrders(), []);
 	const onFetchError = useCallback(
@@ -91,6 +92,7 @@ export default function OrdersPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		await Promise.all(ids.map(id => adminService.deleteOrder(id)));
 		clearSelection?.();
+		setIsMobileSelectMode(false);
 		fetchOrders();
 	};
 
@@ -115,6 +117,11 @@ export default function OrdersPage() {
 				exportLabel="Export"
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
+				isMobileSelectMode={isMobileSelectMode}
+				onToggleMobileSelect={() => {
+					if (isMobileSelectMode) clearSelection?.();
+					setIsMobileSelectMode(!isMobileSelectMode);
+				}}
 			/>
 
 			<AdminFilter
@@ -131,6 +138,7 @@ export default function OrdersPage() {
 				selectedIds={selectedIds}
 				onSelectChange={handleSelectChange}
 				onSelectAll={handleSelectAllVisible}
+				isMobileSelectMode={isMobileSelectMode}
 			/>
 
 			<ConfirmationModal

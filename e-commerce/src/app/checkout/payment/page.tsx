@@ -10,29 +10,45 @@ const SuccessModalLazy = dynamic(() => import("~/components/Payment/Modal/Succes
 });
 
 export default function PaymentPage() {
-	const { isProcessing, isSuccessModalOpen, handlePay, handleRedirectHome, handleBack } = usePayment();
+	const {
+		isProcessing,
+		isSuccessModalOpen,
+		isRedirecting,
+		handlePay,
+		handleRedirectHome,
+		handleContinueShopping,
+		handleBack,
+	} = usePayment();
+
+	if (isRedirecting) return null;
 
 	return (
 		<div className="w-full flex flex-col items-center px-4 md:px-0">
-			<div className="w-full max-w-[700px] flex flex-col gap-6 md:gap-[32px]">
-				<PaymentSummary />
+			{!isSuccessModalOpen && (
+				<div className="w-full max-w-[700px] flex flex-col gap-6 md:gap-[32px]">
+					<PaymentSummary />
 
-				<StepButton
-					layout="fixed"
-					justify="end"
-					primaryLabel="Pay"
-					onPrimaryClick={handlePay}
-					isLoading={isProcessing}
-					secondaryLabel="Back"
-					onSecondaryClick={handleBack}
-					buttonClassName="!w-[180px] md:!w-[210px] !h-12 md:!h-[64px]"
-					className="mt-[40px]"
-				/>
-			</div>
+					<StepButton
+						layout="fixed"
+						justify="end"
+						primaryLabel="Pay"
+						onPrimaryClick={handlePay}
+						isLoading={isProcessing}
+						secondaryLabel="Back"
+						onSecondaryClick={handleBack}
+						buttonClassName="!w-[180px] md:!w-[210px] !h-12 md:!h-[64px]"
+						className="mt-[40px]"
+					/>
+				</div>
+			)}
 
 			{isSuccessModalOpen && (
 				<Suspense fallback={null}>
-					<SuccessModalLazy isOpen={isSuccessModalOpen} onConfirm={handleRedirectHome} />
+					<SuccessModalLazy
+						isOpen={isSuccessModalOpen}
+						onConfirm={handleRedirectHome}
+						onContinueShopping={handleContinueShopping}
+					/>
 				</Suspense>
 			)}
 		</div>

@@ -11,9 +11,11 @@ interface StepButtonProps {
 	layout?: "full" | "auto" | "fixed";
 	justify?: "start" | "center" | "end" | "between" | string;
 	disabled?: boolean;
+	secondaryDisabled?: boolean;
 	buttonClassName?: string;
 	isLoading?: boolean;
 	type?: "button" | "submit" | "reset";
+	outOfStock?: boolean;
 }
 
 const StepButton: React.FC<StepButtonProps> = ({
@@ -27,9 +29,11 @@ const StepButton: React.FC<StepButtonProps> = ({
 	layout = "auto",
 	justify = "center",
 	disabled = false,
+	secondaryDisabled = false,
 	buttonClassName = "",
 	isLoading = false,
 	type,
+	outOfStock = false,
 }) => {
 	const finalPrimaryType = type || primaryType;
 
@@ -56,7 +60,7 @@ const StepButton: React.FC<StepButtonProps> = ({
 				<button
 					type={secondaryType}
 					onClick={onSecondaryClick}
-					disabled={disabled || isLoading}
+					disabled={disabled || secondaryDisabled || isLoading}
 					className={`
             px-5 py-3 border rounded-md font-medium cursor-pointer 
             transition-all duration-300 active:scale-95 
@@ -80,9 +84,13 @@ const StepButton: React.FC<StepButtonProps> = ({
           px-5 py-3 border rounded-md font-medium cursor-pointer 
           transition-all duration-300 active:scale-95 
           flex items-center justify-center gap-2
-          bg-black text-white border-black hover:bg-[#333]
+          ${
+						outOfStock
+							? "bg-gray-200 text-gray-500 border-gray-200 cursor-not-allowed"
+							: "bg-black text-white border-black hover:bg-[#333]"
+					}
           h-11 text-sm
-          disabled:opacity-50 disabled:cursor-not-allowed
+          disabled:opacity-100 disabled:cursor-not-allowed
           ${widthClass}
           ${buttonClassName}
         `}

@@ -17,6 +17,7 @@ import {
 
 export default function CustomersPage() {
 	const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
+	const [isMobileSelectMode, setIsMobileSelectMode] = useState(false);
 	const { showNotification } = useNotification();
 	const fetchCustomersFn = useCallback(() => adminService.getCustomers(), []);
 	const onFetchError = useCallback(
@@ -50,7 +51,23 @@ export default function CustomersPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		await Promise.all(ids.map(id => adminService.deleteCustomer(id)));
 		clearSelection?.();
+		setIsMobileSelectMode(false);
 		fetchCustomers();
+	};
+
+	const handleBanToggle = async (customer: AdminCustomer) => {
+		try {
+			if (customer.isBanned) {
+				await adminService.unbanCustomer(customer.id);
+				showNotification(`${customer.fullName} has been unbanned`, "success");
+			} else {
+				await adminService.banCustomer(customer.id);
+				showNotification(`${customer.fullName} has been banned`, "success");
+			}
+			fetchCustomers();
+		} catch (error) {
+			showNotification("Failed to update customer status", "error");
+		}
 	};
 
 	if (loading) {
@@ -74,6 +91,11 @@ export default function CustomersPage() {
 				exportLabel="Export"
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
+				isMobileSelectMode={isMobileSelectMode}
+				onToggleMobileSelect={() => {
+					if (isMobileSelectMode) clearSelection?.();
+					setIsMobileSelectMode(!isMobileSelectMode);
+				}}
 			/>
 
 			<AdminFilter
@@ -91,6 +113,8 @@ export default function CustomersPage() {
 				onSelectChange={handleSelectChange}
 				onSelectAll={handleSelectAllVisible}
 				onSelectCustomer={setSelectedCustomer}
+				onBanToggle={handleBanToggle}
+				isMobileSelectMode={isMobileSelectMode}
 			/>
 
 			<CustomerDetailsModal customer={selectedCustomer} onClose={() => setSelectedCustomer(null)} />

@@ -95,6 +95,10 @@ export class AuthService {
       throw new UnauthorizedException('Account is inactive');
     }
 
+    if (customer.isBanned) {
+      throw new UnauthorizedException('Account has been banned');
+    }
+
     const isPasswordValid = await bcrypt.compare(
       password,
       customer.passwordHash,
@@ -238,6 +242,16 @@ export class AuthService {
     }
     return { message: 'OTP sent to your email' };
   }
+  async deactivateAccount(customerId: number) {
+    const customer = await this.customerRepository.findOne({
+      where: { id: customerId },
+    });
+    if (!customer) throw new NotFoundException('User not found');
+    customer.isActive = false;
+    await this.customerRepository.save(customer);
+    return { message: 'Account deactivated successfully' };
+  }
+
   async resetPassword(dto: ResetPasswordDto) {
     const { email, otp, newPassword, confirmPassword } = dto;
     if (newPassword !== confirmPassword) {

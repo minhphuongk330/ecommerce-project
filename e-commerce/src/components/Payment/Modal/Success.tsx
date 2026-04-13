@@ -7,9 +7,10 @@ import Button from "~/components/atoms/Button";
 interface SuccessModalProps {
 	isOpen: boolean;
 	onConfirm: () => void;
+	onContinueShopping: () => void;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm }) => {
+const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm, onContinueShopping }) => {
 	return (
 		<BaseDialog isOpen={isOpen} onClose={() => {}} width={450}>
 			<div className="flex flex-col items-center text-center">
@@ -21,7 +22,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm }) => {
 					Thank you for your order. Your transaction has been completed successfully.
 				</p>
 
-				<div className="w-full">
+				<div className="w-full flex flex-col gap-3">
 					<Button
 						type="button"
 						onClick={onConfirm}
@@ -29,6 +30,14 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm }) => {
 						className="!w-full !h-[52px] !rounded-[8px] !bg-green-600 hover:!bg-green-700 !text-white !text-lg !font-medium"
 					>
 						View my Orders
+					</Button>
+					<Button
+						type="button"
+						onClick={onContinueShopping}
+						variant="outline"
+						className="!w-full !h-[52px] !rounded-[8px] !text-lg !font-medium"
+					>
+						Continue Shopping
 					</Button>
 				</div>
 			</div>

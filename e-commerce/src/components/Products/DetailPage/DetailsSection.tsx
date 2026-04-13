@@ -22,7 +22,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ product }) => {
 				<h2 className="text-xl md:text-[24px] font-bold text-black leading-[32px] border-b pb-4">Details</h2>
 
 				{product.description && (
-					<div className="mt-6 md:mt-[32px] text-sm text-[#4E4E4E] font-medium leading-[24px] text-justify whitespace-pre-line">
+					<div className="mt-6 md:mt-[32px] text-sm text-[#4E4E4E] font-medium leading-[24px] whitespace-pre-line break-words">
 						{product.description}
 					</div>
 				)}

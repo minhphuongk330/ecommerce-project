@@ -23,6 +23,12 @@ export const ORDER_FILTER_CONFIG: FilterConfig = {
 			],
 		},
 		{
+			name: "price",
+			label: "Price",
+			type: "numberrange",
+			placeholder: "e.g. 100 - 500",
+		},
+		{
 			name: "createdAt",
 			label: "Order Date",
 			type: "daterange",
@@ -63,6 +69,15 @@ export const ORDER_FILTER_PREDICATES = {
 			endDate.setHours(23, 59, 59, 999);
 			if (itemDate > endDate) return false;
 		}
+		return true;
+	},
+	totalAmount: (item: AdminOrder, filters: any) => {
+		const range = filters.totalAmount;
+		if (!Array.isArray(range)) return true;
+		const [min, max] = range;
+		const amount = Number(item.totalAmount);
+		if (min !== null && min !== "" && !isNaN(Number(min)) && amount < Number(min)) return false;
+		if (max !== null && max !== "" && !isNaN(Number(max)) && amount > Number(max)) return false;
 		return true;
 	},
 	scheduledDeliveryDate: (item: AdminOrder, filters: any) => {

@@ -26,7 +26,7 @@ const MENU_ITEMS = [
 
 export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 	const pathname = usePathname();
-	const widthClass = isCollapsed ? "w-20" : "w-64";
+	const widthClass = isCollapsed ? "w-15" : "w-50";
 
 	return (
 		<div className={`hidden md:block flex-shrink-0 transition-all duration-300 ${widthClass}`}>

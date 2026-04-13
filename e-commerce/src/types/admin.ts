@@ -27,6 +27,7 @@ export interface AdminCustomer {
 	email: string;
 	fullName: string;
 	isActive: boolean;
+	isBanned: boolean;
 	createdAt: string;
 	role: string;
 	profile?: {

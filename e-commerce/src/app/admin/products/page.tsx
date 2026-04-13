@@ -17,6 +17,7 @@ import {
 
 export default function ProductsPage() {
 	const [categories, setCategories] = useState<AdminCategory[]>([]);
+	const [isMobileSelectMode, setIsMobileSelectMode] = useState(false);
 	const { showNotification } = useNotification();
 	const filterConfig = useMemo(() => getProductFilterConfig(categories), [categories]);
 	const fetchProductsFn = useCallback(() => adminService.getProducts(), []);
@@ -66,6 +67,7 @@ export default function ProductsPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		await Promise.all(ids.map(id => adminService.deleteProduct(id)));
 		clearSelection?.();
+		setIsMobileSelectMode(false);
 		fetchProducts();
 	};
 
@@ -91,6 +93,13 @@ export default function ProductsPage() {
 				actions={<CreateProduct categories={categories} onSuccess={fetchProducts} />}
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
+				isMobileSelectMode={isMobileSelectMode}
+				onToggleMobileSelect={() => {
+					if (isMobileSelectMode) {
+						clearSelection?.();
+					}
+					setIsMobileSelectMode(!isMobileSelectMode);
+				}}
 			/>
 
 			<AdminFilter
@@ -109,6 +118,7 @@ export default function ProductsPage() {
 				selectedIds={selectedIds}
 				onSelectChange={handleSelectChange}
 				onSelectAll={handleSelectAllVisible}
+				isMobileSelectMode={isMobileSelectMode}
 			/>
 		</div>
 	);

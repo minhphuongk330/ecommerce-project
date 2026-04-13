@@ -9,9 +9,11 @@ interface BulkDeleteButtonProps {
 	selectedIds: Set<string | number>;
 	onDelete: (ids: number[]) => Promise<void>;
 	label?: string;
+	className?: string;
+	hideIcon?: boolean;
 }
 
-export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delete" }: BulkDeleteButtonProps) {
+export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delete", className, hideIcon = false }: BulkDeleteButtonProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const { showNotification } = useNotification();
 	const count = selectedIds.size;
@@ -33,12 +35,12 @@ export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delet
 		<>
 			<Button
 				onClick={() => setIsOpen(true)}
-				className="!w-auto !h-auto px-4 py-2 !bg-red-600 hover:!bg-red-700"
+				className={`!w-auto !h-auto px-4 py-2 !bg-red-600 hover:!bg-red-700 ${className ?? ""}`}
 				theme="dark"
 				variant="solid"
 				type="button"
 			>
-				<DeleteIcon sx={{ fontSize: 18 }} />
+				{!hideIcon && <DeleteIcon sx={{ fontSize: 18 }} />}
 				<span>
 					{label} ({count})
 				</span>

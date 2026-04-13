@@ -48,6 +48,12 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 					"& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-cell:focus": {
 						outline: "none",
 					},
+					"& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-sortIcon": {
+						opacity: 0,
+					},
+					"& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sorted):hover .MuiDataGrid-sortIcon": {
+						opacity: 0.3,
+					},
 					"& .MuiTablePagination-displayedRows": {
 						marginBottom: 0,
 					},

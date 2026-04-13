@@ -45,4 +45,8 @@ export const authService = {
 	resetPassword(payload: ResetPasswordPayload): Promise<any> {
 		return axiosClient.post("/auth/reset-password", payload);
 	},
+
+	deactivateAccount(): Promise<any> {
+		return axiosClient.delete("/auth/account");
+	},
 };

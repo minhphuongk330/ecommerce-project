@@ -9,11 +9,14 @@ import { useAuthStore } from "~/stores/useAuth";
 import UserAvatar from "~/components/atoms/UserAvatar";
 import { routerPaths } from "~/utils/router";
 
+import HomeOutlined from "@mui/icons-material/HomeOutlined";
+
 const NAV_ICONS = [
 	{ path: routerPaths.adminDashboard, icon: <Dashboard fontSize="small" /> },
 	{ path: routerPaths.adminProducts, icon: <ShoppingBag fontSize="small" /> },
 	{ path: routerPaths.adminOrders, icon: <ShoppingCart fontSize="small" /> },
 	{ path: routerPaths.adminCustomers, icon: <People fontSize="small" /> },
+	{ path: routerPaths.index, icon: <HomeOutlined fontSize="small" />, exact: true },
 ];
 
 export default function AdminHeader() {
@@ -21,14 +24,14 @@ export default function AdminHeader() {
 	const pathname = usePathname();
 
 	return (
-		<div className="h-16 md:h-25 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 shadow-sm flex-shrink-0 sticky top-0 z-30">
+		<div className="h-15 md:h-15 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 shadow-sm flex-shrink-0 sticky top-0 z-30">
 			<div className="flex items-center">
 				<h2 className="hidden md:block text-lg font-semibold text-gray-800">Management System</h2>
 			</div>
 
 			<div className="flex md:hidden items-center gap-6">
 				{NAV_ICONS.map((item, index) => {
-					const isActive = pathname.startsWith(item.path);
+					const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
 					return (
 						<Link
 							key={index}

@@ -84,6 +84,7 @@ export class AdminService {
         email: true,
         fullName: true,
         isActive: true,
+        isBanned: true,
         createdAt: true,
         role: true,
       },
@@ -251,5 +252,21 @@ export class AdminService {
     const customer = await this.customerRepository.findOne({ where: { id } });
     if (!customer) throw new NotFoundException('Khách hàng không tồn tại');
     return this.customerRepository.remove(customer);
+  }
+
+  async banCustomer(id: number) {
+    const customer = await this.customerRepository.findOne({ where: { id } });
+    if (!customer) throw new NotFoundException('Customer not found');
+    customer.isBanned = true;
+    await this.customerRepository.save(customer);
+    return { message: 'Customer banned successfully' };
+  }
+
+  async unbanCustomer(id: number) {
+    const customer = await this.customerRepository.findOne({ where: { id } });
+    if (!customer) throw new NotFoundException('Customer not found');
+    customer.isBanned = false;
+    await this.customerRepository.save(customer);
+    return { message: 'Customer unbanned successfully' };
   }
 }

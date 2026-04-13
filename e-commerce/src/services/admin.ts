@@ -59,6 +59,14 @@ export const adminService = {
 		return axiosClient.delete(`/admin/customers/${id}`);
 	},
 
+	banCustomer(id: number): Promise<void> {
+		return axiosClient.patch(`/admin/customers/${id}/ban`);
+	},
+
+	unbanCustomer(id: number): Promise<void> {
+		return axiosClient.patch(`/admin/customers/${id}/unban`);
+	},
+
 	getOrders(): Promise<AdminOrder[]> {
 		return axiosClient.get("/admin/orders");
 	},

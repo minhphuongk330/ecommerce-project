@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCheckoutContext } from "~/contexts/CheckoutContext";
 import { useNotification } from "~/contexts/Notification";
 import { orderService } from "~/services/order";
@@ -19,6 +19,33 @@ export const usePayment = () => {
 	const { total, subtotal, taxAmount, shippingCost, deliveryDateForAPI } = usePaymentSummary();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+	const [isPaid, setIsPaid] = useState(false);
+
+	const shouldRedirectToCart = cartItems.length === 0 && !isPaid;
+	const shouldRedirectToCheckout = !isPaid && !shouldRedirectToCart && (!selectedAddress || !selectedShippingMethod);
+	const isRedirecting = shouldRedirectToCart || shouldRedirectToCheckout;
+
+	useEffect(() => {
+		if (isPaid) return;
+		if (shouldRedirectToCart) {
+			router.replace("/cart");
+		} else if (shouldRedirectToCheckout) {
+			router.replace("/checkout/address");
+		}
+	}, [shouldRedirectToCart, shouldRedirectToCheckout, isPaid]);
+
+	useEffect(() => {
+		const handlePageShow = (e: PageTransitionEvent) => {
+			if (!e.persisted || isPaid) return;
+			if (cartItems.length === 0) {
+				router.replace("/cart");
+			} else if (!selectedAddress || !selectedShippingMethod) {
+				router.replace("/checkout/address");
+			}
+		};
+		window.addEventListener("pageshow", handlePageShow);
+		return () => window.removeEventListener("pageshow", handlePageShow);
+	}, [cartItems.length, selectedAddress, selectedShippingMethod, isPaid]);
 
 	const handlePay = async () => {
 		if (!user) {
@@ -47,6 +74,7 @@ export const usePayment = () => {
 				scheduledDeliveryDate: deliveryDateForAPI,
 			});
 
+			setIsPaid(true);
 			clearCart();
 			setIsSuccessModalOpen(true);
 		} catch (error: any) {
@@ -68,11 +96,18 @@ export const usePayment = () => {
 		router.push(routerPaths.order);
 	};
 
+	const handleContinueShopping = () => {
+		setIsSuccessModalOpen(false);
+		router.push("/");
+	};
+
 	return {
 		isProcessing,
 		isSuccessModalOpen,
+		isRedirecting,
 		handlePay,
 		handleRedirectHome,
+		handleContinueShopping,
 		handleBack: router.back,
 	};
 };

@@ -17,6 +17,7 @@ interface Props {
 	selectedIds?: Set<string | number>;
 	onSelectChange?: (id: number) => void;
 	onSelectAll?: (selected: boolean, ids: number[]) => void;
+	isMobileSelectMode?: boolean;
 }
 
 export default function ProductsTable({
@@ -26,6 +27,7 @@ export default function ProductsTable({
 	selectedIds = new Set(),
 	onSelectChange,
 	onSelectAll,
+	isMobileSelectMode = false,
 }: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
@@ -101,11 +103,12 @@ export default function ProductsTable({
 				</div>
 			),
 		},
-		{ field: "name", headerName: "Product name", width: 250, flex: 1, cellClassName: "font-medium text-gray-800" },
+		{ field: "name", headerName: "Product name", flex: 1.5, minWidth: 180, cellClassName: "font-medium text-gray-800" },
 		{
 			field: "category",
 			headerName: "Category",
-			width: 150,
+			flex: 1,
+			minWidth: 120,
 			valueGetter: (_, row) => row.category?.name || "Uncategorized",
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center h-full">
@@ -116,14 +119,19 @@ export default function ProductsTable({
 		{
 			field: "price",
 			headerName: "Price",
-			width: 120,
+			flex: 0.8,
+			minWidth: 100,
+			type: "number",
+			align: "left",
+			headerAlign: "left",
 			valueFormatter: value => formatPrice(value),
 			cellClassName: "font-semibold text-gray-900",
 		},
 		{
 			field: "stock",
 			headerName: "Stock",
-			width: 100,
+			flex: 0.6,
+			minWidth: 80,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center h-full">
 					<span className={`font-bold ${params.value < 10 ? "text-red-600" : "text-green-600"}`}>{params.value}</span>
@@ -133,7 +141,8 @@ export default function ProductsTable({
 		{
 			field: "isActive",
 			headerName: "Status",
-			width: 120,
+			flex: 0.7,
+			minWidth: 100,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center h-full">
 					<StatusChip label={params.value ? "Active" : "Inactive"} color={params.value ? "success" : "default"} />
@@ -143,14 +152,16 @@ export default function ProductsTable({
 		{
 			field: "createdAt",
 			headerName: "Created At",
-			width: 130,
+			flex: 0.8,
+			minWidth: 110,
 			valueFormatter: value => formatDate(value),
 			cellClassName: "text-gray-500 text-sm",
 		},
 		{
 			field: "actions",
 			headerName: "Actions",
-			width: 120,
+			flex: 0.5,
+			minWidth: 80,
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center gap-2 h-full">
@@ -178,9 +189,21 @@ export default function ProductsTable({
 							.map(product => (
 								<div
 									key={product.id}
-									className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3"
+									className={`bg-white p-4 rounded-xl shadow-sm border flex flex-col gap-3 ${
+										selectedIds.has(product.id) ? "border-blue-300 bg-blue-50" : "border-gray-100"
+									}`}
+									onClick={() => isMobileSelectMode && onSelectChange?.(product.id)}
 								>
 									<div className="flex gap-4">
+										{isMobileSelectMode && (
+											<div className="flex items-center flex-shrink-0">
+												<Checkbox
+													id={`mobile-select-${product.id}`}
+													checked={selectedIds.has(product.id)}
+													onChange={() => onSelectChange?.(product.id)}
+												/>
+											</div>
+										)}
 										<div className="w-20 h-20 flex-shrink-0 bg-white rounded-lg flex items-center justify-center p-1 border border-gray-100 relative overflow-hidden">
 											<Image
 												src={product.mainImageUrl || "/placeholder.png"}

@@ -98,4 +98,14 @@ export class AdminController {
   deleteCustomer(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deleteCustomer(id);
   }
+
+  @Patch('customers/:id/ban')
+  banCustomer(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.banCustomer(id);
+  }
+
+  @Patch('customers/:id/unban')
+  unbanCustomer(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.unbanCustomer(id);
+  }
 }

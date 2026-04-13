@@ -177,9 +177,9 @@ const AdminFilter = memo<AdminFilterProps>(
 					)}
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div className="flex flex-wrap gap-4">
 					{fields.map(field => (
-						<div key={field.name} className="flex flex-col gap-1">
+						<div key={field.name} className="flex flex-col gap-1 flex-1 min-w-[180px]">
 							<label className="text-xs font-medium text-gray-600">{field.label}</label>
 							{renderFilterInput(field)}
 						</div>

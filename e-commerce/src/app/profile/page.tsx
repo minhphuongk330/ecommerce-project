@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/Button";
+import ConfirmationModal from "~/components/atoms/Confirmation";
 import ProfileForm from "~/components/Profile/Form";
 import ProfileHeader from "~/components/Profile/Header";
 import ChangePasswordModal from "~/components/Profile/Modal/ChangePassword";
@@ -21,6 +22,7 @@ export default function ProfilePage() {
 	const { showNotification } = useNotification();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
 	const { control, handleSubmit, reset } = useForm<UpdateProfilePayload>({
 		resolver: zodResolver(updateProfileSchema) as any,
@@ -69,6 +71,13 @@ export default function ProfilePage() {
 		}
 	};
 
+	const handleDeleteAccount = async () => {
+		await authService.deactivateAccount();
+		logout();
+		router.push(routerPaths.index);
+		showNotification("Your account has been deleted.", "success");
+	};
+
 	if (isLoading || !user) {
 		return (
 			<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
@@ -91,20 +100,39 @@ export default function ProfilePage() {
 
 				<div className="space-y-6">
 					<ProfileForm control={control} email={user.email} />
-					<div className="mt-10 flex justify-end gap-3 pt-4">
+					<div className="mt-10 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
+						<Button
+							type="button"
+							onClick={() => setIsDeleteModalOpen(true)}
+							variant="outline"
+							theme="light"
+							className="!w-full sm:!w-[160px] !h-11 !border-red-300 !text-red-600 hover:!bg-red-50"
+						>
+							Delete Account
+						</Button>
 						<Button
 							type="button"
 							onClick={handleSubmit(onSubmit)}
 							disabled={isSaving}
 							variant="solid"
 							theme="dark"
-							className="!w-auto !h-auto px-6 py-2"
+							className="!w-full sm:!w-[160px] !h-11"
 						>
 							{isSaving ? "Saving..." : "Save changes"}
 						</Button>
 					</div>
 				</div>
 			</div>
+
+			<ConfirmationModal
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				title="Delete Account"
+				message="Are you sure you want to delete your account? This action cannot be undone."
+				confirmLabel="Delete Account"
+				onConfirm={handleDeleteAccount}
+				onError={() => showNotification("Failed to delete account.", "error")}
+			/>
 		</div>
 	);
 }

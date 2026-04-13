@@ -11,6 +11,7 @@ import { formatDate, formatPrice } from "~/utils/format";
 import { useScrollLock } from "~/hooks/useScrollLock";
 import { FINAL_ORDER_STATUSES } from "~/utils/order";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
+import { number } from "zod";
 
 const STATUS_COLORS: Record<string, ChipColor> = {
 	Pending: "warning",
@@ -32,6 +33,7 @@ interface Props {
 	selectedIds?: Set<string | number>;
 	onSelectChange?: (id: number) => void;
 	onSelectAll?: (selected: boolean, ids: number[]) => void;
+	isMobileSelectMode?: boolean;
 }
 
 export default function OrdersTable({
@@ -40,6 +42,7 @@ export default function OrdersTable({
 	selectedIds = new Set(),
 	onSelectChange,
 	onSelectAll,
+	isMobileSelectMode = false,
 }: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
@@ -152,23 +155,15 @@ export default function OrdersTable({
 			headerName: "Total amount",
 			flex: 0.8,
 			minWidth: 120,
+			type: "number",
+			align: "left",
+			headerAlign: "left",
 			valueFormatter: value => formatPrice(value as number),
 			cellClassName: "font-semibold text-gray-900",
 		},
 		{
-			field: "status",
-			headerName: "Status",
-			flex: 0.8,
-			minWidth: 120,
-			renderCell: (params: GridRenderCellParams<AdminOrder>) => (
-				<div className="flex items-center h-full">
-					<StatusChip label={params.value as string} color={STATUS_COLORS[params.value as string] || "default"} />
-				</div>
-			),
-		},
-		{
 			field: "actions",
-			headerName: "Update Status",
+			headerName: "Status",
 			flex: 1,
 			minWidth: 150,
 			sortable: false,
@@ -177,13 +172,17 @@ export default function OrdersTable({
 				const isFinalStatus = FINAL_ORDER_STATUSES.includes(currentStatus as any);
 
 				return (
-					<div className={`flex items-center h-full w-full ${isFinalStatus ? "pointer-events-none opacity-50" : ""}`}>
-						<Dropdown
-							value={currentStatus}
-							options={STATUS_OPTIONS}
-							onChange={val => onStatusChange(params.row.id, val)}
-							className="!w-full !max-w-[130px] !h-[32px] text-sm"
-						/>
+					<div className="flex items-center h-full w-full">
+						{isFinalStatus ? (
+							<StatusChip label={currentStatus} color={STATUS_COLORS[currentStatus] || "default"} />
+						) : (
+							<Dropdown
+								value={currentStatus}
+								options={STATUS_OPTIONS}
+								onChange={val => onStatusChange(params.row.id, val)}
+								className="!w-full !max-w-[130px] !h-[32px] text-sm"
+							/>
+						)}
 					</div>
 				);
 			},
@@ -218,15 +217,27 @@ export default function OrdersTable({
 								return (
 									<div
 										key={order.id}
-										className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3"
+										className={`bg-white p-4 rounded-xl shadow-sm border flex flex-col gap-3 ${
+											selectedIds.has(order.id) ? "border-blue-300 bg-blue-50" : "border-gray-100"
+										}`}
+										onClick={() => isMobileSelectMode && onSelectChange?.(order.id)}
 									>
 										<div className="flex justify-between items-center border-b border-gray-50 pb-2">
-											<button
-												onClick={() => setSelectedOrder(order)}
-												className="text-xs font-bold text-blue-600 hover:underline"
-											>
-												#{order.orderNo || order.id}
-											</button>
+											<div className="flex items-center gap-2">
+												{isMobileSelectMode && (
+													<Checkbox
+														id={`mobile-select-order-${order.id}`}
+														checked={selectedIds.has(order.id)}
+														onChange={() => onSelectChange?.(order.id)}
+													/>
+												)}
+												<button
+													onClick={e => { e.stopPropagation(); setSelectedOrder(order); }}
+													className="text-xs font-bold text-blue-600 hover:underline"
+												>
+													#{order.orderNo || order.id}
+												</button>
+											</div>
 											<span className="text-xs text-gray-500">{formatDate(order.createdAt)}</span>
 										</div>
 

@@ -8,7 +8,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
 		<CheckoutProvider>
 			<div className="w-full min-h-screen bg-white">
 				<CheckoutStepper />
-				<div className="w-full max-w-[1440px] mx-auto px-[160px] pb-[72px]">{children}</div>
+				<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] pb-[72px]">{children}</div>
 			</div>
 		</CheckoutProvider>
 	);

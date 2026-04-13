@@ -18,7 +18,7 @@ const Item = ({ icon, title, sub }: { icon: React.ReactNode; title: string; sub:
 	</div>
 );
 
-const DeliveryInfo: React.FC<DeliveryInfoProps> = ({ className = "" }) => {
+const DeliveryInfo: React.FC<DeliveryInfoProps> = ({ className = "", outOfStock = false }) => {
 	return (
 		<div className={`flex flex-row justify-between gap-2 md:justify-start md:gap-[32px] ${className} w-full`}>
 			<Item
@@ -26,7 +26,11 @@ const DeliveryInfo: React.FC<DeliveryInfoProps> = ({ className = "" }) => {
 				title="Free Delivery"
 				sub="1-2 day"
 			/>
-			<Item icon={<StorefrontOutlined className="!text-[24px] text-gray-500" />} title="In Stock" sub="Today" />
+			<Item
+				icon={<StorefrontOutlined className="!text-[24px] text-gray-500" />}
+				title={outOfStock ? "Out of Stock" : "In Stock"}
+				sub={outOfStock ? "Unavailable" : "Today"}
+			/>
 			<Item icon={<VerifiedUserOutlined className="!text-[24px] text-gray-500" />} title="Guaranteed" sub="1 year" />
 		</div>
 	);

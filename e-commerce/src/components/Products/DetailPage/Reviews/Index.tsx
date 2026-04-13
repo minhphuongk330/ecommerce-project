@@ -52,7 +52,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 	}, [reviews, isExpanded]);
 
 	return (
-		<div id="reviews" className="w-full py-10 flex justify-center">
+		<div id="reviews" className="w-full py-10 flex justify-center px-4 md:px-[160px]">
 			<div className="w-full max-w-[1120px] flex flex-col gap-[48px]">
 				<h2 className="font-bold text-[24px] text-[#000000] leading-[32px]">Reviews</h2>
 

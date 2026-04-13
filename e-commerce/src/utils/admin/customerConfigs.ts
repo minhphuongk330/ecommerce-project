@@ -11,6 +11,16 @@ export const CUSTOMER_FILTER_CONFIG: FilterConfig = {
 			placeholder: "Search by name or email...",
 		},
 		{
+			name: "status",
+			label: "Status",
+			type: "select",
+			options: [
+				{ label: "Active", value: "active" },
+				{ label: "Inactive", value: "inactive" },
+				{ label: "Banned", value: "banned" },
+			],
+		},
+		{
 			name: "createdAt",
 			label: "Join Date",
 			type: "daterange",
@@ -27,6 +37,14 @@ export const CUSTOMER_FILTER_PREDICATES = {
 			item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			item.email.toLowerCase().includes(searchTerm.toLowerCase())
 		);
+	},
+	status: (item: AdminCustomer, filters: any) => {
+		const statusFilter = filters.status;
+		if (!statusFilter) return true;
+		if (statusFilter === "banned") return item.isBanned === true;
+		if (statusFilter === "inactive") return !item.isActive && !item.isBanned;
+		if (statusFilter === "active") return item.isActive && !item.isBanned;
+		return true;
 	},
 	createdAt: (item: AdminCustomer, filters: any) => {
 		const dateRange = filters.createdAt;

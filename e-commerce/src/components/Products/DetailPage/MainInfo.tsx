@@ -150,7 +150,9 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	};
 
 	const currentPrice = activeVariant ? Number(activeVariant.price) : Number(product.price);
-	const currentStock = activeVariant ? Number(activeVariant.stock) : Number(product.stock);
+	const variantStock = activeVariant ? Number(activeVariant.stock) : null;
+	const currentStock = variantStock !== null ? variantStock : Number(product.stock);
+	const isOutOfStock = currentStock === 0;
 
 	return (
 		<div className="w-full flex flex-col items-center bg-[#F9F9F9]">
@@ -205,15 +207,17 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 							</div>
 							<StepButton
 								layout="full"
-								primaryLabel={currentStock > 0 ? "Add to Cart" : "Out of Stock"}
+								primaryLabel={isOutOfStock ? "Out of Stock" : "Add to Cart"}
 								onPrimaryClick={handleAddToCart}
-								disabled={currentStock === 0}
+								disabled={isOutOfStock}
+								outOfStock={isOutOfStock}
 								isLoading={isAddingToCart}
 								secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
 								onSecondaryClick={handleToggleFavorite}
+								secondaryDisabled={isTogglingFavorite}
 								className="mb-6"
 							/>
-							<DeliveryInfo />
+							<DeliveryInfo outOfStock={isOutOfStock} />
 						</div>
 					</div>
 				</div>

@@ -47,6 +47,13 @@ export default function LoginPage() {
 			console.error("Login failed:", error);
 			if (error.response && error.response.status === 402) {
 				showNotification("Email or password is incorrect", "error");
+			} else if (error.response && error.response.status === 401) {
+				const message = error.response.data?.message || "";
+				if (message.includes("banned")) {
+					showNotification("Your account has been banned. Please contact support.", "error");
+				} else {
+					showNotification("Your account is inactive.", "error");
+				}
 			} else {
 				showNotification("System error, please try again later.", "error");
 			}

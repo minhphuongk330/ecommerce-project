@@ -79,6 +79,7 @@ export interface SpecsGridProps {
 
 export interface DeliveryInfoProps {
 	className?: string;
+	outOfStock?: boolean;
 }
 
 export interface QuantitySelectorProps {

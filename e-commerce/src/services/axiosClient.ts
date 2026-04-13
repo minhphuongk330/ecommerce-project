@@ -29,6 +29,12 @@ axiosClient.interceptors.response.use(
 		const originalRequest = error.config;
 
 		if (error.response?.status === 401 && !originalRequest._retry) {
+			const isAuthRequest =
+				originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/register");
+			if (isAuthRequest) {
+				return Promise.reject(error);
+			}
+
 			originalRequest._retry = true;
 
 			try {
