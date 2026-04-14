@@ -72,11 +72,6 @@ export interface TechnicalSpecsProps {
 	className?: string;
 }
 
-export interface SpecsGridProps {
-	specs: ProductDetail["specs"];
-	className?: string;
-}
-
 export interface DeliveryInfoProps {
 	className?: string;
 	outOfStock?: boolean;

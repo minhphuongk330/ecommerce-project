@@ -3,13 +3,11 @@ import { productService } from "~/services/product";
 import { Product } from "~/types/product";
 
 const TABS = ["New Arrival", "Bestseller", "Featured Products"];
-const STALE_TIME = 5 * 60 * 1000;
 
 export const useProductTabs = (defaultTab: string) => {
 	const [activeTab, setActiveTab] = useState<string>(defaultTab);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const cache = useRef<Record<string, Product[]>>({});
-	const lastFetched = useRef<number>(0);
 	const [, forceUpdate] = useState(0);
 
 	const fetchAll = useCallback(async (background = false) => {
@@ -20,19 +18,21 @@ export const useProductTabs = (defaultTab: string) => {
 				cache.current[tab] = data;
 			})
 		);
-		lastFetched.current = Date.now();
 		if (!background) setIsLoading(false);
 		else forceUpdate(n => n + 1);
 	}, []);
 
 	useEffect(() => {
 		fetchAll();
-		const interval = setInterval(() => {
-			if (Date.now() - lastFetched.current >= STALE_TIME) {
+
+		const handleVisibilityChange = () => {
+			if (!document.hidden) {
 				fetchAll(true);
 			}
-		}, STALE_TIME);
-		return () => clearInterval(interval);
+		};
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+		return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
 	}, [fetchAll]);
 	const filteredProducts = cache.current[activeTab] || [];
 	return { activeTab, setActiveTab, filteredProducts, isLoading, refetch: fetchAll };

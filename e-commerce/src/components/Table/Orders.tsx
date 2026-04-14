@@ -59,7 +59,7 @@ export default function OrdersTable({
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
-	const handleMobilePageChange = (event: unknown, newPage: number) => {
+	const handleMobilePageChange = (_event: unknown, newPage: number) => {
 		setMobilePage(newPage);
 	};
 

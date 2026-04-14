@@ -32,7 +32,7 @@ export default function ProductsTable({
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
-	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+	const [paginationModel] = useState({ page: 0, pageSize: 5 });
 
 	useEffect(() => {
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -46,7 +46,7 @@ export default function ProductsTable({
 		return products.slice(start, start + paginationModel.pageSize).map(p => p.id);
 	}, [products, paginationModel]);
 
-	const handleMobilePageChange = (event: unknown, newPage: number) => {
+	const handleMobilePageChange = (_event: unknown, newPage: number) => {
 		setMobilePage(newPage);
 	};
 

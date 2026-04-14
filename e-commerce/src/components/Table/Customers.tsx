@@ -31,7 +31,7 @@ export default function CustomerTable({
 	const [mobilePage, setMobilePage] = useState(0);
 	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
-	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+	const [paginationModel] = useState({ page: 0, pageSize: 5 });
 
 	useEffect(() => {
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -45,7 +45,7 @@ export default function CustomerTable({
 		return customers.slice(start, start + paginationModel.pageSize).map(c => c.id);
 	}, [customers, paginationModel]);
 
-	const handleMobilePageChange = (event: unknown, newPage: number) => {
+	const handleMobilePageChange = (_event: unknown, newPage: number) => {
 		setMobilePage(newPage);
 	};
 
@@ -199,7 +199,10 @@ export default function CustomerTable({
 													/>
 												)}
 												<button
-													onClick={e => { e.stopPropagation(); onSelectCustomer?.(customer); }}
+													onClick={e => {
+														e.stopPropagation();
+														onSelectCustomer?.(customer);
+													}}
 													className="text-xs font-bold text-blue-600 hover:underline"
 												>
 													#{customer.id}
@@ -212,7 +215,10 @@ export default function CustomerTable({
 											<UserAvatar alt={customer.fullName} size={40} bgColor="#dbeafe" textColor="#2563eb" />
 											<div className="flex-1 min-w-0">
 												<button
-													onClick={e => { e.stopPropagation(); onSelectCustomer?.(customer); }}
+													onClick={e => {
+														e.stopPropagation();
+														onSelectCustomer?.(customer);
+													}}
 													className="text-sm font-bold text-gray-900 truncate hover:text-blue-600 transition-colors text-left w-full"
 												>
 													{customer.fullName || "Unknown User"}
@@ -224,7 +230,13 @@ export default function CustomerTable({
 										<div className="grid grid-cols-2 gap-y-2 text-sm">
 											<div className="flex flex-col">
 												<span className="text-xs text-gray-400">Phone</span>
-												<span className={customer.profile?.phoneNumber ? "font-mono text-gray-700 text-xs" : "text-gray-400 italic text-xs"}>
+												<span
+													className={
+														customer.profile?.phoneNumber
+															? "font-mono text-gray-700 text-xs"
+															: "text-gray-400 italic text-xs"
+													}
+												>
 													{customer.profile?.phoneNumber || "--"}
 												</span>
 											</div>
@@ -239,7 +251,10 @@ export default function CustomerTable({
 										<div className="flex items-center justify-between pt-1 border-t border-gray-50">
 											<StatusChip label={label} color={color} className="!h-6 !text-xs" />
 											<button
-												onClick={e => { e.stopPropagation(); onBanToggle?.(customer); }}
+												onClick={e => {
+													e.stopPropagation();
+													onBanToggle?.(customer);
+												}}
 												className={`text-xs px-3 py-1 rounded font-medium transition-colors ${
 													customer.isBanned
 														? "bg-green-50 text-green-700 hover:bg-green-100"

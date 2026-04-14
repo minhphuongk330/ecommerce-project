@@ -26,7 +26,7 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 			if (scope === "category" && categoryId) params.categoryId = categoryId;
 			const response: any = await productService.getAll(params);
 			let data = Array.isArray(response) ? response : response?.items || [];
-			data = data.slice(0, 5); 
+			data = data.slice(0, 5);
 			searchCache.current[cacheKey] = data;
 			setProducts(data);
 		} catch (error) {
@@ -74,7 +74,7 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 	const handleFocus = () => {
 		if (scope === "global") setIsOpen(true);
 		else if (scope === "category" && searchTerm) setIsOpen(true);
-	};	
+	};
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const val = e.target.value;

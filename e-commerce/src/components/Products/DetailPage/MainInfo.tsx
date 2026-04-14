@@ -166,11 +166,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 							</h1>
 							<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
 								<span className="text-2xl md:text-[32px] font-medium text-black">${currentPrice}</span>
-								{product.originalPrice && product.originalPrice > currentPrice && (
-									<span className="text-lg md:text-[24px] text-gray-400 line-through mb-1">
-										${product.originalPrice}
-									</span>
-								)}
 							</div>
 							{product.variants && product.variants.length > 0 && (
 								<VariantSelector
