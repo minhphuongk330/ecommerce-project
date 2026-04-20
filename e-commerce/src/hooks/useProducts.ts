@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { productService, ProductResponse, ProductParams, PRODUCT_SYSTEM_PARAMS } from "~/services/product";
+import { productService, ProductResponse, PRODUCT_SYSTEM_PARAMS } from "~/services/product";
 import { Product } from "~/types/product";
 import { productCache } from "~/utils/lruCache";
 
@@ -20,7 +20,7 @@ export const useProducts = () => {
 		const maxPrice = searchParams.get("maxPrice");
 		const attributeFilters: Record<string, string> = {};
 		searchParams.forEach((value, key) => {
-			if (!SYSTEM_PARAMS.includes(key)) {
+			if (!PRODUCT_SYSTEM_PARAMS.includes(key)) {
 				attributeFilters[key] = value;
 			}
 		});

@@ -23,6 +23,8 @@ export interface ProductParams {
 	[key: string]: string | number | undefined;
 }
 
+export const PRODUCT_SYSTEM_PARAMS = ["sort", "categoryId", "name", "page", "minPrice", "maxPrice"];
+
 export const productService = {
 	getAll: async (params?: ProductParams): Promise<ProductResponse> => {
 		const queryParams = { ...params };
