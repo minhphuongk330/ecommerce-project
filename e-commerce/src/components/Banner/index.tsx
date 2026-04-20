@@ -43,7 +43,7 @@ const Banner: React.FC<ExtendedBannerProps> = ({
 
 	return (
 		<div
-			className={`w-full relative overflow-hidden flex ${className}`}
+			className={`w-full relative overflow-hidden flex ${className} ${link ? "cursor-pointer" : ""}`}
 			style={
 				bgImage
 					? {
@@ -53,6 +53,7 @@ const Banner: React.FC<ExtendedBannerProps> = ({
 						}
 					: {}
 			}
+			onClick={link ? () => router.push(link) : undefined}
 		>
 			<div className={`h-full flex relative w-full ${contentClass}`}>
 				<div className={`z-7 flex flex-col justify-center h-full w-full ${alignClass}`}>
@@ -64,7 +65,7 @@ const Banner: React.FC<ExtendedBannerProps> = ({
 					)}
 					{content && <p className={`text-lg mb-8 leading-relaxed w-full whitespace-normal ${descClass}`}>{content}</p>}
 					{buttonText && (
-						<div>
+						<div onClick={e => e.stopPropagation()}>
 							<Button theme={btnTheme} onClick={handleClick} className={buttonClass}>
 								{buttonText}
 							</Button>

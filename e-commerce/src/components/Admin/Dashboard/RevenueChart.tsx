@@ -3,10 +3,9 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { NameType, Payload, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import { adminService } from "~/services/admin";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { formatPrice } from "~/utils/format";
 import { AdminOrder } from "~/types/admin";
@@ -46,26 +45,8 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 	return null;
 };
 
-export default function RevenueChart() {
-	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
-	const [loading, setLoading] = useState(true);
+export default function RevenueChart({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<Period>("yearly");
-
-	const fetchOrders = useCallback(async () => {
-		try {
-			setLoading(true);
-			const orders = await adminService.getOrders();
-			setAllOrders(orders);
-		} catch (error) {
-			console.error("Error fetching revenue data:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		fetchOrders();
-	}, [fetchOrders]);
 
 	const { chartData, stats } = useMemo(() => {
 		let startDate: dayjs.Dayjs;
@@ -141,14 +122,6 @@ export default function RevenueChart() {
 			},
 		};
 	}, [period, allOrders]);
-
-	if (loading) {
-		return (
-			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[400px]">
-				Loading chart data...
-			</div>
-		);
-	}
 
 	return (
 		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">

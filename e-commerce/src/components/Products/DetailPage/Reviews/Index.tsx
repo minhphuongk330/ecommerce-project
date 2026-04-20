@@ -10,12 +10,13 @@ import ReviewItem from "./Item";
 import ReviewSummary from "./Summary";
 
 interface ProductReviewsProps {
-	productId: number;
+	productId: number | string;
 }
 
 const INITIAL_COUNT = 3;
 
-export default function ProductReviews({ productId }: ProductReviewsProps) {
+export default function ProductReviews({ productId: rawProductId }: ProductReviewsProps) {
+	const productId = Number(rawProductId);
 	const [reviews, setReviews] = useState<Review[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -23,7 +24,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
 	const fetchReviews = useCallback(
 		async (showLoading = false) => {
-			if (!productId) return;
+			if (!productId || isNaN(productId)) return;
 			try {
 				if (showLoading) setIsLoading(true);
 				const data = await reviewService.getAllReviews(productId);
@@ -31,7 +32,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 			} catch (error) {
 				console.error("Failed to fetch reviews:", error);
 			} finally {
-				if (showLoading) setIsLoading(false);
+				setIsLoading(false);
 			}
 		},
 		[productId]

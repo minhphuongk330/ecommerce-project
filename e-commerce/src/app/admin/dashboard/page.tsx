@@ -12,11 +12,12 @@ import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
 import TopSellingProducts from "~/components/Admin/Dashboard/TopSellingProducts";
 import { DashboardSkeleton } from "~/components/Skeletons";
 import { adminService } from "~/services/admin";
-import { AdminCustomer, AdminOrder } from "~/types/admin";
+import { AdminCustomer, AdminOrder, AdminProduct } from "~/types/admin";
 
 export default function DashboardPage() {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [allCustomers, setAllCustomers] = useState<AdminCustomer[]>([]);
+	const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -24,9 +25,14 @@ export default function DashboardPage() {
 		try {
 			setLoading(true);
 			setError(null);
-			const [ordersData, customersData] = await Promise.all([adminService.getOrders(), adminService.getCustomers()]);
+			const [ordersData, customersData, productsData] = await Promise.all([
+				adminService.getOrders(),
+				adminService.getCustomers(),
+				adminService.getProducts(),
+			]);
 			setAllOrders(ordersData);
 			setAllCustomers(customersData);
+			setAllProducts(productsData);
 		} catch (err) {
 			console.error("Error fetching dashboard data:", err);
 			setError("Failed to load dashboard data.");
@@ -97,19 +103,19 @@ export default function DashboardPage() {
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-2">
-					<RevenueChart />
+					<RevenueChart allOrders={allOrders} />
 				</div>
 				<div>
-					<OrderStatusChart />
+					<OrderStatusChart allOrders={allOrders} />
 				</div>
 			</div>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-[40px]">
 				<div className="lg:col-span-1">
-					<TopSellingProducts />
+					<TopSellingProducts allOrders={allOrders} allProducts={allProducts} />
 				</div>
 				<div className="lg:col-span-2">
-					<RecentOrders />
+					<RecentOrders allOrders={allOrders} />
 				</div>
 			</div>
 

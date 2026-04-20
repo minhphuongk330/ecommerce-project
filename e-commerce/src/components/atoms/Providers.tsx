@@ -50,16 +50,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 	};
 
 	useEffect(() => {
-		if (user) {
+		if (user && !isAdminPage) {
 			safeSync(true);
-		} else {
+		} else if (!user) {
 			clearFavorites();
 			resetLocalCart();
 		}
-	}, [user]);
+	}, [user, isAdminPage]);
 
 	useEffect(() => {
-		if (!user) return;
+		if (!user || isAdminPage) return;
 		const handleFocus = () => {
 			safeSync();
 		};
@@ -74,14 +74,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 			window.removeEventListener("focus", handleFocus);
 			document.removeEventListener("visibilitychange", handleVisibility);
 		};
-	}, [user]);
+	}, [user, isAdminPage]);
 
 	return (
 		<ThemeProvider theme={customTheme}>
 			<CssBaseline />
 			<NotificationProvider>
 				{!isAdminPage && <Header />}
-				<main style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
+				<main suppressHydrationWarning style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
 				{!isAdminPage && <Footer />}
 				<BackToTop />
 			</NotificationProvider>

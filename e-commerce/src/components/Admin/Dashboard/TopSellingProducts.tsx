@@ -3,37 +3,16 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
-import { adminService } from "~/services/admin";
 import { AdminOrder, AdminProduct } from "~/types/admin";
 import { formatPrice } from "~/utils/format";
 import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
 dayjs.extend(isBetween);
 
-export default function TopSellingProducts() {
-	const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
-	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
-	const [loading, setLoading] = useState(true);
+export default function TopSellingProducts({ allOrders, allProducts }: { allOrders: AdminOrder[]; allProducts: AdminProduct[] }) {
 	const [period, setPeriod] = useState<Period>("weekly");
-
-	const fetchData = useCallback(async () => {
-		try {
-			setLoading(true);
-			const [products, orders] = await Promise.all([adminService.getProducts(), adminService.getOrders()]);
-			setAllProducts(products);
-			setAllOrders(orders);
-		} catch (error) {
-			console.error("Error fetching top products:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
 
 	const data = useMemo(() => {
 		const { startDate, endDate } = getDateRangeByPeriod(period);
@@ -80,17 +59,6 @@ export default function TopSellingProducts() {
 
 		return topProducts;
 	}, [period, allOrders, allProducts]);
-
-	if (loading) {
-		return (
-			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[400px]">
-				<div className="flex flex-col items-center gap-2">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-					<div className="text-gray-500 text-sm font-medium">Calculating top sales...</div>
-				</div>
-			</div>
-		);
-	}
 
 	return (
 		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">

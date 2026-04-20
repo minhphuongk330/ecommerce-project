@@ -1,10 +1,9 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
-import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
@@ -18,34 +17,12 @@ const COLORS: Record<string, string> = {
 	cancelled: "#EF5350",
 };
 
-export default function OrderStatusChart() {
-	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
-	const [loading, setLoading] = useState(true);
+export default function OrderStatusChart({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<Period>("weekly");
-
-	useEffect(() => {
-		const fetchOrders = async () => {
-			try {
-				setLoading(true);
-				const orders = await adminService.getOrders();
-				setAllOrders(orders);
-			} catch (error) {
-				console.error("Error fetching order status:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchOrders();
-	}, []);
 
 	const data = useMemo(() => {
 		const { startDate, endDate } = getDateRangeByPeriod(period);
-
-		const filteredOrders = allOrders.filter(order =>
-			dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"),
-		);
-
+		const filteredOrders = allOrders.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"));
 		const statusCount = filteredOrders.reduce(
 			(acc, order) => {
 				const status = order.status.toLowerCase();
@@ -60,11 +37,6 @@ export default function OrderStatusChart() {
 			value: count,
 		}));
 	}, [period, allOrders]);
-
-	if (loading)
-		return (
-			<div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-center min-h-[350px]">Loading...</div>
-		);
 
 	return (
 		<div className="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">

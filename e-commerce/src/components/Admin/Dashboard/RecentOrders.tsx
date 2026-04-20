@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
 import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
-import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { formatPrice } from "~/utils/format";
 import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
@@ -22,28 +21,10 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 	cancelled: { bg: "bg-red-100", text: "text-red-700" },
 };
 
-export default function RecentOrders() {
-	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
-	const [loading, setLoading] = useState(true);
+export default function RecentOrders({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<Period>("weekly");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
-
-	const fetchOrders = async () => {
-		try {
-			setLoading(true);
-			const orders = await adminService.getOrders();
-			setAllOrders(orders);
-		} catch (error) {
-			console.error("Error fetching recent orders:", error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		fetchOrders();
-	}, []);
 
 	useEffect(() => {
 		setCurrentPage(1);
@@ -61,8 +42,6 @@ export default function RecentOrders() {
 		(currentPage - 1) * ITEMS_PER_PAGE,
 		currentPage * ITEMS_PER_PAGE,
 	);
-
-	if (loading) return <div className="bg-white p-6 rounded-xl shadow-md min-h-[465px]">Loading...</div>;
 
 	return (
 		<>
