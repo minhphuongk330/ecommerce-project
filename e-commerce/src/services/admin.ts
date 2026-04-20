@@ -74,4 +74,8 @@ export const adminService = {
 	updateOrderStatus(id: number, status: string): Promise<AdminOrder> {
 		return axiosClient.patch(`/admin/orders/${id}/status`, { status });
 	},
+
+	getLowStockProducts(threshold: number): Promise<AdminProduct[]> {
+		return axiosClient.get(`/admin/products/low-stock?threshold=${threshold}`);
+	},
 };
