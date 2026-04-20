@@ -43,5 +43,3 @@ export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: 
 		</BaseDialog>
 	);
 }
-
-export default SuccessModal;
