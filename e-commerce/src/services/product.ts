@@ -9,18 +9,18 @@ import {
 } from "~/types/product";
 import axiosClient from "./axiosClient";
 
-interface ProductResponse {
+export interface ProductResponse {
 	items: Product[];
 	total: number;
 }
 
-interface ProductParams {
+export interface ProductParams {
 	sort?: string;
 	categoryId?: number;
 	name?: string;
 	page?: number;
 	limit?: number;
-	[key: string]: any;
+	[key: string]: string | number | undefined;
 }
 
 export const productService = {

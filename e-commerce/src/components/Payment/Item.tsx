@@ -8,7 +8,7 @@ interface SummaryItemProps {
 }
 
 export default function SummaryItem({ item, total }: SummaryItemProps) {
-	const selectedVariant = (item as any).variants?.find((v: any) => Number(v.id) === Number((item as any).variantId));
+	const selectedVariant = item.variants?.find(v => Number(v.id) === Number(item.variantId));
 
 	return (
 		<div className="flex items-center justify-between p-[16px] bg-[#F6F6F6] rounded-[10px]">

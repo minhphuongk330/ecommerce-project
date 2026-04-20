@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import ListHeader from "./ListHeader";
 import Pagination from "../../atoms/Pagination";
 import ProductCard from "~/components/Products/Card";
@@ -25,8 +24,8 @@ const ProductListArea: React.FC<ProductListAreaProps> = ({
 			</div>
 
 			<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-[16px] mb-4 md:mb-[40px]">
-				{products.map((product, index) => (
-					<div key={`${product.id}-${index}`} className="w-full">
+				{products.map((product) => (
+					<div key={product.id} className="w-full">
 						<ProductCard product={product} />
 					</div>
 				))}

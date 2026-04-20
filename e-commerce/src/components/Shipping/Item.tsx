@@ -1,5 +1,5 @@
 ﻿"use client";
-import React, { memo, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { ShippingMethod } from "~/types/shipping";
 import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
 import { formatPrice } from "~/utils/format";
@@ -13,14 +13,14 @@ interface ShippingListItemProps {
 	onSelectMethod: () => void;
 }
 
-const ShippingListItem: React.FC<ShippingListItemProps> = ({
+const ShippingListItem = ({
 	method,
 	isSelected,
 	scheduledDate,
 	minDate,
 	onDateChange,
 	onSelectMethod,
-}) => {
+}: ShippingListItemProps) => {
 	const isSchedule = method.type === "schedule";
 
 	const dynamicPrice = useMemo(() => {
@@ -29,14 +29,10 @@ const ShippingListItem: React.FC<ShippingListItemProps> = ({
 		return calculateSchedulePrice(days);
 	}, [scheduledDate, isSchedule]);
 
-	const containerClass = useMemo(
-		() => (isSelected ? "border-black bg-white shadow-sm" : "border-[#EBEBEB] bg-white hover:border-gray-300"),
-		[isSelected],
-	);
-
-	const radioClass = useMemo(() => (isSelected ? "border-black" : "border-[#D1D1D1]"), [isSelected]);
-	const textColorClass = useMemo(() => (isSelected ? "text-black" : "text-[#717171]"), [isSelected]);
-	const titleWeightClass = useMemo(() => (isSelected ? "font-bold" : "font-normal"), [isSelected]);
+	const containerClass = isSelected ? "border-black bg-white shadow-sm" : "border-[#EBEBEB] bg-white hover:border-gray-300";
+	const radioClass = isSelected ? "border-black" : "border-[#D1D1D1]";
+	const textColorClass = isSelected ? "text-black" : "text-[#717171]";
+	const titleWeightClass = isSelected ? "font-bold" : "font-normal";
 
 	const priceLabel = useMemo(
 		() =>
@@ -50,7 +46,7 @@ const ShippingListItem: React.FC<ShippingListItemProps> = ({
 		[isSchedule, scheduledDate, dynamicPrice, method.price],
 	);
 
-	const nameLabel = useMemo(() => (isSchedule ? method.description : method.name), [isSchedule, method]);
+	const nameLabel = isSchedule ? method.description : method.name;
 
 	return (
 		<div

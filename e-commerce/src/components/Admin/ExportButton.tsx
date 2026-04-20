@@ -98,19 +98,16 @@ const ExportButton = memo<ExportButtonProps<any>>(
 			return (
 				<>
 					<div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-						{Object.entries(EXPORT_FORMATS)
-							.filter(([_, value]) => value !== EXPORT_FORMATS.BOTH)
-							.map(([_, format]) => (
-								<button
-									key={format}
-									onClick={() => handleExport(format as "excel" | "json")}
-									disabled={isLoading}
-									className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg border-t border-gray-100 first:border-t-0"
-								>
-									{EXPORT_ICONS[format as keyof typeof EXPORT_ICONS]}{" "}
-									{EXPORT_LABELS[format as keyof typeof EXPORT_LABELS]}
-								</button>
-							))}
+						{(["excel", "json"] as const).map(format => (
+							<button
+								key={format}
+								onClick={() => handleExport(format)}
+								disabled={isLoading}
+								className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors first:rounded-t-lg last:rounded-b-lg border-t border-gray-100 first:border-t-0"
+							>
+								{EXPORT_ICONS[format]} {EXPORT_LABELS[format]}
+							</button>
+						))}
 					</div>
 					<div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 				</>
@@ -135,7 +132,5 @@ const ExportButton = memo<ExportButtonProps<any>>(
 		);
 	},
 );
-
-ExportButton.displayName = "ExportButton";
 
 export default ExportButton;

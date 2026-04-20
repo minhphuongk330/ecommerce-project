@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThan, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { Customer, Role } from '../../entities/customer.entity';
 import { Order } from '../../entities/order.entity';
@@ -96,6 +96,14 @@ export class AdminService {
     return this.productRepository.find({
       relations: ['category'],
       order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getLowStockProducts(threshold: number) {
+    return this.productRepository.find({
+      where: { stock: LessThan(threshold), isActive: true },
+      order: { stock: 'ASC' },
+      take: 10,
     });
   }
 

@@ -65,10 +65,16 @@ export default function ProductsPage() {
 	}, [fetchCategories]);
 
 	const handleBulkDelete = async (ids: number[]) => {
-		await Promise.all(ids.map(id => adminService.deleteProduct(id)));
-		clearSelection?.();
-		setIsMobileSelectMode(false);
-		fetchProducts();
+		try {
+			await Promise.all(ids.map(id => adminService.deleteProduct(id)));
+			showNotification("Products deleted successfully", "success");
+		} catch (error) {
+			showNotification("Failed to delete some products", "error");
+		} finally {
+			clearSelection();
+			setIsMobileSelectMode(false);
+			fetchProducts();
+		}
 	};
 
 	if (loading) {
@@ -95,9 +101,7 @@ export default function ProductsPage() {
 				onBulkDelete={handleBulkDelete}
 				isMobileSelectMode={isMobileSelectMode}
 				onToggleMobileSelect={() => {
-					if (isMobileSelectMode) {
-						clearSelection?.();
-					}
+					if (isMobileSelectMode) clearSelection();
 					setIsMobileSelectMode(!isMobileSelectMode);
 				}}
 			/>

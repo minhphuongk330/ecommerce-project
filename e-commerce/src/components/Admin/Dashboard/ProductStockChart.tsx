@@ -1,36 +1,40 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { adminService } from "~/services/admin";
 
+interface StockChartItem {
+	name: string;
+	stock: number;
+}
+
 export default function ProductStockChart() {
-	const [data, setData] = useState<any[]>([]);
+	const [data, setData] = useState<StockChartItem[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const fetchProductStock = useCallback(async () => {
-		try {
-			setLoading(true);
-			const products = await adminService.getProducts();
-			setData(
-				products
-					.sort((a, b) => b.stock - a.stock)
-					.slice(0, 8)
-					.map(product => ({
-						name: product.name.length > 15 ? product.name.substring(0, 15) + "..." : product.name,
-						stock: product.stock,
-						price: product.price,
-					})),
-			);
-		} catch (error) {
-			console.error("Error fetching product stock:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
 	useEffect(() => {
+		const fetchProductStock = async () => {
+			try {
+				setLoading(true);
+				const products = await adminService.getProducts();
+				setData(
+					products
+						.sort((a, b) => b.stock - a.stock)
+						.slice(0, 8)
+						.map(product => ({
+							name: product.name.length > 15 ? product.name.substring(0, 15) + "..." : product.name,
+							stock: product.stock,
+						})),
+				);
+			} catch (error) {
+				console.error("Error fetching product stock:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
 		fetchProductStock();
-	}, [fetchProductStock]);
+	}, []);
 
 	if (loading) {
 		return (

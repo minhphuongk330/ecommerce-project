@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import HydrationGuard from "~/components/HydrationGuard";
 import ProductCard from "~/components/Products/Card";
 import EmptyState from "~/components/atoms/EmptyState";
@@ -21,23 +20,6 @@ export default function FavoritesPage() {
 
 function FavoriteContent() {
 	const favorites = useFavoriteStore(state => state.favorites);
-	const fetchFavorites = useFavoriteStore(state => state.fetchFavorites);
-	const _hasHydrated = useFavoriteStore(state => state._hasHydrated);
-	const [isLoading, setIsLoading] = useState(true);
-
-	useEffect(() => {
-		if (_hasHydrated) {
-			setIsLoading(true);
-			fetchFavorites().finally(() => {
-				setTimeout(() => setIsLoading(false), 100);
-			});
-		}
-	}, [_hasHydrated, fetchFavorites]);
-
-	if (isLoading) {
-		return <ProductGridSkeleton count={4} />;
-	}
-
 	const isEmpty = favorites.length === 0;
 	if (isEmpty) {
 		return (
@@ -58,7 +40,7 @@ function FavoriteContent() {
 					<div key={item.id} className="h-full">
 						<ProductCard product={displayProduct} preselectedSku={item.variant?.sku} />
 						{item.variant && (
-							<div className="mt-2 text-xs text-gray-500 font-medium px-1">Phân loại: {item.variant.sku}</div>
+							<div className="mt-2 text-xs text-gray-500 font-medium px-1">Variant: {item.variant.sku}</div>
 						)}
 					</div>
 				);

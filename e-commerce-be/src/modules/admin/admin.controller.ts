@@ -48,6 +48,11 @@ export class AdminController {
     return this.adminService.getProducts();
   }
 
+  @Get('products/low-stock')
+  getLowStockProducts(@Query('threshold') threshold = 10) {
+    return this.adminService.getLowStockProducts(Number(threshold));
+  }
+
   @Get('categories')
   getCategories() {
     return this.adminService.getCategories();

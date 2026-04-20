@@ -57,10 +57,6 @@ export default function RegisterPage() {
 		}
 	};
 
-	const handleNavigateToLogin = () => {
-		router.push(routerPaths.login);
-	};
-
 	return (
 		<Box sx={{ py: { xs: 4, md: 4 }, bgcolor: "background.default" }}>
 			<Box
@@ -132,7 +128,7 @@ export default function RegisterPage() {
 						<Typography variant="body2" align="center" sx={{ mt: 3, color: "text.secondary" }}>
 							Have ready an account ?
 							<MuiLink
-								onClick={handleNavigateToLogin}
+							onClick={() => router.push(routerPaths.login)}
 								underline="hover"
 								sx={{ ml: 0.5, fontWeight: "bold", cursor: "pointer", color: "primary.main" }}
 							>

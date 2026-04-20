@@ -21,14 +21,14 @@ export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delet
 	if (count === 0) return null;
 
 	const handleConfirm = async () => {
-		try {
-			await onDelete(Array.from(selectedIds).map(Number));
-			showNotification(`Deleted ${count} items successfully`, "success");
-		} catch (error) {
-			showNotification("Some deletions failed. Please try again.", "error");
-		} finally {
-			setIsOpen(false);
-		}
+		await onDelete(Array.from(selectedIds).map(Number));
+		showNotification(`Deleted ${count} items successfully`, "success");
+		setIsOpen(false);
+	};
+
+	const handleError = (error: any) => {
+		const message = error?.response?.data?.message || "Some deletions failed. Please try again.";
+		showNotification(message, "error");
 	};
 
 	return (
@@ -50,6 +50,7 @@ export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delet
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
 				onConfirm={handleConfirm}
+				onError={handleError}
 				title={`Delete ${count} items`}
 				message={`Are you sure you want to delete ${count} selected items? This action cannot be undone.`}
 				confirmLabel="Delete"

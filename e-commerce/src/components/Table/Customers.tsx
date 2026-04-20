@@ -19,9 +19,12 @@ interface Props {
 	isMobileSelectMode?: boolean;
 }
 
+const MOBILE_ROWS_PER_PAGE = 5;
+const EMPTY_SET = new Set<string | number>();
+
 export default function CustomerTable({
 	customers,
-	selectedIds = new Set(),
+	selectedIds = EMPTY_SET,
 	onSelectChange,
 	onSelectAll,
 	onSelectCustomer,
@@ -29,7 +32,6 @@ export default function CustomerTable({
 	isMobileSelectMode = false,
 }: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
-	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
 	const [paginationModel] = useState({ page: 0, pageSize: 5 });
 

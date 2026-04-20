@@ -1,10 +1,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { productService } from "~/services/product";
+import { productService, ProductResponse, ProductParams, PRODUCT_SYSTEM_PARAMS } from "~/services/product";
 import { Product } from "~/types/product";
 import { productCache } from "~/utils/lruCache";
-
-const SYSTEM_PARAMS = ["page", "sort", "itemsPerPage", "categoryId", "name", "minPrice", "maxPrice"];
 
 export const useProducts = () => {
 	const [products, setProducts] = useState<Product[]>([]);
@@ -42,7 +40,7 @@ export const useProducts = () => {
 				};
 
 				const cacheKey = `products_${JSON.stringify(params)}`;
-				const cached = productCache.get(cacheKey) as any;
+				const cached = productCache.get(cacheKey) as ProductResponse | undefined;
 
 				if (cached && cached.items) {
 					setProducts(cached.items);
@@ -51,7 +49,7 @@ export const useProducts = () => {
 					return;
 				}
 
-				const response: any = await productService.getAll(params);
+				const response = await productService.getAll(params);
 				const data = Array.isArray(response) ? response : response?.items || [];
 				const total = response?.total !== undefined ? response.total : data.length;
 				productCache.set(cacheKey, { items: data, total });

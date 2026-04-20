@@ -1,33 +1,33 @@
 "use client";
 import Close from "@mui/icons-material/Close";
-import React, { useState } from "react";
+import { useState } from "react";
 import ConfirmationModal from "~/components/atoms/Confirmation";
 import { CartListProps } from "~/types/cart";
 import { formatPrice } from "~/utils/format";
 import CommonIconButton from "../atoms/IconButton";
 import QuantitySelector from "../atoms/QuantitySelection";
 
-const CartList: React.FC<CartListProps> = ({ items, onRemove, onIncrease, onDecrease }) => {
+const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) => {
 	const [deleteId, setDeleteId] = useState<number | null>(null);
 
 	const handleConfirmDelete = async () => {
 		if (!deleteId) return;
-		try {
-			await onRemove(deleteId);
-			setDeleteId(null);
-		} catch (error) {
-			console.error("Delete from cart failed:", error);
-		}
+		await onRemove(deleteId);
+		setDeleteId(null);
+	};
+
+	const handleDeleteError = (error: any) => {
+		console.error(error?.response?.data?.message || "Delete from cart failed");
 	};
 
 	return (
 		<div className="flex flex-col">
-			{items.map((item, index) => {
+			{items.map((item) => {
 				const selectedVariant = item.variants?.find((v: any) => Number(v.id) === Number(item.variantId));
 
 				return (
 					<div
-						key={`${item.cartItemId}-${index}`}
+						key={item.cartItemId}
 						className="relative w-full flex flex-row items-start sm:items-center py-4 md:py-6 border-b border-[#ECECEC] last:border-0 gap-4 sm:gap-0"
 					>
 						<div className="w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] flex-shrink-0 flex items-center justify-center sm:mr-[15px]">
@@ -75,6 +75,7 @@ const CartList: React.FC<CartListProps> = ({ items, onRemove, onIncrease, onDecr
 				isOpen={!!deleteId}
 				onClose={() => setDeleteId(null)}
 				onConfirm={handleConfirmDelete}
+				onError={handleDeleteError}
 				title="Remove Product"
 				message="Do you want to remove this item from your cart?"
 				confirmLabel="Remove"

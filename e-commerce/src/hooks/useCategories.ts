@@ -21,7 +21,7 @@ export const useCategories = () => {
 
 			categoryCache.set("categories", data);
 			setCategories(data);
-		} catch (err: any) {
+		} catch (err: unknown) {
 			console.error("Failed to load categories:", err);
 		} finally {
 			setIsLoading(false);

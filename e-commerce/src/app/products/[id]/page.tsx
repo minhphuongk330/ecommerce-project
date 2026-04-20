@@ -20,7 +20,7 @@ export default function ProductDetailsPage() {
 	useEffect(() => {
 		if (product) {
 			const categoryId = product.categoryId;
-			const categoryName = product.category?.name || "Sản phẩm";
+			const categoryName = product.category?.name || "Products";
 
 			setBreadcrumbs([
 				{ label: "Home", href: routerPaths.index },

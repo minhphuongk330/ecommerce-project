@@ -58,41 +58,34 @@ function ProductsContent() {
 		}
 	}, [categoryLabel, setBreadcrumbs, isLoading, allProducts]);
 
-	if (isLoading && !initialLoaded) {
-		return (
-			<MobileFilterProvider>
-				<div className="w-full max-w-[1440px] mx-auto">
-					<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[24px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
-						<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
-							<FilterSkeleton />
-						</div>
-						<div className="flex-1">
-							<ProductGridSkeleton count={9} />
-						</div>
-					</div>
-				</div>
-			</MobileFilterProvider>
-		);
-	}
-
 	return (
 		<MobileFilterProvider>
 			<div className="w-full max-w-[1440px] mx-auto">
 				<div className="flex flex-col md:flex-row gap-4 md:gap-[32px] pt-4 md:pt-[40px] pb-8 md:pb-[56px] px-4 md:px-[160px]">
-					<div
-						className={`w-full md:w-[256px] md:min-w-[256px] flex-shrink-0 ${!categoryId ? "md:sticky md:top-[81px] md:self-start" : ""}`}
-					>
-						<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
-					</div>
-
-					<ProductListArea
-						products={paginatedProducts}
-						totalCount={filteredTotal}
-						totalPages={totalPages}
-						currentPage={currentPage}
-						onPageChange={handleChangePage}
-						isLoading={isLoading}
-					/>
+					{isLoading && !initialLoaded ? (
+						<>
+							<div className="w-full md:w-[256px] md:min-w-[256px] flex-shrink-0">
+								<FilterSkeleton />
+							</div>
+							<div className="flex-1">
+								<ProductGridSkeleton count={9} />
+							</div>
+						</>
+					) : (
+						<>
+							<div className={`w-full md:w-[256px] md:min-w-[256px] flex-shrink-0 ${!categoryId ? "md:sticky md:top-[81px] md:self-start" : ""}`}>
+								<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
+							</div>
+							<ProductListArea
+								products={paginatedProducts}
+								totalCount={filteredTotal}
+								totalPages={totalPages}
+								currentPage={currentPage}
+								onPageChange={handleChangePage}
+								isLoading={isLoading}
+							/>
+						</>
+					)}
 				</div>
 			</div>
 		</MobileFilterProvider>

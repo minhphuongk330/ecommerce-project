@@ -36,19 +36,9 @@ export default function Home() {
 		return list;
 	}, [heroBanner, splitBanners, bottomBanner]);
 
-	const gridSliderItems = useMemo(() => {
-		const list: SliderItem[] = [];
-		if (gridBanners && gridBanners.length > 0) {
-			gridBanners.forEach((banner, index) => {
-				list.push({
-					type: "grid",
-					data: banner,
-					index: index,
-				});
-			});
-		}
-		return list;
-	}, [gridBanners]);
+	const gridSliderItems = useMemo(() =>
+		gridBanners?.map((banner, index) => ({ type: "grid" as const, data: banner, index })) ?? []
+	, [gridBanners]);
 
 	if (isLoading) {
 		return (

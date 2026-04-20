@@ -3,7 +3,6 @@ import AttachMoney from "@mui/icons-material/AttachMoney";
 import GroupOutlined from "@mui/icons-material/GroupOutlined";
 import PendingActionsOutlined from "@mui/icons-material/PendingActionsOutlined";
 import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
-import Skeleton from "@mui/material/Skeleton";
 import { useCallback, useEffect, useState } from "react";
 import LowStockAlert from "~/components/Admin/Dashboard/LowStockAlert";
 import DashboardMetricCard from "~/components/Admin/Dashboard/MetricCard";
@@ -11,6 +10,7 @@ import OrderStatusChart from "~/components/Admin/Dashboard/OrderStatusChart";
 import RecentOrders from "~/components/Admin/Dashboard/RecentOrders";
 import RevenueChart from "~/components/Admin/Dashboard/RevenueChart";
 import TopSellingProducts from "~/components/Admin/Dashboard/TopSellingProducts";
+import { DashboardSkeleton } from "~/components/Skeletons";
 import { adminService } from "~/services/admin";
 import { AdminCustomer, AdminOrder } from "~/types/admin";
 
@@ -40,26 +40,7 @@ export default function DashboardPage() {
 	}, [fetchRawData]);
 
 	if (loading && allOrders.length === 0) {
-		return (
-			<div className="space-y-6 pb-8">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-					{[1, 2, 3, 4].map(i => (
-						<div key={i} className="p-4 border border-gray-200 rounded-lg">
-							<Skeleton width="50%" height={16} />
-							<Skeleton width="66.67%" height={32} />
-						</div>
-					))}
-				</div>
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-					{[1, 2].map(i => (
-						<div key={i} className="border border-gray-200 rounded-lg p-6 h-[400px]">
-							<Skeleton width="33.33%" height={24} />
-							<Skeleton width="100%" height={350} />
-						</div>
-					))}
-				</div>
-			</div>
-		);
+		return <DashboardSkeleton />;
 	}
 
 	if (error) {
@@ -68,10 +49,10 @@ export default function DashboardPage() {
 				<div className="text-center">
 					<p className="text-red-600 font-medium mb-4 text-lg">{error}</p>
 					<button
-						onClick={() => window.location.reload()}
+						onClick={fetchRawData}
 						className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700 transition"
 					>
-						Refresh Page
+						Retry
 					</button>
 				</div>
 			</div>

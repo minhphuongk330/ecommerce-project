@@ -15,14 +15,10 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 	const { showNotification } = useNotification();
 
 	const handleDelete = async () => {
-		try {
-			await addressService.deleteAddress(id);
-			showNotification("Address deleted.", "success");
-			setIsOpen(false);
-			onSuccess();
-		} catch (error) {
-			showNotification("Delete failed.", "error");
-		}
+		await addressService.deleteAddress(id);
+		showNotification("Address deleted.", "success");
+		setIsOpen(false);
+		onSuccess();
 	};
 
 	const handleError = (error: any) => {

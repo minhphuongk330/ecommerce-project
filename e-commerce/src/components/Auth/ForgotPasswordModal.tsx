@@ -54,7 +54,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 	const onSubmitReset = async (data: ResetPasswordForm) => {
 		try {
 			await authService.resetPassword({
-				email: email,
+				email,
 				otp: data.otp,
 				newPassword: data.newPassword,
 				confirmPassword: data.confirmPassword,

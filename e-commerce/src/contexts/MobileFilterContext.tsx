@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
 
 type FilterRecord = Record<string, string[]>;
 
@@ -7,13 +7,13 @@ interface MobileFilterContextType {
 	isMobileDrawerOpen: boolean;
 	setIsMobileDrawerOpen: (open: boolean) => void;
 	tempFilters: FilterRecord;
-	setTempFilters: React.Dispatch<React.SetStateAction<FilterRecord>>;
+	setTempFilters: Dispatch<SetStateAction<FilterRecord>>;
 	toggleTempFilter: (categoryId: string, optionName: string) => void;
 }
 
 const MobileFilterContext = createContext<MobileFilterContextType | undefined>(undefined);
 
-export const MobileFilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const MobileFilterProvider = ({ children }: { children: React.ReactNode }) => {
 	const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 	const [tempFilters, setTempFilters] = useState<FilterRecord>({});
 

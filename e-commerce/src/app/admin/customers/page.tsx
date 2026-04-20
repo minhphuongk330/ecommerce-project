@@ -49,10 +49,16 @@ export default function CustomersPage() {
 	});
 
 	const handleBulkDelete = async (ids: number[]) => {
-		await Promise.all(ids.map(id => adminService.deleteCustomer(id)));
-		clearSelection?.();
-		setIsMobileSelectMode(false);
-		fetchCustomers();
+		try {
+			await Promise.all(ids.map(id => adminService.deleteCustomer(id)));
+			showNotification("Customers deleted successfully", "success");
+		} catch (error) {
+			showNotification("Failed to delete some customers", "error");
+		} finally {
+			clearSelection();
+			setIsMobileSelectMode(false);
+			fetchCustomers();
+		}
 	};
 
 	const handleBanToggle = async (customer: AdminCustomer) => {
@@ -93,7 +99,7 @@ export default function CustomersPage() {
 				onBulkDelete={handleBulkDelete}
 				isMobileSelectMode={isMobileSelectMode}
 				onToggleMobileSelect={() => {
-					if (isMobileSelectMode) clearSelection?.();
+					if (isMobileSelectMode) clearSelection();
 					setIsMobileSelectMode(!isMobileSelectMode);
 				}}
 			/>

@@ -1,6 +1,6 @@
 "use client";
 import WarningAmber from "@mui/icons-material/WarningAmber";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { adminService } from "~/services/admin";
 
 const LOW_STOCK_THRESHOLD = 10;
@@ -9,33 +9,28 @@ export default function LowStockAlert() {
 	const [products, setProducts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const fetchLowStockProducts = useCallback(async () => {
-		try {
-			setLoading(true);
-			const allProducts = await adminService.getProducts();
-			setProducts(
-				allProducts
-					.filter(p => p.stock < LOW_STOCK_THRESHOLD && p.isActive)
-					.sort((a, b) => a.stock - b.stock)
-					.slice(0, 10),
-			);
-		} catch (error) {
-			console.error("Error fetching low stock products:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
 	useEffect(() => {
+		const fetchLowStockProducts = async () => {
+			try {
+				setLoading(true);
+				const products = await adminService.getLowStockProducts(LOW_STOCK_THRESHOLD);
+				setProducts(products);
+			} catch (error) {
+				console.error("Error fetching low stock products:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
 		fetchLowStockProducts();
-	}, [fetchLowStockProducts]);
+	}, []);
 
 	if (loading) {
 		return (
 			<div className="bg-white p-6 rounded-xl shadow-md">
 				<div className="flex items-center gap-2 mb-4">
 					<WarningAmber className="text-yellow-500" />
-					<h2 className="text-xl font-bold text-gray-800">Cảnh báo kho hàng</h2>
+					<h2 className="text-xl font-bold text-gray-800">Low Stock Alert</h2>
 				</div>
 				<div className="text-gray-500">Loading...</div>
 			</div>

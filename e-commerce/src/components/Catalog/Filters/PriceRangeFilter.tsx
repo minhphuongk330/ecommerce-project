@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import MuiSlider from "@mui/material/Slider";
 import FiltersAccordion from "./Accordion";

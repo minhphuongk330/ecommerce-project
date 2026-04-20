@@ -22,7 +22,7 @@ export const formatDate = (dateString: string | Date | undefined | null): string
 	if (!dateString) return "";
 	try {
 		return new Date(dateString).toLocaleDateString("vi-VN");
-	} catch (e) {
+	} catch {
 		return "";
 	}
 };

@@ -10,12 +10,12 @@ import { useOrderDetail } from "~/hooks/useOrderDetail";
 import { routerPaths } from "~/utils/router";
 
 export default function OrderDetailPage() {
-	const nav = useRouter();
+	const router = useRouter();
 	const params = useParams();
 	const orderId = params?.id ? Number(params.id) : null;
 	const { order, isLoading, cancelOrder } = useOrderDetail(orderId);
 	const handleBack = () => {
-		nav.push(routerPaths.order);
+		router.push(routerPaths.order);
 	};
 
 	if (isLoading) {

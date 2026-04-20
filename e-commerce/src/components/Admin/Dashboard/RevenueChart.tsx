@@ -1,21 +1,25 @@
 "use client";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { NameType, Payload, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { adminService } from "~/services/admin";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { formatPrice } from "~/utils/format";
+import { AdminOrder } from "~/types/admin";
 
 dayjs.extend(isBetween);
 
-type RevenueChartProps = {
-	dateRange?: [Dayjs | null, Dayjs | null];
-};
+interface CustomTooltipProps {
+	active?: boolean;
+	payload?: Payload<ValueType, NameType>[];
+	label?: string;
+}
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 	if (active && payload && payload.length) {
 		return (
 			<div className="bg-white p-3 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100 z-50">
@@ -26,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 							<span className="w-3 h-3 rounded-full bg-[#FF8A4C]"></span>
 							<span className="text-xs text-gray-500 font-medium">Revenue</span>
 						</div>
-						<span className="text-sm font-bold text-gray-800">{formatPrice(payload[0]?.value)}</span>
+						<span className="text-sm font-bold text-gray-800">{formatPrice(payload[0]?.value as number)}</span>
 					</div>
 					<div className="flex items-center justify-between gap-6">
 						<div className="flex items-center gap-2">
@@ -42,8 +46,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 	return null;
 };
 
-export default function RevenueChart({ dateRange }: RevenueChartProps) {
-	const [allOrders, setAllOrders] = useState<any[]>([]);
+export default function RevenueChart() {
+	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("yearly");
 

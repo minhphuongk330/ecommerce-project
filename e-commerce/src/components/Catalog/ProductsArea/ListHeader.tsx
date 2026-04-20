@@ -4,7 +4,6 @@ import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useRouter, useSearchParams } from "next/navigation";
-import React from "react";
 import { useMobileFilter } from "~/contexts/MobileFilterContext";
 import { ListHeaderProps } from "~/types/catalog";
 
@@ -17,11 +16,7 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const currentSort = searchParams.get("sort") || null;
-
-	const currentPrice =
-		searchParams.get("sort") === "price_asc" || searchParams.get("sort") === "price_desc"
-			? searchParams.get("sort")
-			: null;
+	const currentPrice = currentSort === "price_asc" || currentSort === "price_desc" ? currentSort : null;
 
 	const mobileContext = useMobileFilter();
 

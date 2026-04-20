@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { productService } from "~/services/product";
+import { productService, ProductParams } from "~/services/product";
 import { Product } from "~/types/product";
 import { routerPaths, router as appRouter } from "~/utils/router";
 
@@ -22,9 +22,9 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 
 		try {
 			setIsLoading(true);
-			const params: any = { name: term, limit: 5, sort: "newest" };
+			const params: ProductParams = { name: term, limit: 5, sort: "newest" };
 			if (scope === "category" && categoryId) params.categoryId = categoryId;
-			const response: any = await productService.getAll(params);
+			const response = await productService.getAll(params);
 			let data = Array.isArray(response) ? response : response?.items || [];
 			data = data.slice(0, 5);
 			searchCache.current[cacheKey] = data;
@@ -86,11 +86,11 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Enter") {
 			setIsOpen(false);
-			const query: any = {};
+			const query: Record<string, string> = {};
 			if (searchTerm.trim()) query.name = searchTerm;
-			if (scope === "category" && categoryId) query.categoryId = categoryId;
+			if (scope === "category" && categoryId) query.categoryId = String(categoryId);
 
-			const queryString = new URLSearchParams(query as any).toString();
+			const queryString = new URLSearchParams(query).toString();
 			router.push(`${routerPaths.productDetail}?${queryString}`);
 			setSearchTerm("");
 		}
@@ -104,10 +104,10 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 
 	const handleViewMore = () => {
 		setIsOpen(false);
-		const query: any = {};
-		if (scope === "category" && categoryId) query.categoryId = categoryId;
+		const query: Record<string, string> = {};
+		if (scope === "category" && categoryId) query.categoryId = String(categoryId);
 
-		const queryString = new URLSearchParams(query as any).toString();
+		const queryString = new URLSearchParams(query).toString();
 		router.push(`${routerPaths.productDetail}${queryString ? `?${queryString}` : ""}`);
 		setSearchTerm("");
 	};

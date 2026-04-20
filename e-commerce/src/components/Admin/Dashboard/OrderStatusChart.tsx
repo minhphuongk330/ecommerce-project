@@ -1,10 +1,12 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
+import { AdminOrder } from "~/types/admin";
+import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
 dayjs.extend(isBetween);
 
@@ -17,38 +19,33 @@ const COLORS: Record<string, string> = {
 };
 
 export default function OrderStatusChart() {
-	const [allOrders, setAllOrders] = useState<any[]>([]);
+	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");
 
-	const fetchOrders = useCallback(async () => {
-		try {
-			setLoading(true);
-			const orders = await adminService.getOrders();
-			setAllOrders(orders);
-		} catch (error) {
-			console.error("Error fetching order status:", error);
-		} finally {
-			setLoading(false);
-		}
+	useEffect(() => {
+		const fetchOrders = async () => {
+			try {
+				setLoading(true);
+				const orders = await adminService.getOrders();
+				setAllOrders(orders);
+			} catch (error) {
+				console.error("Error fetching order status:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchOrders();
 	}, []);
 
-	useEffect(() => {
-		fetchOrders();
-	}, [fetchOrders]);
-
 	const data = useMemo(() => {
-		let startDate: dayjs.Dayjs;
-		const endDate = dayjs().endOf("day");
-		if (period === "yearly") {
-			startDate = dayjs().startOf("year");
-		} else if (period === "monthly") {
-			startDate = dayjs().startOf("month");
-		} else {
-			startDate = dayjs().subtract(6, "day").startOf("day");
-		}
+		const { startDate, endDate } = getDateRangeByPeriod(period);
 
-		const filteredOrders = allOrders.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"));
+		const filteredOrders = allOrders.filter(order =>
+			dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"),
+		);
+
 		const statusCount = filteredOrders.reduce(
 			(acc, order) => {
 				const status = order.status.toLowerCase();
@@ -98,7 +95,7 @@ export default function OrderStatusChart() {
 								<Cell key={`cell-${index}`} fill={COLORS[entry.name.toLowerCase()] || "#8884d8"} />
 							))}
 						</Pie>
-						<Tooltip formatter={(value: any) => `${value} orders`} />
+						<Tooltip formatter={(value: number | undefined) => `${value ?? 0} orders`} />
 						<Legend />
 					</PieChart>
 				</ResponsiveContainer>

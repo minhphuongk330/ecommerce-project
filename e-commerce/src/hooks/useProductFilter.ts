@@ -1,4 +1,3 @@
-"use client";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { Product } from "~/types/product";

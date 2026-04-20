@@ -1,12 +1,11 @@
 "use client";
-import React from "react";
 import { useRouter } from "next/navigation";
 import { OrderSummaryProps } from "~/types/cart";
 import Button from "@mui/material/Button";
 import { routerPaths } from "~/utils/router";
 import { formatPrice } from "~/utils/format";
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, tax, total }) => {
+const OrderSummary = ({ subtotal, tax, total }: OrderSummaryProps) => {
 	const router = useRouter();
 
 	return (

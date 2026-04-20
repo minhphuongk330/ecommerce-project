@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo, memo, SyntheticEvent } from "react";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import type { SnackbarCloseReason, AlertColor } from "@mui/material";
@@ -17,7 +17,7 @@ export const useNotification = () => {
 	return context;
 };
 
-export const NotificationProvider = React.memo(function NotificationProvider({ children }: { children: ReactNode }) {
+export const NotificationProvider = memo(function NotificationProvider({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false);
 	const [message, setMessage] = useState("");
 	const [severity, setSeverity] = useState<AlertColor>("success");
@@ -31,7 +31,7 @@ export const NotificationProvider = React.memo(function NotificationProvider({ c
 		}, 0);
 	}, []);
 
-	const handleClose = useCallback((event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+	const handleClose = useCallback((event?: SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
 		if (reason === "clickaway") return;
 		setOpen(false);
 	}, []);

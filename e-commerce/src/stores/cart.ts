@@ -15,50 +15,67 @@ interface CartState {
 	cartItems: CartItem[];
 	selectedAddressId: number | null;
 	setSelectedAddressId: (id: number) => void;
-	fetchCart: () => Promise<void>;
+	fetchCart: (force?: boolean) => Promise<void>;
 	addToCart: (product: Product, color: string) => Promise<void>;
 	removeFromCart: (cartItemId: number) => Promise<void>;
-	increaseQuantity: (cartItemId: number) => Promise<void>;
-	decreaseQuantity: (cartItemId: number) => Promise<void>;
 	clearCart: () => Promise<void>;
 	resetLocalCart: () => void;
 	_hasHydrated: boolean;
 	setHasHydrated: (state: boolean) => void;
+	lastFetched: number;
 }
+
+let fetchPromise: Promise<void> | null = null;
 
 export const useCartStore = create<CartState>()(
 	persist(
 		(set, get) => ({
 			cartItems: [],
 			selectedAddressId: null,
+			lastFetched: 0,
 			_hasHydrated: false,
 			setHasHydrated: state => set({ _hasHydrated: state }),
 			setSelectedAddressId: id => set({ selectedAddressId: id }),
-			fetchCart: async () => {
-				try {
-					const data = await cartService.getAll();
-					const mappedItems: CartItem[] = data.map((item: any) => {
-						const baseProduct = item.product;
-						const selectedVariantId = item.variantId || item.productVariantId;
-						let displayPrice = baseProduct.price;
-						if (selectedVariantId && baseProduct.variants) {
-							const variant = baseProduct.variants.find((v: any) => Number(v.id) === Number(selectedVariantId));
-							if (variant) displayPrice = variant.price;
-						}
-						return {
-							...baseProduct,
-							cartItemId: item.id,
-							quantity: item.quantity,
-							selectedColor: item.color,
-							variantId: selectedVariantId,
-							price: displayPrice,
-							variants: baseProduct.variants,
-						};
-					});
-					set({ cartItems: mappedItems });
-				} catch (error) {
-					console.error("Failed to sync cart:", error);
-				}
+			fetchCart: async (force = false) => {
+				const { cartItems, lastFetched } = get();
+				const now = Date.now();
+				if (fetchPromise) return fetchPromise;
+				if (!force && now - lastFetched < 5000) return;
+				if (!force && cartItems.length > 0 && now - lastFetched < 15000) return;
+				fetchPromise = (async () => {
+					try {
+						const data = await cartService.getAll();
+						const mappedItems: CartItem[] = data.map((item: any) => {
+							const baseProduct = item.product;
+							const selectedVariantId = item.variantId || item.productVariantId;
+							let displayPrice = baseProduct.price;
+							if (selectedVariantId && baseProduct.variants) {
+								const variant = baseProduct.variants.find((v: any) => Number(v.id) === Number(selectedVariantId));
+								if (variant) displayPrice = variant.price;
+							}
+							return {
+								...baseProduct,
+								cartItemId: item.id,
+								quantity: item.quantity,
+								selectedColor: item.color,
+								variantId: selectedVariantId,
+								price: displayPrice,
+								variants: baseProduct.variants,
+							};
+						});
+
+						set({
+							cartItems: mappedItems,
+							lastFetched: Date.now(),
+						});
+					} catch (error) {
+						console.error("Failed to sync cart:", error);
+					} finally {
+						fetchPromise = null;
+					}
+				})();
+
+				return fetchPromise;
 			},
 
 			addToCart: async (product, color) => {
@@ -66,7 +83,7 @@ export const useCartStore = create<CartState>()(
 				try {
 					const variantIdToSend = (product as any).variantId;
 					await cartService.create(product.id, 1, color, variantIdToSend);
-					await fetchCart();
+					await fetchCart(true);
 				} catch (error) {
 					console.error("Add to cart failed:", error);
 					throw error;
@@ -77,62 +94,10 @@ export const useCartStore = create<CartState>()(
 				const { fetchCart } = get();
 				try {
 					await cartService.delete(cartItemId);
-					await fetchCart();
+					await fetchCart(true);
 				} catch (error) {
 					console.error("Remove failed:", error);
 					throw error;
-				}
-			},
-
-			increaseQuantity: async cartItemId => {
-				const { cartItems, fetchCart } = get();
-				const item = cartItems.find(i => i.cartItemId === cartItemId);
-
-				if (item && item.cartItemId) {
-					if (item.stock && item.quantity >= item.stock) {
-						throw {
-							response: {
-								data: { message: `Only ${item.stock} items available. Cannot add more.` },
-							},
-						};
-					}
-					const oldQuantity = item.quantity;
-
-					set({
-						cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + 1 } : i)),
-					});
-
-					try {
-						await cartService.update(item.cartItemId, item.quantity + 1);
-						await fetchCart();
-					} catch (error) {
-						set({
-							cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: oldQuantity } : i)),
-						});
-						throw error;
-					}
-				}
-			},
-
-			decreaseQuantity: async cartItemId => {
-				const { cartItems, fetchCart } = get();
-				const item = cartItems.find(i => i.cartItemId === cartItemId);
-
-				if (item && item.cartItemId && item.quantity > 1) {
-					const oldQuantity = item.quantity;
-					set({
-						cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: i.quantity - 1 } : i)),
-					});
-					try {
-						await cartService.update(item.cartItemId, item.quantity - 1);
-						await fetchCart();
-					} catch (error) {
-						set({
-							cartItems: cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: oldQuantity } : i)),
-						});
-						console.error("Decrease failed:", error);
-						throw error;
-					}
 				}
 			},
 
@@ -146,12 +111,15 @@ export const useCartStore = create<CartState>()(
 				}
 			},
 
-			resetLocalCart: () => set({ cartItems: [] }),
+			resetLocalCart: () =>
+				set({
+					cartItems: [],
+					lastFetched: 0,
+				}),
 		}),
 		{
 			name: "shopping-cart-storage",
 			storage: createJSONStorage(() => localStorage),
-
 			onRehydrateStorage: () => state => {
 				state?.setHasHydrated(true);
 			},

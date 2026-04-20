@@ -100,7 +100,7 @@ const CustomerDetailsModal = ({ customer, onClose }: CustomerDetailsModalProps) 
 				<ModalHeader id={customer.id} fullName={customer.fullName} onClose={onClose} />
 
 				<div className="p-6 overflow-y-auto flex-1 bg-gray-50/20 custom-scrollbar">
-					<ProfileSection customer={customer} />{" "}
+					<ProfileSection customer={customer} />
 				</div>
 				<ModalFooter onClose={onClose} />
 			</div>

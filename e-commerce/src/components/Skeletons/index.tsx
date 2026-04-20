@@ -295,3 +295,26 @@ export function BreadcrumbSkeleton() {
 		</div>
 	);
 }
+
+export function DashboardSkeleton() {
+	return (
+		<div className="space-y-6 pb-8">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				{[1, 2, 3, 4].map(i => (
+					<div key={i} className="p-4 border border-gray-200 rounded-lg">
+						<Skeleton width="50%" height={16} />
+						<Skeleton width="66.67%" height={32} />
+					</div>
+				))}
+			</div>
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				{[1, 2].map(i => (
+					<div key={i} className="border border-gray-200 rounded-lg p-6 h-[400px]">
+						<Skeleton width="33.33%" height={24} />
+						<Skeleton width="100%" height={350} />
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}

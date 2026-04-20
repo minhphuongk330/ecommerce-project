@@ -65,7 +65,7 @@ export interface AdminProduct {
 		colorHex: string;
 	}[];
 	attributes?: any;
-	variants?: any[];
+	variants?: { id: number; sku?: string }[];
 }
 
 export interface CreateProductPayload {
@@ -95,6 +95,8 @@ export interface AdminOrderItem {
 	colorId?: string;
 	unitPrice: number;
 	quantity: number;
+	variantId?: number;
+	variant?: { sku?: string };
 }
 
 export interface AdminOrder {

@@ -11,12 +11,14 @@ interface AdminFilterProps {
 	loading?: boolean;
 }
 
+const FILTER_INPUT_CLASSES =
+	"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed";
+
 const AdminFilter = memo<AdminFilterProps>(
 	({ fields, filterState, onFilterChange, onReset, isFiltered, loading = false }) => {
 		const renderFilterInput = (field: FilterField) => {
 			const value = filterState[field.name] ?? "";
-			const commonInputClasses =
-				"w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed";
+			const commonInputClasses = FILTER_INPUT_CLASSES;
 
 			switch (field.type) {
 				case "text":

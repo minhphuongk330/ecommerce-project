@@ -11,6 +11,8 @@ export interface CartItem {
 	name: string;
 	mainImageUrl: string;
 	selectedColor?: string;
+	variantId?: number;
+	variants?: { id: number; sku?: string }[];
 }
 
 export const TAX_RATE = 0.1;

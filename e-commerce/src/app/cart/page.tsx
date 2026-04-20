@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useEffect, useState, useRef, useCallback } from "react";
+import { useMemo, useRef, useCallback } from "react";
 import CartList from "~/components/Cart/List";
 import OrderSummary from "~/components/Cart/OrderSummary";
 import EmptyState from "~/components/atoms/EmptyState";
@@ -26,21 +26,9 @@ export default function CartPage() {
 function CartContent() {
 	const cartItems = useCartStore(state => state.cartItems);
 	const removeFromCart = useCartStore(state => state.removeFromCart);
-	const fetchCart = useCartStore(state => state.fetchCart);
-	const _hasHydrated = useCartStore(state => state._hasHydrated);
 	const { showNotification } = useNotification();
-	const [isLoading, setIsLoading] = useState(true);
 	const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 	const pendingQuantity = useRef<Record<number, number>>({});
-
-	useEffect(() => {
-		if (_hasHydrated) {
-			setIsLoading(true);
-			fetchCart().finally(() => {
-				setTimeout(() => setIsLoading(false), 100);
-			});
-		}
-	}, [_hasHydrated, fetchCart]);
 
 	const { subtotal, total, tax, shipping } = useMemo(() => {
 		const subtotal = cartItems.reduce((sum, item) => {
@@ -60,53 +48,27 @@ function CartContent() {
 		}
 	};
 
-	const handleIncrease = useCallback(
-		(cartItemId: number) => {
+	const updateQuantity = useCallback(
+		(cartItemId: number, delta: 1 | -1) => {
 			const items = useCartStore.getState().cartItems;
 			const item = items.find(i => i.cartItemId === cartItemId);
 			if (!item) return;
+
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
-			const activeVariant = item.variantId
-				? item.variants?.find((v: any) => Number(v.id) === Number(item.variantId))
-				: null;
-			const maxStock = activeVariant ? Number(activeVariant.stock) : Number(item.stock);
-			if (maxStock && current >= maxStock) {
-				showNotification(`Only ${maxStock} items available. Cannot add more.`, "error");
-				return;
+			if (delta === -1 && current <= 1) return;
+
+			if (delta === 1) {
+				const activeVariant = item.variantId
+					? item.variants?.find((v: any) => Number(v.id) === Number(item.variantId))
+					: null;
+				const maxStock = activeVariant ? Number(activeVariant.stock) : Number(item.stock);
+				if (maxStock && current >= maxStock) {
+					showNotification(`Only ${maxStock} items available. Cannot add more.`, "error");
+					return;
+				}
 			}
-			const next = current + 1;
-			pendingQuantity.current[cartItemId] = next;
-			useCartStore.setState({
-				cartItems: items.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: next } : i)),
-			});
-			if (debounceTimers.current[cartItemId]) clearTimeout(debounceTimers.current[cartItemId]);
-			debounceTimers.current[cartItemId] = setTimeout(async () => {
-				try {
-					await cartService.update(cartItemId, next);
-				} catch (error: any) {
-					useCartStore.setState({
-						cartItems: useCartStore
-							.getState()
-							.cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: item.quantity } : i)),
-					});
-					showNotification(error?.response?.data?.message || "Cannot increase quantity", "error");
-				} finally {
-					delete pendingQuantity.current[cartItemId];
-				}
-			}, 600);
-		},
-		[showNotification],
-	);
 
-	const handleDecrease = useCallback(
-		(cartItemId: number) => {
-			const items = useCartStore.getState().cartItems;
-			const item = items.find(i => i.cartItemId === cartItemId);
-			if (!item) return;
-			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
-			if (current <= 1) return;
-
-			const next = current - 1;
+			const next = current + delta;
 			pendingQuantity.current[cartItemId] = next;
 			useCartStore.setState({
 				cartItems: items.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: next } : i)),
@@ -122,7 +84,7 @@ function CartContent() {
 							.getState()
 							.cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: item.quantity } : i)),
 					});
-					showNotification(error?.response?.data?.message || "Failed to decrease quantity", "error");
+					showNotification(error?.response?.data?.message || "Failed to update quantity", "error");
 				} finally {
 					delete pendingQuantity.current[cartItemId];
 				}
@@ -130,7 +92,9 @@ function CartContent() {
 		},
 		[showNotification],
 	);
-	if (isLoading) return <CartPageSkeleton />;
+
+	const handleIncrease = useCallback((cartItemId: number) => updateQuantity(cartItemId, 1), [updateQuantity]);
+	const handleDecrease = useCallback((cartItemId: number) => updateQuantity(cartItemId, -1), [updateQuantity]);
 	if (cartItems.length === 0) {
 		return <EmptyState title="Your Cart is Empty" description="Looks like you haven't made your choice yet." />;
 	}

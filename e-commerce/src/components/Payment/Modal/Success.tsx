@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
 import BaseDialog from "~/components/atoms/Dialog";
 import Button from "~/components/atoms/Button";
@@ -10,7 +9,7 @@ interface SuccessModalProps {
 	onContinueShopping: () => void;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm, onContinueShopping }) => {
+export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: SuccessModalProps) {
 	return (
 		<BaseDialog isOpen={isOpen} onClose={() => {}} width={450}>
 			<div className="flex flex-col items-center text-center">
@@ -43,6 +42,6 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onConfirm, onContin
 			</div>
 		</BaseDialog>
 	);
-};
+}
 
 export default SuccessModal;

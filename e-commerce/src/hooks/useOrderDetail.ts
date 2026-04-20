@@ -37,7 +37,6 @@ export const useOrderDetail = (orderId: number | null) => {
 			setOrder(updatedOrder);
 			showNotification("Order cancelled successfully.", "success");
 		} catch (error) {
-			console.error(error);
 			showNotification("Failed to cancel order.", "error");
 		} finally {
 			setIsCancelling(false);

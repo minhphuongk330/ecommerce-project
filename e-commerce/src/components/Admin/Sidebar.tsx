@@ -2,6 +2,7 @@
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
 import Dashboard from "@mui/icons-material/Dashboard";
+import Home from "@mui/icons-material/Home";
 import People from "@mui/icons-material/People";
 import ShoppingBag from "@mui/icons-material/ShoppingBag";
 import ShoppingCart from "@mui/icons-material/ShoppingCart";
@@ -9,7 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { routerPaths } from "~/utils/router";
 import CommonIconButton from "../atoms/IconButton";
-import HomeIcon from "@mui/icons-material/Home";
 
 interface SidebarProps {
 	isCollapsed: boolean;
@@ -21,7 +21,7 @@ const MENU_ITEMS = [
 	{ name: "Products", path: routerPaths.adminProducts, icon: <ShoppingBag /> },
 	{ name: "Orders", path: routerPaths.adminOrders, icon: <ShoppingCart /> },
 	{ name: "Customers", path: routerPaths.adminCustomers, icon: <People /> },
-	{ name: "Home", path: routerPaths.index, icon: <HomeIcon /> },
+	{ name: "Home", path: routerPaths.index, icon: <Home /> },
 ];
 
 export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
@@ -65,9 +65,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 								<span className={`flex-shrink-0 flex items-center justify-center ${isCollapsed ? "mx-auto" : "mr-3"}`}>
 									{item.icon}
 								</span>
-								{!isCollapsed && (
-									<span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</span>
-								)}
+								{!isCollapsed && <span className="font-medium truncate">{item.name}</span>}
 							</Link>
 						);
 					})}

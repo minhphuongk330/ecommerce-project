@@ -60,9 +60,6 @@ export default function LoginPage() {
 		}
 	};
 
-	const handleNavigateToRegister = () => {
-		router.push(routerPaths.register);
-	};
 
 	return (
 		<Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
@@ -161,7 +158,7 @@ export default function LoginPage() {
 					<CommonButton
 						theme="dark"
 						variant="solid"
-						onClick={handleNavigateToRegister}
+						onClick={() => router.push(routerPaths.register)}
 						className="!py-3 !rounded-[25px] !max-w-[200px]"
 					>
 						Create An Account

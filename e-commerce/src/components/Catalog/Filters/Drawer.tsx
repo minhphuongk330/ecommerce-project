@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CloseIcon from "@mui/icons-material/Close";
 import { useMobileFilter } from "~/contexts/MobileFilterContext";

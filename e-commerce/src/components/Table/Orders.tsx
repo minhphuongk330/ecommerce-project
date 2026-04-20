@@ -10,9 +10,8 @@ import { AdminOrder } from "~/types/admin";
 import { formatDate, formatPrice } from "~/utils/format";
 import { useScrollLock } from "~/hooks/useScrollLock";
 import { FINAL_ORDER_STATUSES } from "~/utils/order";
+import { OrderStatus } from "~/types/order";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
-import { number } from "zod";
-
 const STATUS_COLORS: Record<string, ChipColor> = {
 	Pending: "warning",
 	Shipped: "primary",
@@ -36,16 +35,18 @@ interface Props {
 	isMobileSelectMode?: boolean;
 }
 
+const MOBILE_ROWS_PER_PAGE = 5;
+const EMPTY_SET = new Set<string | number>();
+
 export default function OrdersTable({
 	orders,
 	onStatusChange,
-	selectedIds = new Set(),
+	selectedIds = EMPTY_SET,
 	onSelectChange,
 	onSelectAll,
 	isMobileSelectMode = false,
 }: Props) {
 	const [mobilePage, setMobilePage] = useState(0);
-	const MOBILE_ROWS_PER_PAGE = 5;
 	const [isDesktop, setIsDesktop] = useState(false);
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
@@ -169,7 +170,7 @@ export default function OrdersTable({
 			sortable: false,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
 				const currentStatus = params.row.status;
-				const isFinalStatus = FINAL_ORDER_STATUSES.includes(currentStatus as any);
+				const isFinalStatus = FINAL_ORDER_STATUSES.includes(currentStatus as OrderStatus);
 
 				return (
 					<div className="flex items-center h-full w-full">
@@ -212,7 +213,7 @@ export default function OrdersTable({
 						orders
 							.slice(mobilePage * MOBILE_ROWS_PER_PAGE, mobilePage * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
 							.map(order => {
-								const isFinalStatus = FINAL_ORDER_STATUSES.includes(order.status as any);
+								const isFinalStatus = FINAL_ORDER_STATUSES.includes(order.status as OrderStatus);
 
 								return (
 									<div
@@ -232,7 +233,10 @@ export default function OrdersTable({
 													/>
 												)}
 												<button
-													onClick={e => { e.stopPropagation(); setSelectedOrder(order); }}
+													onClick={e => {
+														e.stopPropagation();
+														setSelectedOrder(order);
+													}}
 													className="text-xs font-bold text-blue-600 hover:underline"
 												>
 													#{order.orderNo || order.id}

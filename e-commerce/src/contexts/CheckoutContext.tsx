@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { Address } from "~/types/address";
 import { ShippingMethod } from "~/types/shipping";
 
@@ -14,7 +14,7 @@ interface CheckoutContextType {
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
 
-export const CheckoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 	const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 	const [selectedShippingMethod, setSelectedShippingMethod] = useState<ShippingMethod | null>(null);
 	const [scheduledDate, setScheduledDate] = useState<string | null>(null);

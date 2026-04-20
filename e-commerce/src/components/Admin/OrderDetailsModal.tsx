@@ -18,10 +18,8 @@ interface OrderItemRowProps {
 }
 
 const OrderItemRow = ({ item }: OrderItemRowProps) => {
-	const selectedVariant = (item.product as any)?.variants?.find(
-		(v: any) => Number(v.id) === Number((item as any).variantId),
-	);
-	const variantDisplay = selectedVariant?.sku || (item as any)?.variant?.sku;
+	const selectedVariant = item.product?.variants?.find(v => Number(v.id) === Number(item.variantId));
+	const variantDisplay = selectedVariant?.sku || item.variant?.sku;
 	const productLink = router.product(item.productId);
 
 	return (

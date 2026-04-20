@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTableFilter } from "~/hooks/useTableFilter";
-import { FilterConfig } from "~/types/filter";
+import { FilterConfig, FilterState } from "~/types/filter";
 
 interface AdminTableManagerConfig<T> {
 	filterConfig: FilterConfig;
-	predicates: Record<string, (item: T, filters: any) => boolean>;
+	predicates: Record<string, (item: T, filters: FilterState) => boolean>;
 	fetchFn: () => Promise<T[]>;
-	onFetchError?: (error: any) => void;
+	onFetchError?: (error: unknown) => void;
 }
 
 export function useAdminTableManager<T extends { id: number }>(config: AdminTableManagerConfig<T>) {

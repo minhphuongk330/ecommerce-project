@@ -9,6 +9,15 @@ import { useOrders } from "~/hooks/useOrders";
 
 const ITEMS_PER_PAGE = 5;
 
+function OrderListSkeleton() {
+	return (
+		<div className="w-full max-w-[800px] mx-auto py-6 md:py-[40px] px-4 md:px-6">
+			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
+			<TableSkeleton rows={5} columns={4} />
+		</div>
+	);
+}
+
 function OrderListContent() {
 	const router = useRouter();
 	const pathname = usePathname();
@@ -26,14 +35,7 @@ function OrderListContent() {
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
-	if (isLoading) {
-		return (
-			<div className="w-full max-w-[800px] mx-auto py-6 md:py-[40px] px-4 md:px-6">
-				<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
-				<TableSkeleton rows={5} columns={4} />
-			</div>
-		);
-	}
+	if (isLoading) return <OrderListSkeleton />;
 
 	if (orders.length === 0) {
 		return <OrderEmptyState />;
@@ -58,14 +60,7 @@ function OrderListContent() {
 
 export default function OrderListPage() {
 	return (
-		<Suspense
-			fallback={
-				<div className="w-full max-w-[800px] mx-auto py-6 md:py-[40px] px-4 md:px-6">
-					<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
-					<TableSkeleton rows={5} columns={4} />
-				</div>
-			}
-		>
+		<Suspense fallback={<OrderListSkeleton />}>
 			<OrderListContent />
 		</Suspense>
 	);

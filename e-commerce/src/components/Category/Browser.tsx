@@ -2,20 +2,16 @@
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { useCategories } from "~/hooks/useCategories";
 import { routerPaths } from "~/utils/router";
 import ArrowButton from "../atoms/ArrowButton";
 import CategoryCard from "./Card";
 
-const CategoryBrowser: React.FC = () => {
+const CategoryBrowser = () => {
 	const router = useRouter();
 	const { categories, isLoading } = useCategories();
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-	const handleCategoryClick = (id: number) => {
-		router.push(`${routerPaths.productDetail}?categoryId=${id}`);
-	};
 
 	return (
 		<div className="flex flex-col w-full max-w-[1440px] mx-auto pt-8 px-4 md:px-[160px] gap-4 md:gap-8">
@@ -33,17 +29,13 @@ const CategoryBrowser: React.FC = () => {
 			) : (
 				<div
 					ref={scrollContainerRef}
-					className="flex space-x-4 md:space-x-8 overflow-x-auto flex-nowrap pb-5 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-					style={{
-						display: "flex",
-						flexDirection: "row",
-					}}
+					className="flex flex-row space-x-4 md:space-x-8 overflow-x-auto flex-nowrap pb-5 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
 				>
 					{categories?.length > 0 ? (
 						categories.map(category => (
 							<div
 								key={category.id}
-								onClick={() => handleCategoryClick(category.id)}
+								onClick={() => router.push(`${routerPaths.productDetail}?categoryId=${category.id}`)}
 								className="cursor-pointer transition-transform hover:scale-105 flex-shrink-0"
 							>
 								<CategoryCard name={category.name} thumbnailUrl={category.thumbnailUrl} />

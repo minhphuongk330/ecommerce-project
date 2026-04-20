@@ -24,7 +24,15 @@ export default function PaymentPage() {
 
 	return (
 		<div className="w-full flex flex-col items-center px-4 md:px-0">
-			{!isSuccessModalOpen && (
+			{isSuccessModalOpen ? (
+				<Suspense fallback={null}>
+					<SuccessModalLazy
+						isOpen={isSuccessModalOpen}
+						onConfirm={handleRedirectHome}
+						onContinueShopping={handleContinueShopping}
+					/>
+				</Suspense>
+			) : (
 				<div className="w-full max-w-[700px] flex flex-col gap-6 md:gap-[32px]">
 					<PaymentSummary />
 
@@ -40,16 +48,6 @@ export default function PaymentPage() {
 						className="mt-[40px]"
 					/>
 				</div>
-			)}
-
-			{isSuccessModalOpen && (
-				<Suspense fallback={null}>
-					<SuccessModalLazy
-						isOpen={isSuccessModalOpen}
-						onConfirm={handleRedirectHome}
-						onContinueShopping={handleContinueShopping}
-					/>
-				</Suspense>
 			)}
 		</div>
 	);

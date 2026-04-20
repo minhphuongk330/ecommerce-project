@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "~/components/atoms/Button";
 import ConfirmationModal from "~/components/atoms/Confirmation";
@@ -28,13 +28,14 @@ export default function ProfilePage() {
 		resolver: zodResolver(updateProfileSchema) as any,
 		defaultValues: {
 			fullName: "",
+			
 			phoneNumber: "",
 			gender: undefined,
 			dateOfBirth: "",
 		},
 	});
 
-	const fetchProfile = async () => {
+	const fetchProfile = useCallback(async () => {
 		try {
 			const data = await authService.getProfile();
 			setUser(data);
@@ -52,11 +53,11 @@ export default function ProfilePage() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [logout, reset, router, setUser]);
 
 	useEffect(() => {
 		fetchProfile();
-	}, []);
+	}, [fetchProfile]);
 
 	const onSubmit = async (data: UpdateProfilePayload) => {
 		try {
@@ -72,10 +73,14 @@ export default function ProfilePage() {
 	};
 
 	const handleDeleteAccount = async () => {
-		await authService.deactivateAccount();
-		logout();
-		router.push(routerPaths.index);
-		showNotification("Your account has been deleted.", "success");
+		try {
+			await authService.deactivateAccount();
+			logout();
+			router.push(routerPaths.index);
+			showNotification("Your account has been deleted.", "success");
+		} catch (error) {
+			showNotification("Failed to delete account.", "error");
+		}
 	};
 
 	if (isLoading || !user) {

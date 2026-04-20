@@ -90,10 +90,16 @@ export default function OrdersPage() {
 	};
 
 	const handleBulkDelete = async (ids: number[]) => {
-		await Promise.all(ids.map(id => adminService.deleteOrder(id)));
-		clearSelection?.();
-		setIsMobileSelectMode(false);
-		fetchOrders();
+		try {
+			await Promise.all(ids.map(id => adminService.deleteOrder(id)));
+			showNotification("Orders deleted successfully", "success");
+		} catch (error) {
+			showNotification("Failed to delete some orders", "error");
+		} finally {
+			clearSelection();
+			setIsMobileSelectMode(false);
+			fetchOrders();
+		}
 	};
 
 	if (loading) {
@@ -119,7 +125,7 @@ export default function OrdersPage() {
 				onBulkDelete={handleBulkDelete}
 				isMobileSelectMode={isMobileSelectMode}
 				onToggleMobileSelect={() => {
-					if (isMobileSelectMode) clearSelection?.();
+					if (isMobileSelectMode) clearSelection();
 					setIsMobileSelectMode(!isMobileSelectMode);
 				}}
 			/>

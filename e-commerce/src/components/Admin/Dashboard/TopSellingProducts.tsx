@@ -1,18 +1,20 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
-import { AdminProduct } from "~/types/admin";
+import { AdminOrder, AdminProduct } from "~/types/admin";
 import { formatPrice } from "~/utils/format";
+import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
 dayjs.extend(isBetween);
 
 export default function TopSellingProducts() {
 	const [allProducts, setAllProducts] = useState<AdminProduct[]>([]);
-	const [allOrders, setAllOrders] = useState<any[]>([]);
+	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");
 
@@ -34,15 +36,7 @@ export default function TopSellingProducts() {
 	}, [fetchData]);
 
 	const data = useMemo(() => {
-		let startDate: dayjs.Dayjs;
-		const endDate = dayjs().endOf("day");
-		if (period === "yearly") {
-			startDate = dayjs().startOf("year");
-		} else if (period === "monthly") {
-			startDate = dayjs().startOf("month");
-		} else {
-			startDate = dayjs().subtract(6, "day").startOf("day");
-		}
+		const { startDate, endDate } = getDateRangeByPeriod(period);
 		const filteredOrders = allOrders.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"));
 		const productSalesMap = new Map<number, { quantity: number; revenue: number }>();
 		filteredOrders.forEach(order => {
@@ -111,31 +105,29 @@ export default function TopSellingProducts() {
 			) : (
 				<div className="flex flex-col gap-4">
 					{data.map(product => {
-						const productLink = `/products/${product.id}`;
 						return (
 							<div
 								key={product.id}
 								className="flex items-center justify-between pb-4 border-b border-gray-100 last:border-0 last:pb-0 group"
 							>
 								<div className="flex items-center gap-4 flex-1">
-									<Link href={productLink} className="flex-shrink-0 cursor-pointer">
+									<Link href={`/products/${product.id}`} className="flex-shrink-0 cursor-pointer">
 										<div
 											className="rounded-xl bg-gray-50 overflow-hidden border border-gray-100 shadow-sm"
 											style={{ width: "64px", height: "64px", minWidth: "64px" }}
 										>
-											<img
+											<Image
 												src={product.image}
 												alt={product.name}
+												width={64}
+												height={64}
 												className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-												onError={e => {
-													(e.target as HTMLImageElement).src = "/images/placeholder-product.png";
-												}}
 											/>
 										</div>
 									</Link>
 
 									<div className="flex flex-col">
-										<Link href={productLink}>
+										<Link href={`/products/${product.id}`}>
 											<h3 className="text-base font-bold text-gray-800 hover:text-blue-600 transition-colors line-clamp-1 cursor-pointer">
 												{product.name}
 											</h3>

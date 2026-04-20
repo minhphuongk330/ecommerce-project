@@ -1,15 +1,18 @@
 "use client";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
 import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { formatPrice } from "~/utils/format";
+import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
 dayjs.extend(isBetween);
+
+const ITEMS_PER_PAGE = 5;
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 	pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
@@ -19,15 +22,14 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 	cancelled: { bg: "bg-red-100", text: "text-red-700" },
 };
 
-const RecentOrders = memo(() => {
+export default function RecentOrders() {
 	const [allOrders, setAllOrders] = useState<AdminOrder[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [period, setPeriod] = useState<Period>("weekly");
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 5;
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
-	const fetchOrders = useCallback(async () => {
+	const fetchOrders = async () => {
 		try {
 			setLoading(true);
 			const orders = await adminService.getOrders();
@@ -37,30 +39,28 @@ const RecentOrders = memo(() => {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	};
 
 	useEffect(() => {
 		fetchOrders();
-	}, [fetchOrders]);
-
-	const filteredAndSortedOrders = useMemo(() => {
-		let startDate: dayjs.Dayjs;
-		const endDate = dayjs().endOf("day");
-		if (period === "yearly") startDate = dayjs().startOf("year");
-		else if (period === "monthly") startDate = dayjs().startOf("month");
-		else startDate = dayjs().subtract(6, "day").startOf("day");
-
-		return allOrders
-			.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"))
-			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-	}, [period, allOrders]);
+	}, []);
 
 	useEffect(() => {
 		setCurrentPage(1);
 	}, [period]);
 
-	const totalPages = Math.ceil(filteredAndSortedOrders.length / itemsPerPage);
-	const paginatedOrders = filteredAndSortedOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+	const filteredAndSortedOrders = useMemo(() => {
+		const { startDate, endDate } = getDateRangeByPeriod(period);
+		return allOrders
+			.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"))
+			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+	}, [period, allOrders]);
+
+	const totalPages = Math.ceil(filteredAndSortedOrders.length / ITEMS_PER_PAGE);
+	const paginatedOrders = filteredAndSortedOrders.slice(
+		(currentPage - 1) * ITEMS_PER_PAGE,
+		currentPage * ITEMS_PER_PAGE,
+	);
 
 	if (loading) return <div className="bg-white p-6 rounded-xl shadow-md min-h-[465px]">Loading...</div>;
 
@@ -130,6 +130,4 @@ const RecentOrders = memo(() => {
 			<OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
 		</>
 	);
-});
-
-export default RecentOrders;
+}
