@@ -17,7 +17,6 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 	const searchParams = useSearchParams();
 	const currentSort = searchParams.get("sort") || null;
 	const currentPrice = currentSort === "price_asc" || currentSort === "price_desc" ? currentSort : null;
-
 	const mobileContext = useMobileFilter();
 
 	const handleSortChange = (newValue: string) => {

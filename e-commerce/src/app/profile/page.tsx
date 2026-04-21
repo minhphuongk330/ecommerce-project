@@ -28,7 +28,6 @@ export default function ProfilePage() {
 		resolver: zodResolver(updateProfileSchema) as any,
 		defaultValues: {
 			fullName: "",
-			
 			phoneNumber: "",
 			gender: undefined,
 			dateOfBirth: "",

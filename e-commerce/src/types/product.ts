@@ -45,7 +45,6 @@ export interface Product {
 export interface ProductDetail extends Product {
 	productImages: ProductImage[];
 	productColors: ProductColor[];
-	capacities?: string[];
 	originalPrice?: number;
 	specs?: {
 		screen: string;

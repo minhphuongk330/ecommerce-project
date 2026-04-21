@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTableFilter } from "~/hooks/useTableFilter";
 import { FilterConfig, FilterState } from "~/types/filter";
 
@@ -13,11 +13,6 @@ export function useAdminTableManager<T extends { id: number }>(config: AdminTabl
 	const [allData, setAllData] = useState<T[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-
-	const onFetchErrorRef = useRef(config.onFetchError);
-	useEffect(() => {
-		onFetchErrorRef.current = config.onFetchError;
-	}, [config.onFetchError]);
 
 	const { filteredData, filterState, setFilterValue, resetFilters, isFiltered } = useTableFilter({
 		data: allData,
@@ -35,11 +30,11 @@ export function useAdminTableManager<T extends { id: number }>(config: AdminTabl
 			setAllData(data);
 		} catch (error) {
 			console.error("Fetch error:", error);
-			onFetchErrorRef.current?.(error);
+			config.onFetchError?.(error);
 		} finally {
 			setLoading(false);
 		}
-	}, [config.fetchFn]);
+	}, [config.fetchFn, config.onFetchError]);
 
 	useEffect(() => {
 		fetchData();

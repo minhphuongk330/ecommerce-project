@@ -26,6 +26,7 @@ export const useProductFilter = (
 		});
 		return filters;
 	}, [searchParams]);
+	
 	const currentPage = useMemo(() => {
 		const page = searchParams.get("page");
 		return page ? Math.max(1, parseInt(page, 10)) : 1;

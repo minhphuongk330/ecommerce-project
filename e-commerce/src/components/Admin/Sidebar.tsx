@@ -1,14 +1,10 @@
 "use client";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
-import Dashboard from "@mui/icons-material/Dashboard";
-import Home from "@mui/icons-material/Home";
-import People from "@mui/icons-material/People";
-import ShoppingBag from "@mui/icons-material/ShoppingBag";
-import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { routerPaths } from "~/utils/router";
+import { ADMIN_NAV_ITEMS } from "~/utils/admin/navItems";
 import CommonIconButton from "../atoms/IconButton";
 
 interface SidebarProps {
@@ -16,13 +12,7 @@ interface SidebarProps {
 	toggleSidebar: () => void;
 }
 
-const MENU_ITEMS = [
-	{ name: "Dashboard", path: routerPaths.adminDashboard, icon: <Dashboard /> },
-	{ name: "Products", path: routerPaths.adminProducts, icon: <ShoppingBag /> },
-	{ name: "Orders", path: routerPaths.adminOrders, icon: <ShoppingCart /> },
-	{ name: "Customers", path: routerPaths.adminCustomers, icon: <People /> },
-	{ name: "Home", path: routerPaths.index, icon: <Home /> },
-];
+const MENU_ITEMS = ADMIN_NAV_ITEMS;
 
 export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 	const pathname = usePathname();
@@ -49,7 +39,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
 				<div className="flex-1 py-6 space-y-1 overflow-y-auto custom-scrollbar">
 					{MENU_ITEMS.map(item => {
-						const isActive = item.path === routerPaths.index ? pathname === item.path : pathname.startsWith(item.path);
+						const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
 
 						return (
 							<Link

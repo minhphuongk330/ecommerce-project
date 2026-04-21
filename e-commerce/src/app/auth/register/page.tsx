@@ -128,7 +128,7 @@ export default function RegisterPage() {
 						<Typography variant="body2" align="center" sx={{ mt: 3, color: "text.secondary" }}>
 							Have ready an account ?
 							<MuiLink
-							onClick={() => router.push(routerPaths.login)}
+								onClick={() => router.push(routerPaths.login)}
 								underline="hover"
 								sx={{ ml: 0.5, fontWeight: "bold", cursor: "pointer", color: "primary.main" }}
 							>

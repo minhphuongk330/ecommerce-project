@@ -40,7 +40,7 @@ export interface CartContextType {
 
 export interface CartState {
 	cartItems: CartItemType[];
-	addToCart: (product: Product, color: string, capacity: string) => void;
+	addToCart: (product: Product, color: string) => void;
 	removeFromCart: (cartItemId: number) => void;
 	increaseQuantity: (cartItemId: number) => void;
 	decreaseQuantity: (cartItemId: number) => void;

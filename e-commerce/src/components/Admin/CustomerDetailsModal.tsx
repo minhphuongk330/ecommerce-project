@@ -79,13 +79,10 @@ const ModalFooter = ({ onClose }: { onClose: () => void }) => {
 
 const CustomerDetailsModal = ({ customer, onClose }: CustomerDetailsModalProps) => {
 	const [mounted, setMounted] = useState(false);
-
 	useEffect(() => {
 		setMounted(true);
 	}, []);
-
 	useScrollLock(!!customer);
-
 	if (!mounted || !customer) return null;
 
 	return createPortal(

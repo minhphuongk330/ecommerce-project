@@ -32,7 +32,6 @@ export default function AddressPage() {
 		}
 
 		const address = addresses.find(a => a.id === selectedAddressId);
-
 		if (address) {
 			setSelectedAddress(address);
 			router.push(routerPaths.shipping);

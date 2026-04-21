@@ -73,7 +73,9 @@ function ProductsContent() {
 						</>
 					) : (
 						<>
-							<div className={`w-full md:w-[256px] md:min-w-[256px] flex-shrink-0 ${!categoryId ? "md:sticky md:top-[81px] md:self-start" : ""}`}>
+							<div
+								className={`w-full md:w-[256px] md:min-w-[256px] flex-shrink-0 ${!categoryId ? "md:sticky md:top-[81px] md:self-start" : ""}`}
+							>
 								<Filters selectedFilters={selectedFilters} toggleFilter={toggleFilter} categoryId={categoryId} />
 							</div>
 							<ProductListArea

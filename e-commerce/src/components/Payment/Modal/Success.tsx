@@ -14,9 +14,7 @@ export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: 
 		<BaseDialog isOpen={isOpen} onClose={() => {}} width={450}>
 			<div className="flex flex-col items-center text-center">
 				<CheckCircleOutline sx={{ fontSize: 80 }} className="text-green-500 mb-6" />
-
 				<h3 className="text-[28px] font-bold text-black mb-3 leading-tight">Payment Successful!</h3>
-
 				<p className="mb-8 text-[16px] text-gray-600">
 					Thank you for your order. Your transaction has been completed successfully.
 				</p>

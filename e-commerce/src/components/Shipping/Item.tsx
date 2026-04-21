@@ -29,7 +29,9 @@ const ShippingListItem = ({
 		return calculateSchedulePrice(days);
 	}, [scheduledDate, isSchedule]);
 
-	const containerClass = isSelected ? "border-black bg-white shadow-sm" : "border-[#EBEBEB] bg-white hover:border-gray-300";
+	const containerClass = isSelected
+		? "border-black bg-white shadow-sm"
+		: "border-[#EBEBEB] bg-white hover:border-gray-300";
 	const radioClass = isSelected ? "border-black" : "border-[#D1D1D1]";
 	const textColorClass = isSelected ? "text-black" : "text-[#717171]";
 	const titleWeightClass = isSelected ? "font-bold" : "font-normal";

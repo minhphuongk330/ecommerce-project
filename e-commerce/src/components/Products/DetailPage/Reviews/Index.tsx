@@ -35,7 +35,7 @@ export default function ProductReviews({ productId: rawProductId }: ProductRevie
 				setIsLoading(false);
 			}
 		},
-		[productId]
+		[productId],
 	);
 
 	useEffect(() => {

@@ -9,19 +9,19 @@ export default function LowStockAlert() {
 	const [products, setProducts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const fetchLowStockProducts = async () => {
-			try {
-				setLoading(true);
-				const products = await adminService.getLowStockProducts(LOW_STOCK_THRESHOLD);
-				setProducts(products);
-			} catch (error) {
-				console.error("Error fetching low stock products:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
+	const fetchLowStockProducts = async () => {
+		try {
+			setLoading(true);
+			const products = await adminService.getLowStockProducts(LOW_STOCK_THRESHOLD);
+			setProducts(products);
+		} catch (error) {
+			console.error("Error fetching low stock products:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
+	useEffect(() => {
 		fetchLowStockProducts();
 	}, []);
 

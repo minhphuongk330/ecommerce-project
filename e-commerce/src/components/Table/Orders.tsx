@@ -257,13 +257,17 @@ export default function OrdersTable({
 										<div className="flex items-center justify-between pt-2 mt-1 border-t border-gray-50">
 											<span className="text-lg font-bold text-black">{formatPrice(order.totalAmount)}</span>
 
-											<div className={`w-[130px] ${isFinalStatus ? "pointer-events-none opacity-60" : ""}`}>
-												<Dropdown
-													value={order.status}
-													options={STATUS_OPTIONS}
-													onChange={val => onStatusChange(order.id, val)}
-													className="!w-full !h-[36px] text-xs shadow-sm !border-gray-200"
-												/>
+											<div className="w-[130px]">
+												{isFinalStatus ? (
+													<StatusChip label={order.status} color={STATUS_COLORS[order.status] || "default"} />
+												) : (
+													<Dropdown
+														value={order.status}
+														options={STATUS_OPTIONS}
+														onChange={val => onStatusChange(order.id, val)}
+														className="!w-full !h-[36px] text-xs shadow-sm !border-gray-200"
+													/>
+												)}
 											</div>
 										</div>
 									</div>

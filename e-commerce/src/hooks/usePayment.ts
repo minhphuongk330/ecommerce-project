@@ -20,7 +20,6 @@ export const usePayment = () => {
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 	const [isPaid, setIsPaid] = useState(false);
-
 	const shouldRedirectToCart = cartItems.length === 0 && !isPaid;
 	const shouldRedirectToCheckout = !isPaid && !shouldRedirectToCart && (!selectedAddress || !selectedShippingMethod);
 	const isRedirecting = shouldRedirectToCart || shouldRedirectToCheckout;

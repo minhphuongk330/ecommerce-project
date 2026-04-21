@@ -60,7 +60,6 @@ export default function LoginPage() {
 		}
 	};
 
-
 	return (
 		<Box sx={{ py: { xs: 4, md: 6 }, bgcolor: "background.default" }}>
 			<ForgotPasswordModal open={isForgotModalOpen} onClose={() => setForgotModalOpen(false)} />

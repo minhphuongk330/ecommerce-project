@@ -144,13 +144,10 @@ const ModalFooter = ({ onClose }: { onClose: () => void }) => {
 
 const OrderDetailsModal = ({ order, onClose }: OrderDetailsModalProps) => {
 	const [mounted, setMounted] = useState(false);
-
 	useEffect(() => {
 		setMounted(true);
 	}, []);
-
 	useScrollLock(!!order);
-
 	if (!mounted || !order) return null;
 
 	return createPortal(

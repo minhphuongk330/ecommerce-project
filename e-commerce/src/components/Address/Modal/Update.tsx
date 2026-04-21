@@ -66,7 +66,13 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 				<EditOutlined sx={{ fontSize: 24 }} />
 			</button>
 
-			<BaseDialog isOpen={isOpen} onClose={() => setIsOpen(false)} title="Update Address" showCloseIcon={true} width={600}>
+			<BaseDialog
+				isOpen={isOpen}
+				onClose={() => setIsOpen(false)}
+				title="Update Address"
+				showCloseIcon={true}
+				width={600}
+			>
 				<div className="flex flex-col lg:block">
 					<div className="flex-1 overflow-y-auto max-h-[60vh] p-1 lg:max-h-none lg:overflow-visible">
 						<AddressForm control={control} />

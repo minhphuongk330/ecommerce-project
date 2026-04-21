@@ -57,9 +57,7 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 				setLoading(true);
 				const allAttributes = await attributeService.getAllAttributes();
 				setFilterCategories(
-					allAttributes
-						.filter(attr => Number(attr.categoryId) === Number(categoryId))
-						.map(transformAttributeToFilter),
+					allAttributes.filter(attr => Number(attr.categoryId) === Number(categoryId)).map(transformAttributeToFilter),
 				);
 			} catch (error) {
 				console.error("Failed to fetch filter attributes", error);

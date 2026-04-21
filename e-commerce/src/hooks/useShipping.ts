@@ -35,9 +35,7 @@ export const useShipping = () => {
 
 		if (method) {
 			setSelectedShippingMethod(method);
-
 			setCtxDate(methodId === "schedule" ? date : null);
-
 			router.push(routerPaths.payment);
 		} else {
 			showNotification("Invalid shipping method selected.", "error");

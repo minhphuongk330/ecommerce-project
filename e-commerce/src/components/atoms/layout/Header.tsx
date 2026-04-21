@@ -42,16 +42,12 @@ const Header: React.FC = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const scrollDirection = useScrollDirection();
 	const isHidden = scrollDirection === "down";
-
 	const [isMounted, setIsMounted] = useState(false);
-
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
-
 	const cartItems = useCartStore(state => state.cartItems);
 	const favorites = useFavoriteStore(state => state.favorites);
-
 	const user = useAuthStore(state => state.user);
 	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 	const { logout, setUser } = useAuthStore();

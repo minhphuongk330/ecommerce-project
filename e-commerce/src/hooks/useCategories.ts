@@ -16,9 +16,7 @@ export const useCategories = () => {
 				setIsLoading(false);
 				return;
 			}
-
 			const data = await categoryService.getCategories();
-
 			categoryCache.set("categories", data);
 			setCategories(data);
 		} catch (err: unknown) {

@@ -81,7 +81,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 			<CssBaseline />
 			<NotificationProvider>
 				{!isAdminPage && <Header />}
-				<main suppressHydrationWarning style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>{children}</main>
+				<main suppressHydrationWarning style={{ minHeight: "calc(85vh - 64px)", flexGrow: 1 }}>
+					{children}
+				</main>
 				{!isAdminPage && <Footer />}
 				<BackToTop />
 			</NotificationProvider>

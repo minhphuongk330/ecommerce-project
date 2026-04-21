@@ -1,23 +1,9 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import People from "@mui/icons-material/People";
-import Dashboard from "@mui/icons-material/Dashboard";
-import ShoppingBag from "@mui/icons-material/ShoppingBag";
-import ShoppingCart from "@mui/icons-material/ShoppingCart";
 import { useAuthStore } from "~/stores/useAuth";
 import UserAvatar from "~/components/atoms/UserAvatar";
-import { routerPaths } from "~/utils/router";
-
-import HomeOutlined from "@mui/icons-material/HomeOutlined";
-
-const NAV_ICONS = [
-	{ path: routerPaths.adminDashboard, icon: <Dashboard fontSize="small" /> },
-	{ path: routerPaths.adminProducts, icon: <ShoppingBag fontSize="small" /> },
-	{ path: routerPaths.adminOrders, icon: <ShoppingCart fontSize="small" /> },
-	{ path: routerPaths.adminCustomers, icon: <People fontSize="small" /> },
-	{ path: routerPaths.index, icon: <HomeOutlined fontSize="small" />, exact: true },
-];
+import { ADMIN_NAV_ITEMS } from "~/utils/admin/navItems";
 
 export default function AdminHeader() {
 	const { user } = useAuthStore();
@@ -30,7 +16,7 @@ export default function AdminHeader() {
 			</div>
 
 			<div className="flex md:hidden items-center gap-6">
-				{NAV_ICONS.map((item, index) => {
+				{ADMIN_NAV_ITEMS.map((item, index) => {
 					const isActive = item.exact ? pathname === item.path : pathname.startsWith(item.path);
 					return (
 						<Link

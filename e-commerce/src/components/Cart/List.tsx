@@ -22,7 +22,7 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 
 	return (
 		<div className="flex flex-col">
-			{items.map((item) => {
+			{items.map(item => {
 				const selectedVariant = item.variants?.find((v: any) => Number(v.id) === Number(item.variantId));
 
 				return (

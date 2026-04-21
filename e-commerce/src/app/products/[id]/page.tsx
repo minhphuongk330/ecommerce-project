@@ -44,7 +44,6 @@ export default function ProductDetailsPage() {
 				name: col.colorName,
 				hex: col.colorHex || "#000000",
 			})),
-			capacities: product.capacities || [],
 			specs: product.specs,
 		};
 	}, [product]);

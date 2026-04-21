@@ -39,7 +39,7 @@ export const useShippingMethod = () => {
 				description: "Pick a date when you want to get your delivery",
 			},
 		],
-		[]
+		[],
 	);
 
 	const getMethodById = (id: string) => {

@@ -19,16 +19,21 @@ export default function OrderItem({ order }: OrderItemProps) {
 						<h3 className="font-bold text-base md:text-lg text-black">{order.orderNo}</h3>
 						<span
 							className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border w-fit ${getOrderStatusColor(
-								order.status
+								order.status,
 							)} capitalize`}
 						>
 							{order.status}
 						</span>
 					</div>
-					<p className="text-gray-500 text-xs md:text-sm mt-1">Ordered on: {dayjs(order.createdAt).format("MMM DD, YYYY")}</p>
+					<p className="text-gray-500 text-xs md:text-sm mt-1">
+						Ordered on: {dayjs(order.createdAt).format("MMM DD, YYYY")}
+					</p>
 				</div>
 				<div className="text-left sm:text-right w-full sm:w-auto">
-					<Link href={router.orderDetail(order.id)} className="text-blue-600 text-xs md:text-sm font-medium hover:underline">
+					<Link
+						href={router.orderDetail(order.id)}
+						className="text-blue-600 text-xs md:text-sm font-medium hover:underline"
+					>
 						View Details &rarr;
 					</Link>
 				</div>
@@ -36,10 +41,15 @@ export default function OrderItem({ order }: OrderItemProps) {
 
 			<div className="flex flex-col gap-3 mb-4">
 				{order.orderItems.map(item => (
-					<div key={item.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+					<div
+						key={item.id}
+						className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0"
+					>
 						<div className="flex flex-wrap items-center gap-2 flex-1">
 							<span className="text-gray-600 text-xs md:text-sm font-medium">{item.quantity}x</span>
-							<span className="text-gray-800 text-xs md:text-sm break-words">{item.product?.name || `Product #${item.productId}`}</span>
+							<span className="text-gray-800 text-xs md:text-sm break-words">
+								{item.product?.name || `Product #${item.productId}`}
+							</span>
 							{item.colorId && <span className="text-gray-400 text-xs italic">(Color: {item.colorId})</span>}
 						</div>
 

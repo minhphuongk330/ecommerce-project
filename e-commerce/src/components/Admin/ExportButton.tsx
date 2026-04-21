@@ -51,7 +51,6 @@ const ExportButton = memo<ExportButtonProps<any>>(
 		const [isLoading, setIsLoading] = useState(false);
 		const [isOpen, setIsOpen] = useState(false);
 		const { showNotification } = useNotification();
-
 		const isEmpty = data.length === 0;
 		const isButtonDisabled = disabled || isLoading || isEmpty;
 
@@ -64,7 +63,6 @@ const ExportButton = memo<ExportButtonProps<any>>(
 
 				try {
 					setIsLoading(true);
-
 					if (format === "excel") {
 						downloadExcel({ filename, columns, data });
 						showNotification(`Exported ${data.length} rows to Excel`, "success");
@@ -72,7 +70,6 @@ const ExportButton = memo<ExportButtonProps<any>>(
 						downloadJSON(filename, data);
 						showNotification(`Exported ${data.length} rows to JSON`, "success");
 					}
-
 					setIsOpen(false);
 				} catch (error) {
 					console.error("Export failed:", error);

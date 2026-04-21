@@ -60,13 +60,6 @@ export interface ViewMoreBtnProps {
 	className?: string;
 }
 
-export interface CapacitySelectorProps {
-	capacities: string[];
-	selectedCapacity: string;
-	onSelect: (cap: string) => void;
-	className?: string;
-}
-
 export interface TechnicalSpecsProps {
 	attributes: any;
 	className?: string;

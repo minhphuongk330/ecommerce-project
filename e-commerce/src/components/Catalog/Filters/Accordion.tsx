@@ -14,10 +14,11 @@ const FiltersAccordion = ({ title, children, defaultOpen = false }: AccordionPro
 				className="flex flex-row justify-between items-center py-[12px] h-[48px] cursor-pointer select-none"
 			>
 				<span className="text-black font-medium text-lg border-bottom">{title}</span>
-				{isOpen
-					? <KeyboardArrowUp sx={{ color: "#000", fontSize: 24 }} />
-					: <KeyboardArrowDown sx={{ color: "#000", fontSize: 24 }} />
-				}
+				{isOpen ? (
+					<KeyboardArrowUp sx={{ color: "#000", fontSize: 24 }} />
+				) : (
+					<KeyboardArrowDown sx={{ color: "#000", fontSize: 24 }} />
+				)}
 			</div>
 			{isOpen && <div className="flex flex-col gap-[16px] pb-[24px]">{children}</div>}
 		</div>

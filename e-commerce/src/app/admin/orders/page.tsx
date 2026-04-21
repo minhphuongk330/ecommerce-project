@@ -10,8 +10,6 @@ import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
 import { ORDER_EXPORT_COLUMNS, ORDER_FILTER_CONFIG, ORDER_FILTER_PREDICATES } from "~/utils/admin/orderConfigs";
-import { FINAL_ORDER_STATUSES } from "~/utils/order";
-import { OrderStatus } from "~/types/order";
 
 export default function OrdersPage() {
 	const [confirmModal, setConfirmModal] = useState<{
@@ -57,11 +55,6 @@ export default function OrdersPage() {
 	});
 
 	const onRequestStatusChange = (orderId: number, newStatus: string) => {
-		const currentOrder = allOrders.find(o => o.id === orderId);
-		if (currentOrder && FINAL_ORDER_STATUSES.includes(currentOrder.status as OrderStatus)) {
-			showNotification("Cannot change status of a finalized order.", "error");
-			return;
-		}
 		setConfirmModal({
 			isOpen: true,
 			orderId,

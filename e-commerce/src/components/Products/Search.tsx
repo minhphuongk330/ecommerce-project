@@ -15,27 +15,27 @@ const useActiveCategory = () => {
 	const categoryIdParam = searchParams.get("categoryId");
 	const [category, setCategory] = useState<Category | null>(null);
 
-	useEffect(() => {
-		const fetchCategoryName = async () => {
-			if (!categoryIdParam) {
-				setCategory(null);
-				return;
-			}
-			try {
-				const categories = await categoryService.getCategories();
-				const found = categories.find(c => String(c.id) == String(categoryIdParam));
-				if (found) {
-					setCategory(found);
-				} else {
-					setCategory({ id: Number(categoryIdParam), name: "Category", thumbnailUrl: "" } as Category);
-				}
-			} catch (error) {
+	const fetchCategoryName = async () => {
+		if (!categoryIdParam) {
+			setCategory(null);
+			return;
+		}
+		try {
+			const categories = await categoryService.getCategories();
+			const found = categories.find(c => String(c.id) == String(categoryIdParam));
+			if (found) {
+				setCategory(found);
+			} else {
 				setCategory({ id: Number(categoryIdParam), name: "Category", thumbnailUrl: "" } as Category);
 			}
-		};
+		} catch (error) {
+			setCategory({ id: Number(categoryIdParam), name: "Category", thumbnailUrl: "" } as Category);
+		}
+	};
+
+	useEffect(() => {
 		fetchCategoryName();
 	}, [categoryIdParam]);
-
 	return category;
 };
 

@@ -13,7 +13,13 @@ interface BulkDeleteButtonProps {
 	hideIcon?: boolean;
 }
 
-export default function BulkDeleteButton({ selectedIds, onDelete, label = "Delete", className, hideIcon = false }: BulkDeleteButtonProps) {
+export default function BulkDeleteButton({
+	selectedIds,
+	onDelete,
+	label = "Delete",
+	className,
+	hideIcon = false,
+}: BulkDeleteButtonProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const { showNotification } = useNotification();
 	const count = selectedIds.size;
