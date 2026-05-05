@@ -35,14 +35,11 @@ export const useProductFilter = (
 	const toggleFilter = (filterKey: string, itemValue: string) => {
 		const currentParams = new URLSearchParams(searchParams.toString());
 		const currentValues = currentParams.get(filterKey)?.split(",") || [];
-
 		let newValues = currentValues.includes(itemValue)
 			? currentValues.filter(v => v !== itemValue)
 			: [...currentValues, itemValue];
-
 		if (newValues.length > 0) currentParams.set(filterKey, newValues.join(","));
 		else currentParams.delete(filterKey);
-
 		currentParams.delete("page");
 		router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
 	};

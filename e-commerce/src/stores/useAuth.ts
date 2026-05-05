@@ -10,6 +10,7 @@ interface AuthState {
 	setAuthSuccess: (data: { user: User | UserProfile; accessToken: string; refreshToken: string }) => void;
 	logout: () => void;
 	setAccessToken: (token: string) => void;
+	setRefreshToken: (token: string) => void;
 	setUser: (user: User | UserProfile) => void;
 }
 
@@ -35,6 +36,10 @@ export const useAuthStore = create<AuthState>()(
 
 			setAccessToken: token => {
 				set({ accessToken: token });
+			},
+
+			setRefreshToken: token => {
+				set({ refreshToken: token });
 			},
 
 			logout: () => {

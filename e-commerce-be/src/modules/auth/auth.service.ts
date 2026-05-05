@@ -22,6 +22,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { Role } from '../../entities/customer.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,28 @@ export class AuthService {
     private readonly jwtService: JwtService,
 
     private readonly mailerService: MailerService,
+
+    private readonly configService: ConfigService,
   ) {}
+
+  private generateTokens(customer: Customer): { accessToken: string; refreshToken: string } {
+    const payload = {
+      sub: customer.id,
+      email: customer.email,
+      role: customer.role,
+    };
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: (this.configService.get<string>('JWT_EXPIRES_IN') || '15m') as any,
+    });
+    const refreshToken = this.jwtService.sign(
+      { sub: customer.id },
+      {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || 'your-refresh-secret-key',
+        expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d') as any,
+      },
+    );
+    return { accessToken, refreshToken };
+  }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     const { email, password, fullName } = registerDto;
@@ -59,16 +81,11 @@ export class AuthService {
 
     const savedCustomer = await this.customerRepository.save(customer);
 
-    const payload = {
-      sub: savedCustomer.id,
-      email: savedCustomer.email,
-      role: savedCustomer.role,
-    };
-
-    const accessToken = this.jwtService.sign(payload);
+    const { accessToken, refreshToken } = this.generateTokens(savedCustomer);
 
     return {
       accessToken,
+      refreshToken,
       customer: {
         id: savedCustomer.id,
         email: savedCustomer.email,
@@ -111,15 +128,11 @@ export class AuthService {
       );
     }
 
-    const payload = {
-      sub: customer.id,
-      email: customer.email,
-      role: customer.role,
-    };
-    const accessToken = this.jwtService.sign(payload);
+    const { accessToken, refreshToken } = this.generateTokens(customer);
 
     return {
       accessToken,
+      refreshToken,
       customer: {
         id: customer.id,
         email: customer.email,
@@ -252,8 +265,25 @@ export class AuthService {
     return { message: 'Account deactivated successfully' };
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
-    const { email, otp, newPassword, confirmPassword } = dto;
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET') || 'your-refresh-secret-key',
+      });
+      const customer = await this.customerRepository.findOne({
+        where: { id: payload.sub },
+      });
+      if (!customer || !customer.isActive) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      const tokens = this.generateTokens(customer);
+      return tokens;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {    const { email, otp, newPassword, confirmPassword } = dto;
     if (newPassword !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
     }

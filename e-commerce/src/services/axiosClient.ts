@@ -41,12 +41,15 @@ axiosClient.interceptors.response.use(
 				const refreshToken = useAuthStore.getState().refreshToken;
 				if (!refreshToken) throw new Error("No refresh token available");
 
-				const result = await axios.post(API_URL, {
+				const result = await axios.post(`${API_URL}/auth/refresh`, {
 					refreshToken: refreshToken,
 				});
 
-				const { accessToken } = result.data;
+				const { accessToken, refreshToken: newRefreshToken } = result.data;
 				useAuthStore.getState().setAccessToken(accessToken);
+				if (newRefreshToken) {
+					useAuthStore.getState().setRefreshToken(newRefreshToken);
+				}
 				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 				return axiosClient(originalRequest);
 			} catch (refreshError) {

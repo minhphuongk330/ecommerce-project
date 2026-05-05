@@ -29,6 +29,7 @@ function CartContent() {
 	const { showNotification } = useNotification();
 	const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 	const pendingQuantity = useRef<Record<number, number>>({});
+	const originalQuantity = useRef<Record<number, number>>({});
 
 	const { subtotal, total, tax, shipping } = useMemo(() => {
 		const subtotal = cartItems.reduce((sum, item) => {
@@ -53,10 +54,8 @@ function CartContent() {
 			const items = useCartStore.getState().cartItems;
 			const item = items.find(i => i.cartItemId === cartItemId);
 			if (!item) return;
-
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
 			if (delta === -1 && current <= 1) return;
-
 			if (delta === 1) {
 				const activeVariant = item.variantId
 					? item.variants?.find((v: any) => Number(v.id) === Number(item.variantId))
@@ -70,6 +69,9 @@ function CartContent() {
 
 			const next = current + delta;
 			pendingQuantity.current[cartItemId] = next;
+			if (originalQuantity.current[cartItemId] === undefined) {
+				originalQuantity.current[cartItemId] = item.quantity;
+			}
 			useCartStore.setState({
 				cartItems: items.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: next } : i)),
 			});
@@ -82,11 +84,14 @@ function CartContent() {
 					useCartStore.setState({
 						cartItems: useCartStore
 							.getState()
-							.cartItems.map(i => (i.cartItemId === cartItemId ? { ...i, quantity: item.quantity } : i)),
+							.cartItems.map(i =>
+								i.cartItemId === cartItemId ? { ...i, quantity: originalQuantity.current[cartItemId] } : i,
+							),
 					});
 					showNotification(error?.response?.data?.message || "Failed to update quantity", "error");
 				} finally {
 					delete pendingQuantity.current[cartItemId];
+					delete originalQuantity.current[cartItemId];
 				}
 			}, 600);
 		},
