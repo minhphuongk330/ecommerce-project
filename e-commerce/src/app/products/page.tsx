@@ -6,6 +6,7 @@ import ProductListArea from "~/components/Catalog/ProductsArea/Index";
 import { FilterSkeleton, ProductGridSkeleton } from "~/components/Skeletons";
 import { useBreadcrumb } from "~/contexts/BreadcrumbContext";
 import { MobileFilterProvider } from "~/contexts/MobileFilterContext";
+import { useCategories } from "~/hooks/useCategories";
 import { useProductFilter } from "~/hooks/useProductFilter";
 import { useProducts } from "~/hooks/useProducts";
 import { routerPaths } from "~/utils/router";
@@ -31,14 +32,15 @@ function ProductsContent() {
 		if (!isLoading) setInitialLoaded(true);
 	}, [isLoading]);
 	const { setBreadcrumbs } = useBreadcrumb();
+	const { categories } = useCategories();
 
 	const categoryLabel = useMemo(() => {
-		if (categoryId && allProducts?.length > 0) {
-			const foundProduct = allProducts.find(p => Number(p.categoryId) === categoryId);
-			return foundProduct?.category?.name || "Products";
+		if (categoryId) {
+			const foundCategory = categories.find(c => c.id === categoryId);
+			return foundCategory?.name || "Products";
 		}
 		return "Products";
-	}, [categoryId, allProducts]);
+	}, [categoryId, categories]);
 	const {
 		selectedFilters,
 		toggleFilter,
@@ -50,13 +52,11 @@ function ProductsContent() {
 	} = useProductFilter(allProducts, totalCount, { itemsPerPage: isMobile ? 10 : 9 });
 
 	useEffect(() => {
-		if (!isLoading && allProducts?.length > 0) {
-			setBreadcrumbs([
-				{ label: "Home", href: routerPaths.index },
-				{ label: categoryLabel, href: routerPaths.productDetail },
-			]);
-		}
-	}, [categoryLabel, setBreadcrumbs, isLoading, allProducts]);
+		setBreadcrumbs([
+			{ label: "Home", href: routerPaths.index },
+			{ label: categoryLabel, href: routerPaths.productDetail },
+		]);
+	}, [categoryLabel, setBreadcrumbs]);
 
 	return (
 		<MobileFilterProvider>

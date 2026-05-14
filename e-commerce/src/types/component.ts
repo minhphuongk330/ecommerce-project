@@ -1,16 +1,7 @@
-import { Product } from "./product";
 import React from "react";
-import { ProductDetail } from "./product";
-import { Color } from "./common";
 import { PaginationProps } from "./catalog";
-
-export interface ProductVariant {
-	id: number;
-	sku?: string;
-	price: number | string;
-	stock: number;
-	options?: any;
-}
+import { Color } from "./common";
+import { Product, ProductDetail } from "./product";
 
 export interface ArrowButtonProps {
 	onPrev?: () => void;
@@ -104,6 +95,5 @@ export interface ProductDetailUI extends ProductDetail {
 		hex: string;
 		id?: number;
 	}[];
-	variants?: ProductVariant[];
 	attributes?: any;
 }

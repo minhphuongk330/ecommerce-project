@@ -85,9 +85,9 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 			await handleSendOtp(data.email);
 			setEmail(data.email);
 			setStep(2);
-			showNotification("OTP sent to your email", "success");
+			showNotification("Đã gửi mã OTP đến email của bạn", "success");
 		} catch (error: any) {
-			showNotification(error?.response?.data?.message || "Failed to send OTP", "error");
+			showNotification(error?.response?.data?.message || "Gửi OTP thất bại", "error");
 		}
 	};
 
@@ -95,9 +95,9 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 		if (resendCountdown > 0) return;
 		try {
 			await handleSendOtp(email);
-			showNotification("OTP resent to your email", "success");
+			showNotification("Đã gửi lại mã OTP", "success");
 		} catch (error: any) {
-			showNotification(error?.response?.data?.message || "Failed to resend OTP", "error");
+			showNotification(error?.response?.data?.message || "Gửi lại OTP thất bại", "error");
 		}
 	};
 
@@ -114,27 +114,24 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 				newPassword: data.newPassword,
 				confirmPassword: data.confirmPassword,
 			});
-			showNotification("Password reset successfully! Please login.", "success");
+			showNotification("Đặt lại mật khẩu thành công! Vui lòng đăng nhập.", "success");
 			handleClose();
 		} catch (error: any) {
-			showNotification(error?.response?.data?.message || "Reset failed", "error");
+			showNotification(error?.response?.data?.message || "Đặt lại mật khẩu thất bại", "error");
 		}
 	};
 
 	const stepTitles: Record<Step, string> = {
-		1: "Forgot Password",
-		2: "Enter OTP",
-		3: "Reset Password",
+		1: "Quên mật khẩu",
+		2: "Nhập mã OTP",
+		3: "Đặt lại mật khẩu",
 	};
 
 	return (
 		<Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 			<DialogTitle sx={{ fontWeight: "bold", pr: 6 }}>
 				{stepTitles[step]}
-				<IconButton
-					onClick={handleClose}
-					sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}
-				>
+				<IconButton onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}>
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
@@ -143,11 +140,11 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 				{step === 1 && (
 					<Box component="form" onSubmit={emailForm.handleSubmit(onSubmitEmail)} sx={{ mt: 1 }}>
 						<Typography variant="body2" sx={{ mb: 2 }}>
-							Enter your email address and we'll send you an OTP code to reset your password.
+							Nhập địa chỉ email của bạn, chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.
 						</Typography>
 						<TextField
 							fullWidth
-							label="Email Address"
+							label="Địa chỉ Email"
 							type="email"
 							{...emailForm.register("email")}
 							error={!!emailForm.formState.errors.email}
@@ -161,7 +158,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 							sx={{ mt: 3, mb: 1, py: 1.5, borderRadius: "25px", bgcolor: "black" }}
 							disabled={emailForm.formState.isSubmitting}
 						>
-							{emailForm.formState.isSubmitting ? "Sending..." : "Send OTP"}
+							{emailForm.formState.isSubmitting ? "Đang gửi..." : "Gửi mã OTP"}
 						</Button>
 					</Box>
 				)}
@@ -169,11 +166,11 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 				{step === 2 && (
 					<Box component="form" onSubmit={otpForm.handleSubmit(onSubmitOtp)} sx={{ mt: 1 }}>
 						<Alert severity="info" sx={{ mb: 2 }}>
-							OTP sent to <b>{email}</b>
+							Đã gửi mã OTP đến <b>{email}</b>
 						</Alert>
 						<TextField
 							fullWidth
-							label="OTP Code (6 digits)"
+							label="Mã OTP (6 chữ số)"
 							{...otpForm.register("otp")}
 							error={!!otpForm.formState.errors.otp}
 							helperText={otpForm.formState.errors.otp?.message}
@@ -186,7 +183,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 											disabled={resendCountdown > 0}
 											sx={{ whiteSpace: "nowrap", minWidth: "auto" }}
 										>
-											{resendCountdown > 0 ? `${resendCountdown}s` : "Resend"}
+											{resendCountdown > 0 ? `${resendCountdown}s` : "Gửi lại"}
 										</Button>
 									</InputAdornment>
 								),
@@ -198,10 +195,10 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 							variant="contained"
 							sx={{ mt: 3, mb: 1, py: 1.5, borderRadius: "25px", bgcolor: "black" }}
 						>
-							Next
+							Tiếp theo
 						</Button>
 						<Button fullWidth onClick={() => setStep(1)}>
-							Back
+							Quay lại
 						</Button>
 					</Box>
 				)}
@@ -210,7 +207,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 					<Box component="form" onSubmit={passwordForm.handleSubmit(onSubmitPassword)} sx={{ mt: 1 }}>
 						<TextField
 							fullWidth
-							label="New Password"
+							label="Mật khẩu mới"
 							type="password"
 							{...passwordForm.register("newPassword")}
 							error={!!passwordForm.formState.errors.newPassword}
@@ -219,7 +216,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 						/>
 						<TextField
 							fullWidth
-							label="Confirm Password"
+							label="Xác nhận mật khẩu"
 							type="password"
 							{...passwordForm.register("confirmPassword")}
 							error={!!passwordForm.formState.errors.confirmPassword}
@@ -232,7 +229,7 @@ export default function ForgotPasswordModal({ open, onClose }: Props) {
 							sx={{ mt: 3, mb: 1, py: 1.5, borderRadius: "25px", bgcolor: "black" }}
 							disabled={passwordForm.formState.isSubmitting}
 						>
-							{passwordForm.formState.isSubmitting ? "Processing..." : "Reset Password"}
+							{passwordForm.formState.isSubmitting ? "Đang xử lý..." : "Đặt lại mật khẩu"}
 						</Button>
 					</Box>
 				)}

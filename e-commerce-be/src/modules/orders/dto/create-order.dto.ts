@@ -3,7 +3,6 @@ export class OrderItemDto {
   quantity: number;
   unitPrice: number;
   colorId?: string;
-  variantId?: number; 
 }
 
 export class CreateOrderDto {
@@ -12,11 +11,16 @@ export class CreateOrderDto {
   addressId: number;
   status?: string;
   discount?: number;
+  shippingDiscount?: number;
   totalAmount?: number;
   note?: string;
   orderItems?: OrderItemDto[];
   subtotal?: number;
-  taxAmount?: number
+  taxAmount?: number;
   shippingCost?: number;
-  scheduleDeliveryDate?: string; 
+  scheduleDeliveryDate?: string;
+  // Payment
+  paymentMethod?: 'COD' | 'VNPAY';
+  appliedCouponCode?: string;
+  appliedShippingCouponCode?: string;
 }

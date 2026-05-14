@@ -2,53 +2,56 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import StepButton from "~/components/checkout/Button";
-import PaymentSummary from "~/components/Payment/Index";
+import SummaryCard from "~/components/Payment/SummaryCard";
+import CouponSelector from "~/components/Payment/CouponSelector";
+import PaymentMethodSelector from "~/components/Payment/PaymentMethod";
 import { usePayment } from "~/hooks/usePayment";
 
-const SuccessModalLazy = dynamic(() => import("~/components/Payment/Modal/Success"), {
-	loading: () => null,
-});
 
 export default function PaymentPage() {
 	const {
 		isProcessing,
-		isSuccessModalOpen,
 		isRedirecting,
 		handlePay,
-		handleRedirectHome,
-		handleContinueShopping,
 		handleBack,
 	} = usePayment();
 
 	if (isRedirecting) return null;
 
 	return (
-		<div className="w-full flex flex-col items-center px-4 md:px-0">
-			{isSuccessModalOpen ? (
-				<Suspense fallback={null}>
-					<SuccessModalLazy
-						isOpen={isSuccessModalOpen}
-						onConfirm={handleRedirectHome}
-						onContinueShopping={handleContinueShopping}
-					/>
-				</Suspense>
-			) : (
-				<div className="w-full max-w-[700px] flex flex-col gap-6 md:gap-[32px]">
-					<PaymentSummary />
+		<div className="w-full px-4 md:px-0">
+			<div className="w-full max-w-[1000px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+				{/* Cột trái: Summary */}
+					<SummaryCard />
 
-					<StepButton
-						layout="fixed"
-						justify="end"
-						primaryLabel="Pay"
-						onPrimaryClick={handlePay}
-						isLoading={isProcessing}
-						secondaryLabel="Back"
-						onSecondaryClick={handleBack}
-						buttonClassName="!w-[180px] md:!w-[210px] !h-12 md:!h-[64px]"
-						className="mt-[40px]"
-					/>
+					{/* Cột phải: Coupon + Payment + Buttons */}
+					<div className="flex flex-col gap-4">
+						<CouponSelector />
+						<PaymentMethodSelector />
+
+						{/* Buttons */}
+						<div className="flex gap-3 mt-1">
+							<button
+								onClick={handleBack}
+								className="flex-1 h-12 border border-[#EBEBEB] rounded-[8px] text-black font-medium hover:bg-gray-50 transition-colors"
+							>
+								Back
+							</button>
+							<button
+								onClick={handlePay}
+								disabled={isProcessing}
+								className="flex-1 h-12 bg-black text-white rounded-[8px] font-medium hover:bg-gray-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							>
+								{isProcessing ? (
+									<>
+										<span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+										Đang xử lý...
+									</>
+								) : "Pay"}
+							</button>
+						</div>
+					</div>
 				</div>
-			)}
-		</div>
+			</div>
 	);
 }

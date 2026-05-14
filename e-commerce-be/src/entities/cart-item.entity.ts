@@ -1,9 +1,9 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Product } from './product.entity';
@@ -36,7 +36,4 @@ export class CartItem {
   })
   @JoinColumn({ name: 'productId' })
   product: Product;
-
-  @Column({ nullable: true })
-  variantId: number;
 }

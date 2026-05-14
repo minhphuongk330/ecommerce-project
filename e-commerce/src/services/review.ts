@@ -12,6 +12,14 @@ export const reviewService = {
 		return axiosClient.get("/product-reviews", { params });
 	},
 
+	getTopReviews: async (limit = 10): Promise<Review[]> => {
+		try {
+			return await axiosClient.get("/product-reviews/top", { params: { limit } });
+		} catch {
+			return [];
+		}
+	},
+
 	createReview: async (payload: CreateReviewPayload): Promise<Review> => {
 		return axiosClient.post("/product-reviews", payload);
 	},

@@ -24,6 +24,7 @@ export interface Order {
 	address?: Address;
 	status: OrderStatus;
 	discount: string;
+	shippingDiscount: string;
 	totalAmount: string;
 	note?: string;
 	shippingCost?: number | string;
@@ -33,6 +34,9 @@ export interface Order {
 	updatedAt: string;
 	subtotal?: number;
 	taxAmount?: number;
+	paymentMethod?: 'COD' | 'VNPAY';
+	paymentStatus?: 'pending' | 'paid' | 'failed' | 'cancelled';
+	txnRef?: string;
 }
 
 export interface CreateOrderPayload {
@@ -41,12 +45,16 @@ export interface CreateOrderPayload {
 	addressId: number;
 	status?: OrderStatus;
 	discount?: number;
+	shippingDiscount?: number;
 	totalAmount?: number;
 	note?: string;
 	shippingCost?: number;
 	scheduledDeliveryDate?: string;
 	subtotal?: number;
 	taxAmount?: number;
+	paymentMethod?: 'COD' | 'VNPAY';
+	appliedCouponCode?: string;
+	appliedShippingCouponCode?: string;
 }
 
 export interface CreateOrderItemPayload {

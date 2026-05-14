@@ -4,8 +4,6 @@ export interface CartItemType extends Product {
 	cartItemId?: number;
 	quantity: number;
 	selectedColor?: string;
-	variantId?: number;
-	variants?: any[];
 }
 
 export interface CartItemProps {

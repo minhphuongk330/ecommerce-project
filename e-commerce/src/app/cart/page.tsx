@@ -1,15 +1,15 @@
 "use client";
-import { useMemo, useRef, useCallback } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import CartList from "~/components/Cart/List";
 import OrderSummary from "~/components/Cart/OrderSummary";
-import EmptyState from "~/components/atoms/EmptyState";
-import { useNotification } from "~/contexts/Notification";
-import { useCartStore } from "~/stores/cart";
-import { cartService } from "~/services/cart";
-import { TAX_RATE } from "~/hooks/usePaymentSummary";
-import { CartPageSkeleton } from "~/components/Skeletons/index";
 import HydrationGuard from "~/components/HydrationGuard";
 import YouMayAlsoLike from "~/components/Products/YouMayAlsoLike";
+import { CartPageSkeleton } from "~/components/Skeletons/index";
+import EmptyState from "~/components/atoms/EmptyState";
+import { useNotification } from "~/contexts/Notification";
+import { TAX_RATE } from "~/hooks/usePaymentSummary";
+import { cartService } from "~/services/cart";
+import { useCartStore } from "~/stores/cart";
 
 export default function CartPage() {
 	return (
@@ -33,9 +33,7 @@ function CartContent() {
 
 	const { subtotal, total, tax, shipping } = useMemo(() => {
 		const subtotal = cartItems.reduce((sum, item) => {
-			const selectedVariant = item.variants?.find((v: any) => Number(v.id) === Number(item.variantId));
-			const finalPrice = selectedVariant ? Number(selectedVariant.price) : Number(item.price);
-			return sum + finalPrice * Number(item.quantity);
+			return sum + Number(item.price) * Number(item.quantity);
 		}, 0);
 		const calculatedTax = subtotal * TAX_RATE;
 		return { subtotal, tax: calculatedTax, shipping: null, total: subtotal + calculatedTax };
@@ -57,10 +55,7 @@ function CartContent() {
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
 			if (delta === -1 && current <= 1) return;
 			if (delta === 1) {
-				const activeVariant = item.variantId
-					? item.variants?.find((v: any) => Number(v.id) === Number(item.variantId))
-					: null;
-				const maxStock = activeVariant ? Number(activeVariant.stock) : Number(item.stock);
+				const maxStock = Number(item.stock);
 				if (maxStock && current >= maxStock) {
 					showNotification(`Only ${maxStock} items available. Cannot add more.`, "error");
 					return;

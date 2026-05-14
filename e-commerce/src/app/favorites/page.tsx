@@ -9,7 +9,7 @@ export default function FavoritesPage() {
 	return (
 		<div className="w-full bg-white">
 			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8 md:py-[40px]">
-				<h1 className="text-2xl md:text-3xl font-bold text-black mb-6 md:mb-8">Favorites</h1>
+				<h1 className="text-2xl md:text-3xl font-bold text-black mb-6 md:mb-8">Yêu thích</h1>
 				<HydrationGuard fallback={<ProductGridSkeleton count={4} />} store={useFavoriteStore}>
 					<FavoriteContent />
 				</HydrationGuard>
@@ -23,7 +23,7 @@ function FavoriteContent() {
 	const isEmpty = favorites.length === 0;
 	if (isEmpty) {
 		return (
-			<EmptyState title="Your wishlist is empty" description="You haven't added any items to your favorites yet." />
+			<EmptyState title="Danh sách yêu thích trống" description="Bạn chưa thêm sản phẩm nào vào danh sách yêu thích." />
 		);
 	}
 
@@ -40,7 +40,7 @@ function FavoriteContent() {
 					<div key={item.id} className="h-full">
 						<ProductCard product={displayProduct} preselectedSku={item.variant?.sku} />
 						{item.variant && (
-							<div className="mt-2 text-xs text-gray-500 font-medium px-1">Variant: {item.variant.sku}</div>
+							<div className="mt-2 text-xs text-gray-500 font-medium px-1">Phiên bản: {item.variant.sku}</div>
 						)}
 					</div>
 				);

@@ -10,21 +10,21 @@ const OrderSummary = ({ subtotal, tax, total }: OrderSummaryProps) => {
 
 	return (
 		<div className="w-full md:w-[536px] h-fit border border-[#EBEBEB] rounded-[10px] pt-6 md:pt-[56px] px-4 md:px-[64px] pb-6 md:pb-[56px] flex flex-col gap-6 md:gap-[40px] bg-white">
-			<h2 className="text-lg md:text-[20px] font-medium text-black">Order Summary</h2>
+			<h2 className="text-lg md:text-[20px] font-medium text-black">Tóm tắt đơn hàng</h2>
 
 			<div className="flex flex-col gap-3 md:gap-4 w-full">
 				<div className="flex justify-between items-center text-black">
-					<span className="text-sm md:text-base font-medium">Subtotal</span>
+					<span className="text-sm md:text-base font-medium">Tạm tính</span>
 					<span className="text-sm md:text-base font-medium">{formatPrice(subtotal)}</span>
 				</div>
 
 				<div className="flex justify-between items-center text-black">
-					<span className="text-sm md:text-base font-medium">Tax (10%)</span>
+					<span className="text-sm md:text-base font-medium">Thuế (10%)</span>
 					<span className="text-sm md:text-base font-medium">{formatPrice(tax)}</span>
 				</div>
 
 				<div className="flex justify-between items-center text-black mt-2">
-					<span className="text-sm md:text-base font-bold">Total</span>
+					<span className="text-sm md:text-base font-bold">Tổng cộng</span>
 					<span className="text-sm md:text-base font-bold">{formatPrice(total)}</span>
 				</div>
 			</div>
@@ -35,7 +35,7 @@ const OrderSummary = ({ subtotal, tax, total }: OrderSummaryProps) => {
 				disabled={!subtotal}
 				className="!w-full !h-12 md:!h-[56px] !rounded-[6px] !text-sm md:!text-base !bg-black !text-white !hover:bg-[#333] disabled:!bg-gray-300 disabled:!text-gray-500"
 			>
-				Checkout
+				Thanh toán
 			</Button>
 		</div>
 	);

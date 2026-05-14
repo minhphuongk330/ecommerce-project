@@ -10,6 +10,7 @@ import Header from "~/components/atoms/layout/Header";
 import { NotificationProvider } from "~/contexts/Notification";
 import { useCartStore } from "~/stores/cart";
 import { useAuthStore } from "~/stores/useAuth";
+import { useCollectedCoupons } from "~/stores/useCollectedCoupons";
 import { useFavoriteStore } from "~/stores/useFavorite";
 import BackToTop from "./layout/BackToTop";
 
@@ -39,6 +40,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 	const resetLocalCart = useCartStore(state => state.resetLocalCart);
 	const fetchFavorites = useFavoriteStore(state => state.fetchFavorites);
 	const clearFavorites = useFavoriteStore(state => state.clearFavorites);
+	const fetchCollectedCoupons = useCollectedCoupons(state => state.fetch);
+	const clearCollectedCoupons = useCollectedCoupons(state => state.clear);
 	const isAdminPage = usePathname().startsWith("/admin");
 	const lastSyncRef = useRef(0);
 	const safeSync = async (force = false) => {
@@ -46,15 +49,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		const now = Date.now();
 		if (!force && now - lastSyncRef.current < 5000) return;
 		lastSyncRef.current = now;
-		await Promise.all([fetchCart(force), fetchFavorites(force)]);
+		await Promise.all([fetchCart(force), fetchFavorites(force), fetchCollectedCoupons(force)]);
 	};
+
+	const isFirstMount = useRef(true);
 
 	useEffect(() => {
 		if (user && !isAdminPage) {
-			safeSync(true);
-		} else if (!user) {
+			isFirstMount.current = false;
+			const timer = setTimeout(() => safeSync(true), 300);
+			return () => clearTimeout(timer);
+		} else if (!user && !isFirstMount.current) {
+			// Chỉ clear khi user thực sự logout (không phải lần mount đầu chưa hydrate)
 			clearFavorites();
 			resetLocalCart();
+			clearCollectedCoupons();
 		}
 	}, [user, isAdminPage]);
 

@@ -1,12 +1,12 @@
-import axiosClient from "./axiosClient";
 import {
+	AdminCategory,
+	AdminCustomer,
+	AdminOrder,
 	AdminProduct,
 	CreateProductPayload,
 	DashboardStats,
-	AdminCustomer,
-	AdminCategory,
-	AdminOrder,
 } from "~/types/admin";
+import axiosClient from "./axiosClient";
 
 export interface CreateColorPayload {
 	productId: number;
@@ -77,5 +77,70 @@ export const adminService = {
 
 	getLowStockProducts(threshold: number): Promise<AdminProduct[]> {
 		return axiosClient.get(`/admin/products/low-stock?threshold=${threshold}`);
+	},
+
+	// Flash Sales
+	getFlashSales(): Promise<any[]> {
+		return axiosClient.get("/flash-sales");
+	},
+
+	getFlashSaleById(id: number): Promise<any> {
+		return axiosClient.get(`/flash-sales/${id}`);
+	},
+
+	createFlashSale(payload: {
+		title: string;
+		endsAt: string;
+		isActive: boolean;
+		items: { productId: number; salePrice: number; originalPrice: number; quantity: number }[];
+	}): Promise<any> {
+		return axiosClient.post("/flash-sales", payload);
+	},
+
+	updateFlashSale(id: number, payload: { title?: string; endsAt?: string; isActive?: boolean }): Promise<any> {
+		return axiosClient.patch(`/flash-sales/${id}`, payload);
+	},
+
+	deleteFlashSale(id: number): Promise<void> {
+		return axiosClient.delete(`/flash-sales/${id}`);
+	},
+
+	// Coupons
+	getCoupons(): Promise<any[]> {
+		return axiosClient.get("/coupons");
+	},
+
+	createCoupon(payload: {
+		code: string;
+		description: string;
+		discountType: "percent" | "fixed";
+		discountValue: number;
+		minOrderValue?: number;
+		maxDiscountAmount?: number;
+		usageLimit?: number;
+		expiresAt?: string;
+		isActive?: boolean;
+		showOnHomepage?: boolean;
+	}): Promise<any> {
+		return axiosClient.post("/coupons", payload);
+	},
+
+	updateCoupon(id: string, payload: Partial<{
+		code: string;
+		description: string;
+		discountType: "percent" | "fixed";
+		discountValue: number;
+		minOrderValue: number;
+		maxDiscountAmount: number;
+		usageLimit: number;
+		expiresAt: string;
+		isActive: boolean;
+		showOnHomepage: boolean;
+	}>): Promise<any> {
+		return axiosClient.patch(`/coupons/${id}`, payload);
+	},
+
+	deleteCoupon(id: string): Promise<void> {
+		return axiosClient.delete(`/coupons/${id}`);
 	},
 };

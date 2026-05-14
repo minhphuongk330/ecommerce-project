@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Address } from "~/types/address";
 import { ShippingMethod } from "~/types/shipping";
+import type { ValidateCouponResult } from "~/types/coupon";
 
 interface CheckoutContextType {
 	selectedAddress: Address | null;
@@ -10,6 +11,15 @@ interface CheckoutContextType {
 	setSelectedShippingMethod: (method: ShippingMethod | null) => void;
 	scheduledDate: string | null;
 	setScheduledDate: (date: string | null) => void;
+	// Payment
+	paymentMethod: 'COD' | 'VNPAY';
+	setPaymentMethod: (method: 'COD' | 'VNPAY') => void;
+	// Coupon sản phẩm
+	appliedCoupon: ValidateCouponResult | null;
+	setAppliedCoupon: (coupon: ValidateCouponResult | null) => void;
+	// Coupon ship
+	appliedShippingCoupon: ValidateCouponResult | null;
+	setAppliedShippingCoupon: (coupon: ValidateCouponResult | null) => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(undefined);
@@ -18,6 +28,9 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 	const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 	const [selectedShippingMethod, setSelectedShippingMethod] = useState<ShippingMethod | null>(null);
 	const [scheduledDate, setScheduledDate] = useState<string | null>(null);
+	const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY'>('COD');
+	const [appliedCoupon, setAppliedCoupon] = useState<ValidateCouponResult | null>(null);
+	const [appliedShippingCoupon, setAppliedShippingCoupon] = useState<ValidateCouponResult | null>(null);
 
 	return (
 		<CheckoutContext.Provider
@@ -28,6 +41,12 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
 				setSelectedShippingMethod,
 				scheduledDate,
 				setScheduledDate,
+				paymentMethod,
+				setPaymentMethod,
+				appliedCoupon,
+				setAppliedCoupon,
+				appliedShippingCoupon,
+				setAppliedShippingCoupon,
 			}}
 		>
 			{children}

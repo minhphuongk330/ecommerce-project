@@ -1,10 +1,10 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CartItem } from '../../entities/cart-item.entity';
 import { Product } from '../../entities/product.entity';
 import { CreateCartDto } from './dto/create-cart.dto';
@@ -17,33 +17,24 @@ export class CartService {
 
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   async create(customerId: number, createCartDto: CreateCartDto) {
-    const { productId, quantity, color, variantId } = createCartDto;
+    const { productId, quantity, color } = createCartDto;
 
     const product = await this.productRepository.findOne({
       where: { id: productId },
-      relations: ['variants'],
     });
 
     if (!product) {
       throw new NotFoundException('The product does not exist!');
     }
 
-    let stockAvailable = product.stock;
-
-    if (variantId) {
-      const selectedVariant = product.variants.find((v) => v.id === variantId);
-      if (!selectedVariant) {
-        throw new BadRequestException('Selected variant does not exist');
-      }
-      stockAvailable = selectedVariant.stock;
-    }
+    const stockAvailable = product.stock;
 
     if (quantity > stockAvailable) {
       throw new BadRequestException(
-        `Only ${stockAvailable} items available for this version. Cannot add ${quantity}.`,
+        `Only ${stockAvailable} items available. Cannot add ${quantity}.`,
       );
     }
 
@@ -52,7 +43,6 @@ export class CartService {
         customerId,
         productId,
         color: color ? color : IsNull(),
-        variantId: variantId ? variantId : IsNull(),
       },
     });
 
@@ -73,7 +63,6 @@ export class CartService {
       productId,
       quantity,
       color,
-      variantId,
     });
 
     return await this.cartRepository.save(newItem);
@@ -82,8 +71,7 @@ export class CartService {
   async findAll(customerId: number) {
     return await this.cartRepository.find({
       where: { customerId },
-
-      relations: ['product', 'product.variants'],
+      relations: ['product'],
       order: { id: 'DESC' },
     });
   }
@@ -91,20 +79,14 @@ export class CartService {
   async updateQuantity(customerId: number, id: number, quantity: number) {
     const item = await this.cartRepository.findOne({
       where: { id, customerId },
-      relations: ['product', 'product.variants'],
+      relations: ['product'],
     });
 
     if (!item) {
       throw new NotFoundException('Product not found in cart.');
     }
 
-    let stockAvailable = item.product.stock;
-    if (item.variantId) {
-      const variant = item.product.variants.find(
-        (v) => v.id === item.variantId,
-      );
-      if (variant) stockAvailable = variant.stock;
-    }
+    const stockAvailable = item.product.stock;
 
     if (quantity > stockAvailable) {
       throw new BadRequestException(

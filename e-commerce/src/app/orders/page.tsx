@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 5;
 function OrderListSkeleton() {
 	return (
 		<div className="w-full max-w-[800px] mx-auto py-6 md:py-[40px] px-4 md:px-6">
-			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
+			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Đơn hàng của tôi</h1>
 			<TableSkeleton rows={5} columns={4} />
 		</div>
 	);
@@ -43,7 +43,7 @@ function OrderListContent() {
 
 	return (
 		<div className="w-full max-w-[800px] mx-auto py-6 md:py-[40px] px-4 md:px-6">
-			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">My Orders</h1>
+			<h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Đơn hàng của tôi</h1>
 			<div className="flex flex-col">
 				{paginatedOrders.map(order => (
 					<OrderItem key={order.id} order={order} />

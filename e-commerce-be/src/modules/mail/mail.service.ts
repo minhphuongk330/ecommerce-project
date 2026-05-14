@@ -4,7 +4,7 @@ import { Order } from '../../entities/order.entity';
 
 @Injectable()
 export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(private readonly mailerService: MailerService) { }
 
   private formatDate(date: string | Date | null | undefined): string {
     if (!date) return 'Not scheduled';
@@ -25,12 +25,7 @@ export class MailService {
 
     const itemsHtml = order.orderItems
       .map((item) => {
-        const selectedVariant = (item.product as any)?.variants?.find(
-          (v: any) => Number(v.id) === Number(item.variantId),
-        );
-
         const details: string[] = [];
-        if (selectedVariant) details.push(selectedVariant.sku);
         if (item.colorId) details.push(item.colorId);
 
         const detailHtml =
@@ -54,16 +49,30 @@ export class MailService {
           </td>
 
           <td style="padding: 20px 0; border-bottom: 1px solid #e5e7eb; text-align: right; vertical-align: middle; white-space: nowrap;">
-            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">$${Number(item.unitPrice || item.product.price).toFixed(2)}</div>
+            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">${Number(item.unitPrice || item.product.price).toLocaleString('vi-VN')}đ</div>
           </td>
         </tr>
         `;
       })
       .join('');
 
+    const isCOD = order.paymentMethod === 'COD' || !order.paymentMethod;
+    const paymentLabel = isCOD ? 'Thanh toán khi nhận hàng (COD)' : 'Đã thanh toán qua VNPay ✓';
+    const paymentColor = isCOD ? '#f59e0b' : '#10b981';
+    const emailSubject = isCOD
+      ? `Đặt hàng thành công #${order.orderNo || order.id}`
+      : `Thanh toán thành công #${order.orderNo || order.id}`;
+    const headerTitle = isCOD ? 'Đặt hàng thành công!' : 'Thanh toán thành công!';
+    const headerSub = isCOD
+      ? 'Đơn hàng của bạn đã được xác nhận'
+      : 'Thanh toán của bạn đã được xác nhận';
+    const bodyText = isCOD
+      ? 'Cảm ơn bạn đã mua sắm tại Cyber Shop! Đơn hàng đã được xác nhận và đang được chuẩn bị. Vui lòng chuẩn bị thanh toán khi nhận hàng.'
+      : 'Cảm ơn bạn đã mua sắm tại Cyber Shop! Thanh toán đã được xác nhận thành công. Chúng tôi đang chuẩn bị đơn hàng cho bạn.';
+
     await this.mailerService.sendMail({
       to: order.customer.email,
-      subject: `Order Confirmation #${order.orderNo || order.id}`,
+      subject: emailSubject,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -75,8 +84,9 @@ export class MailService {
         <body style="margin:0; padding:0; background:#f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b; line-height:1.6;">
           <div style="max-width:620px; margin:24px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px -10px rgba(0,0,0,0.08);">
             <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding:40px 24px; text-align:center; color:white;">
-              <h1 style="margin:0; font-size:28px; font-weight:700; letter-spacing:-0.5px;">Order Confirmed!</h1>
-              <p style="margin:12px 0 0; font-size:15px; opacity:0.95;">Order #${order.orderNo || order.id}</p>
+              <h1 style="margin:0; font-size:28px; font-weight:700; letter-spacing:-0.5px;">${headerTitle}</h1>
+              <p style="margin:8px 0 0; font-size:14px; opacity:0.8;">${headerSub}</p>
+              <p style="margin:12px 0 0; font-size:15px; opacity:0.95;">Đơn hàng #${order.orderNo || order.id}</p>
               <div style="margin:12px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
                 <div>
                   <p style="margin:0 0 4px; opacity:0.8; font-size:11px;">Place On</p>
@@ -89,8 +99,8 @@ export class MailService {
               </div>
             </div>
             <div style="padding:32px 28px 40px;">
-              <p style="margin:0 0 8px; font-size:16px; font-weight:600; color:#0f172a;">Hello ${order.address.receiverName},</p>
-              <p style="margin:0 0 32px; font-size:15px; color:#475569;">Thank you for shopping with Cyber Shop! Your order has been confirmed and we're preparing it for shipment.</p>
+              <p style="margin:0 0 8px; font-size:16px; font-weight:600; color:#0f172a;">Xin chào ${order.address.receiverName},</p>
+              <p style="margin:0 0 32px; font-size:15px; color:#475569;">${bodyText}</p>
               
               <div style="margin:0 0 32px;">
                 <h3 style="margin:0 0 16px; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#64748b;">Order Summary</h3>
@@ -110,24 +120,41 @@ export class MailService {
                   
                   <tr>
                     <td style="padding:8px 0; color:#475569; font-size:14px;">Subtotal</td>
-                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#0f172a;">$${subtotal.toFixed(2)}</td>
+                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#0f172a;">${subtotal.toLocaleString('vi-VN')}đ</td>
                   </tr>
 
                   <tr>
                     <td style="padding:8px 0; color:#475569; font-size:14px;">Tax (10%)</td>
-                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#0f172a;">$${taxAmount.toFixed(2)}</td>
+                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#0f172a;">${taxAmount.toLocaleString('vi-VN')}đ</td>
                   </tr>
 
                   <tr>
                     <td style="padding:8px 0; color:#475569; font-size:14px;">Shipping</td>
-                    <td style="padding:8px 0; text-align:right; color:${shippingCost === 0 ? '#10b981' : '#0f172a'}; font-weight:600;">
-                      ${shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+                    <td style="padding:8px 0; text-align:right; color:${shippingCost === 0 && Number(order.shippingDiscount) === 0 ? '#10b981' : '#0f172a'}; font-weight:600;">
+                      ${shippingCost === 0 && Number(order.shippingDiscount) === 0 ? 'Free' : `${shippingCost.toLocaleString('vi-VN')}đ`}
                     </td>
                   </tr>
 
                   <tr>
+                    <td style="padding:8px 0; color:#475569; font-size:14px;">Phương thức thanh toán</td>
+                    <td style="padding:8px 0; text-align:right; font-weight:700; color:${paymentColor};">${paymentLabel}</td>
+                  </tr>
+
+                  ${Number(order.shippingDiscount) > 0 ? `
+                  <tr>
+                    <td style="padding:8px 0; color:#16a34a; font-size:14px;">Giảm phí ship</td>
+                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#16a34a;">-${Number(order.shippingDiscount).toLocaleString('vi-VN')}đ</td>
+                  </tr>` : ''}
+
+                  ${Number(order.discount) > 0 ? `
+                  <tr>
+                    <td style="padding:8px 0; color:#16a34a; font-size:14px;">Giảm giá sản phẩm</td>
+                    <td style="padding:8px 0; text-align:right; font-weight:600; color:#16a34a;">-${Number(order.discount).toLocaleString('vi-VN')}đ</td>
+                  </tr>` : ''}
+
+                  <tr>
                     <td style="padding:16px 0 0; font-size:16px; font-weight:700; color:#0f172a; border-top:2px solid #e2e8f0;">Total</td>
-                    <td style="padding:16px 0 0; text-align:right; font-size:20px; font-weight:700; color:#3b82f6; border-top:2px solid #e2e8f0;">$${total.toFixed(2)}</td>
+                    <td style="padding:16px 0 0; text-align:right; font-size:20px; font-weight:700; color:#3b82f6; border-top:2px solid #e2e8f0;">${total.toLocaleString('vi-VN')}đ</td>
                   </tr>
                 </table>
               </div>

@@ -13,36 +13,34 @@ interface BlogPost {
 const BLOG_POSTS: BlogPost[] = [
 	{
 		id: 1,
-		title: "10 Essential Tech Gadgets for 2025",
-		excerpt:
-			"Discover the must-have technology gadgets that will enhance your daily life and keep you connected in the modern world.",
-		date: "January 15, 2025",
-		category: "Technology",
+		title: "10 thiết bị công nghệ không thể thiếu năm 2025",
+		excerpt: "Khám phá những thiết bị công nghệ bạn nhất định phải có để nâng cao cuộc sống hàng ngày và luôn kết nối với thế giới hiện đại.",
+		date: "15 tháng 1, 2025",
+		category: "Công nghệ",
 		slug: "essential-tech-gadgets-2025",
 	},
 	{
 		id: 2,
-		title: "How to Choose the Perfect Smartphone",
-		excerpt: "A comprehensive guide to help you find the smartphone that best fits your needs, budget, and lifestyle.",
-		date: "January 10, 2025",
-		category: "Guides",
+		title: "Cách chọn smartphone phù hợp với bạn",
+		excerpt: "Hướng dẫn toàn diện giúp bạn tìm ra chiếc điện thoại phù hợp nhất với nhu cầu, ngân sách và phong cách sống.",
+		date: "10 tháng 1, 2025",
+		category: "Hướng dẫn",
 		slug: "choose-perfect-smartphone",
 	},
 	{
 		id: 3,
-		title: "Sustainable Shopping: Making Eco-Friendly Choices",
-		excerpt: "Learn how to make more environmentally conscious purchasing decisions and reduce your carbon footprint.",
-		date: "January 5, 2025",
-		category: "Lifestyle",
+		title: "Mua sắm thông minh: Tiết kiệm mà vẫn chất lượng",
+		excerpt: "Những mẹo hay giúp bạn mua được sản phẩm tốt với giá hợp lý, tránh bẫy hàng kém chất lượng.",
+		date: "5 tháng 1, 2025",
+		category: "Mẹo hay",
 		slug: "sustainable-shopping",
 	},
 	{
 		id: 4,
-		title: "The Future of E-Commerce: Trends to Watch",
-		excerpt:
-			"Explore the latest trends shaping the future of online shopping and how they're changing the retail landscape.",
-		date: "December 28, 2023",
-		category: "Business",
+		title: "Xu hướng thương mại điện tử 2025",
+		excerpt: "Khám phá những xu hướng mới nhất đang định hình tương lai của mua sắm trực tuyến và cách chúng thay đổi thị trường bán lẻ.",
+		date: "28 tháng 12, 2024",
+		category: "Kinh doanh",
 		slug: "future-ecommerce-trends",
 	},
 ];
@@ -63,7 +61,7 @@ const BlogPostItem = ({ post }: { post: BlogPost }) => (
 			href={`${routerPaths.blog}/${post.slug}`}
 			className="inline-flex items-center text-sm md:text-base font-medium text-black hover:text-gray-600 transition-colors"
 		>
-			Read more
+			Đọc thêm
 			<svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
 			</svg>
@@ -78,7 +76,7 @@ export default function BlogPage() {
 				<div className="max-w-4xl mx-auto">
 					<h1 className="text-3xl md:text-4xl font-bold text-black mb-4 md:mb-6">Blog</h1>
 					<p className="text-base md:text-lg text-gray-600 mb-8 md:mb-12">
-						Stay updated with the latest news, tips, and insights from our team.
+						Cập nhật tin tức, mẹo hay và kiến thức công nghệ mới nhất từ đội ngũ của chúng tôi.
 					</p>
 					<div className="space-y-8 md:space-y-12">
 						{BLOG_POSTS.map(post => (
@@ -86,7 +84,7 @@ export default function BlogPage() {
 						))}
 					</div>
 					<div className="mt-12 md:mt-16 text-center">
-						<p className="text-base md:text-lg text-gray-600">More articles coming soon. Stay tuned!</p>
+						<p className="text-base md:text-lg text-gray-600">Sẽ có thêm bài viết mới sớm. Hãy đón chờ!</p>
 					</div>
 				</div>
 			</div>

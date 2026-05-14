@@ -39,9 +39,11 @@
     "nodemailer": "^7.0.12",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "qs": "^6.15.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "vnpay": "^2.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -55,6 +57,7 @@
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^7.0.5",
     "@types/passport-jwt": "^4.0.1",
+    "@types/qs": "^6.15.1",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

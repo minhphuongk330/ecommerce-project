@@ -1,14 +1,14 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useForm, DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useEffect, useState } from "react";
+import { DefaultValues, useForm } from "react-hook-form";
 import Button from "~/components/atoms/Button";
 import BaseDialog from "~/components/atoms/Dialog";
-import ProductForm from "../Form";
-import { AdminCategory } from "~/types/admin";
 import { adminService } from "~/services/admin";
-import { ProductFormValues, productSchema, ProductFormOutput } from "~/utils/validator/adminproduct";
+import { AdminCategory } from "~/types/admin";
+import { ProductFormOutput, ProductFormValues, productSchema } from "~/utils/validator/adminproduct";
+import ProductForm from "../Form";
 
 interface ProductFormModalProps {
 	isOpen: boolean;
@@ -26,16 +26,13 @@ const initialValues: ProductFormValues = {
 	stock: 0,
 	categoryId: undefined,
 	description: "",
-	shortDescription: "",
 	mainImageUrl: "",
 	extraImage1: "",
 	extraImage2: "",
 	extraImage3: "",
 	extraImage4: "",
 	isActive: true,
-	colors: [],
-	attributes: {},
-	variants: [],
+	specifications: {},
 };
 
 export default function ProductFormModal({
@@ -69,26 +66,14 @@ export default function ProductFormModal({
 				...initialValues,
 				...defaultValues,
 				...fullProduct,
-				categoryId: fullProduct.categoryId ? Number(fullProduct.categoryId) : undefined,
+				// Handle both cases: Backend returns categoryId directly or nested category object (TypeORM relations)
+				categoryId: fullProduct.categoryId
+					? Number(fullProduct.categoryId)
+					: (fullProduct.category?.id ? Number(fullProduct.category.id) : undefined),
 				price: Number(fullProduct.price),
 				stock: Number(fullProduct.stock),
-
-				colors:
-					fullProduct.productColors?.map((c: any) => ({
-						id: c.id,
-						colorName: c.colorName || c.name || "",
-						colorHex: c.colorHex || c.hex || c.colorCode || "#000000",
-					})) || [],
-
-				attributes: fullProduct.attributes || {},
-
-				variants:
-					fullProduct.variants?.map((v: any) => ({
-						sku: v.sku || v.options?.name || "",
-						price: Number(v.price),
-						stock: Number(v.stock),
-						options: v.options,
-					})) || [],
+				// Ensure specifications is loaded correctly instead of attributes
+				specifications: fullProduct.specifications || {},
 			};
 
 			reset(formData);
@@ -110,18 +95,9 @@ export default function ProductFormModal({
 	}, [isOpen, defaultValues?.id, reset]);
 
 	const handleFormSubmit = async (data: ProductFormOutput) => {
-		const cleanData = {
-			...data,
-			colors: data.colors?.map(({ id, ...rest }: any) => rest),
-
-			variants: data.variants?.map(v => ({
-				price: v.price,
-				stock: v.stock,
-				sku: v.sku,
-				options: { name: v.sku },
-			})),
-		};
-		await onSubmit(cleanData);
+		console.log('Final Submit Data:', data);
+		console.log('Specifications:', data.specifications);
+		await onSubmit(data);
 	};
 
 	const onError = (errors: any) => {

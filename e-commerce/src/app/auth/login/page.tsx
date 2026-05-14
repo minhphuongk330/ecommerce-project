@@ -16,7 +16,7 @@ import { authService } from "~/services/auth";
 import ForgotPasswordModal from "~/components/Auth/ForgotPasswordModal";
 import { useState } from "react";
 
-const REGISTER_BENEFITS = ["Check out faster", "Keep more than one address", "Track orders and more"];
+const REGISTER_BENEFITS = ["Thanh toán nhanh hơn", "Lưu nhiều địa chỉ giao hàng", "Theo dõi đơn hàng dễ dàng"];
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -41,21 +41,21 @@ export default function LoginPage() {
 				accessToken: response.accessToken,
 				refreshToken: response.refreshToken,
 			});
-			showNotification("Login successful", "success");
+			showNotification("Đăng nhập thành công", "success");
 			router.push(routerPaths.index);
 		} catch (error: any) {
 			console.error("Login failed:", error);
 			if (error.response && error.response.status === 402) {
-				showNotification("Email or password is incorrect", "error");
+				showNotification("Email hoặc mật khẩu không đúng", "error");
 			} else if (error.response && error.response.status === 401) {
 				const message = error.response.data?.message || "";
 				if (message.includes("banned")) {
-					showNotification("Your account has been banned. Please contact support.", "error");
+					showNotification("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.", "error");
 				} else {
-					showNotification("Your account is inactive.", "error");
+					showNotification("Tài khoản chưa được kích hoạt.", "error");
 				}
 			} else {
-				showNotification("System error, please try again later.", "error");
+				showNotification("Lỗi hệ thống, vui lòng thử lại sau.", "error");
 			}
 		}
 	};
@@ -90,18 +90,18 @@ export default function LoginPage() {
 					}}
 				>
 					<AuthHeader
-						title="Registered Customers"
-						description="If you have an account, sign in with your email address."
+						title="Khách hàng đã có tài khoản"
+						description="Đăng nhập bằng địa chỉ email của bạn."
 					/>
 					<Box sx={{ mb: 2 }}>
-						<CommonInput name="email" control={control} label="Email " placeholder="Your email" type="email" required />
+						<CommonInput name="email" control={control} label="Email" placeholder="Email của bạn" type="email" required />
 					</Box>
 					<Box sx={{ mb: 4 }}>
 						<CommonInput
 							name="password"
 							control={control}
-							label="Password"
-							placeholder="Your password"
+							label="Mật khẩu"
+							placeholder="Mật khẩu của bạn"
 							type="password"
 							required
 						/>
@@ -115,7 +115,7 @@ export default function LoginPage() {
 							variant="solid"
 							className="!py-3 !px-8 !min-w-[120px] !rounded-[25px]"
 						>
-							{isSubmitting ? "Logging in..." : "Sign In"}
+							{isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
 						</CommonButton>
 						<MuiLink
 							component="button"
@@ -131,7 +131,7 @@ export default function LoginPage() {
 								bgcolor: "transparent",
 							}}
 						>
-							Forgot Your Password?
+							Quên mật khẩu?
 						</MuiLink>
 					</Box>
 				</Box>
@@ -150,8 +150,8 @@ export default function LoginPage() {
 					}}
 				>
 					<AuthHeader
-						title="New Customer?"
-						description="Creating an account has many benefits:"
+						title="Khách hàng mới?"
+						description="Tạo tài khoản để trải nghiệm nhiều lợi ích:"
 						benefits={REGISTER_BENEFITS}
 					/>
 					<CommonButton
@@ -160,7 +160,7 @@ export default function LoginPage() {
 						onClick={() => router.push(routerPaths.register)}
 						className="!py-3 !rounded-[25px] !max-w-[200px]"
 					>
-						Create An Account
+						Tạo tài khoản
 					</CommonButton>
 				</Box>
 			</Box>

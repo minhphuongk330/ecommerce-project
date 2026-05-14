@@ -19,29 +19,29 @@ const SOCIAL_ICONS = [
 	{ name: "Instagram", icon: Instagram },
 ];
 const SERVICES = [
-	"Bonus program",
-	"Gift cards",
-	"Credit and payment",
-	"Service contracts",
-	"Non-cash account",
-	"Payment",
+	"Chương trình tích điểm",
+	"Thẻ quà tặng",
+	"Thanh toán & trả góp",
+	"Hợp đồng dịch vụ",
+	"Tài khoản doanh nghiệp",
+	"Phương thức thanh toán",
 ];
 const ASSISTANCE = [
-	"Find an order",
-	"Terms of delivery",
-	"Exchange and return of goods",
-	"Guarantee",
-	"Frequently asked questions",
-	"Terms of use of the site",
+	"Tra cứu đơn hàng",
+	"Chính sách vận chuyển",
+	"Đổi trả & hoàn tiền",
+	"Bảo hành sản phẩm",
+	"Câu hỏi thường gặp",
+	"Điều khoản sử dụng",
 ];
 const FOOTER_LINK_SECTIONS = [
 	{
-		title: "Services",
+		title: "Dịch vụ",
 		items: SERVICES,
 		containerSx: { width: { md: "50%" } },
 	},
 	{
-		title: "Assistance to the buyer",
+		title: "Hỗ trợ khách hàng",
 		items: ASSISTANCE,
 		containerSx: { width: { md: "30%" } },
 	},
@@ -85,7 +85,7 @@ const Footer: React.FC = () => {
 							fontSize: { xs: "0.875rem", md: "inherit" },
 						}}
 					>
-						We are a residential interior design firm located in Portland. Our boutique-studio offers more than.
+						Cửa hàng công nghệ chính hãng — điện thoại, laptop, tai nghe và phụ kiện chất lượng cao.
 					</Typography>
 					<Box sx={{ display: "flex", height: 1, gap: { xs: 3, md: 5 } }}>
 						{SOCIAL_ICONS.map(item => {

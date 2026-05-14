@@ -17,7 +17,7 @@ export interface CartItem {
 
 export const TAX_RATE = 0.1;
 export const usePaymentSummary = () => {
-	const { selectedAddress, selectedShippingMethod, scheduledDate } = useCheckoutContext();
+	const { selectedAddress, selectedShippingMethod, scheduledDate, appliedCoupon, appliedShippingCoupon } = useCheckoutContext();
 	const rawItems = useCartStore(state => state.cartItems) as unknown as CartItem[];
 
 	const { subtotal, itemsWithTotal } = useMemo(() => {
@@ -54,18 +54,25 @@ export const usePaymentSummary = () => {
 		return { cost, label };
 	}, [selectedShippingMethod, scheduledDate]);
 
-	const { shippingCost, total, shipmentLabel, taxAmount } = useMemo(() => {
+	const { rawShippingCost, total: rawTotal, shipmentLabel, taxAmount } = useMemo(() => {
 		const { cost, label } = calculateShippingCost();
-
 		const calculatedTax = Math.round(subtotal * TAX_RATE * 100) / 100;
-
 		return {
-			shippingCost: cost,
+			rawShippingCost: cost,
 			taxAmount: calculatedTax,
 			total: subtotal + calculatedTax + cost,
 			shipmentLabel: label,
 		};
 	}, [calculateShippingCost, subtotal]);
+
+	const discount = useMemo(() => appliedCoupon?.discountAmount ?? 0, [appliedCoupon]);
+	const shippingDiscount = useMemo(() => {
+		if (!appliedShippingCoupon) return 0;
+		return Math.min(appliedShippingCoupon.discountAmount, rawShippingCost);
+	}, [appliedShippingCoupon, rawShippingCost]);
+
+	const shippingCost = Math.max(0, rawShippingCost - shippingDiscount);
+	const total = Math.max(0, rawTotal - discount - shippingDiscount);
 
 	const deliveryDateForAPI = useMemo(() => {
 		let targetDate: string | null = scheduledDate || null;
@@ -86,7 +93,10 @@ export const usePaymentSummary = () => {
 		shipmentLabel,
 		subtotal,
 		taxAmount,
-		shippingCost,
+		shippingCost,      // sau khi trừ coupon ship
+		rawShippingCost,   // phí ship gốc
+		discount,          // coupon sản phẩm
+		shippingDiscount,  // coupon ship
 		total,
 	};
 };

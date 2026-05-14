@@ -15,8 +15,8 @@ export const usePayment = () => {
 	const user = useAuthStore(state => state.user);
 	const clearCart = useCartStore(state => state.clearCart);
 	const cartItems = useCartStore(state => state.cartItems);
-	const { selectedAddress, selectedShippingMethod } = useCheckoutContext();
-	const { total, subtotal, taxAmount, shippingCost, deliveryDateForAPI } = usePaymentSummary();
+	const { selectedAddress, selectedShippingMethod, paymentMethod, appliedCoupon, appliedShippingCoupon } = useCheckoutContext();
+	const { total, subtotal, taxAmount, shippingCost, deliveryDateForAPI, discount, shippingDiscount } = usePaymentSummary();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 	const [isPaid, setIsPaid] = useState(false);
@@ -62,7 +62,7 @@ export const usePayment = () => {
 		setIsProcessing(true);
 
 		try {
-			await orderService.createFullOrder({
+			const newOrder = await orderService.createFullOrder({
 				userId: Number(user.id),
 				addressId: selectedAddress.id,
 				totalAmount: total,
@@ -71,14 +71,27 @@ export const usePayment = () => {
 				shippingCost: shippingCost,
 				items: cartItems as any,
 				scheduledDeliveryDate: deliveryDateForAPI,
+				paymentMethod,
+				discount,
+				shippingDiscount,
+				appliedCouponCode: appliedCoupon?.coupon.code,
+				appliedShippingCouponCode: appliedShippingCoupon?.coupon.code,
 			});
 
-			setIsPaid(true);
 			clearCart();
-			setIsSuccessModalOpen(true);
+
+			if (paymentMethod === "VNPAY") {
+				// Gọi API tạo URL VNPay rồi redirect
+				const { paymentUrl } = await orderService.createVnpayUrl(newOrder.id);
+				setIsPaid(true); // tránh redirect loop
+				window.location.href = paymentUrl;
+			} else {
+				// COD — Chuyển hướng sang trang kết quả chung
+				setIsPaid(true);
+				router.push(`/payment/result?status=success&orderNo=${newOrder.orderNo}`);
+			}
 		} catch (error: any) {
 			console.error("Payment Error:", error);
-
 			const errorMessage = error?.response?.data?.message || error?.message || "";
 			if (errorMessage.includes("Insufficient stock")) {
 				showNotification(errorMessage, "error");
@@ -104,6 +117,7 @@ export const usePayment = () => {
 		isProcessing,
 		isSuccessModalOpen,
 		isRedirecting,
+		paymentMethod,
 		handlePay,
 		handleRedirectHome,
 		handleContinueShopping,

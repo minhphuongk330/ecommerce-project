@@ -26,7 +26,7 @@ export const useShippingMethod = () => {
 			{
 				id: "express",
 				type: "express",
-				price: 8.5,
+				price: 30000,
 				name: "Get your delivery as soon as possible",
 				description: "Get your delivery as soon as possible",
 				estimatedDate: getFutureDate(2),

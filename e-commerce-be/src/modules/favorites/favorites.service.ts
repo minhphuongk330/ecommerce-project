@@ -1,6 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Favorite } from '../../entities/favorite.entity';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 
@@ -9,16 +9,15 @@ export class FavoritesService {
   constructor(
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
-  ) {}
+  ) { }
 
   async create(customerId: number, createFavoriteDto: CreateFavoriteDto) {
-    const { productId, variantId } = createFavoriteDto;
+    const { productId } = createFavoriteDto;
 
     const existing = await this.favoriteRepository.findOne({
       where: {
         customerId,
         productId,
-        variantId: variantId ? variantId : IsNull(),
       },
     });
 
@@ -31,8 +30,6 @@ export class FavoritesService {
     const newFavorite = this.favoriteRepository.create({
       customerId,
       productId,
-
-      variantId: variantId,
     });
 
     return await this.favoriteRepository.save(newFavorite);
@@ -41,18 +38,16 @@ export class FavoritesService {
   async findAll(customerId: number) {
     return await this.favoriteRepository.find({
       where: { customerId },
-      relations: ['product', 'variant'],
+      relations: ['product'],
       order: { id: 'DESC' },
     });
   }
 
-  async remove(customerId: number, productId: number, variantId?: number) {
+  async remove(customerId: number, productId: number) {
     const item = await this.favoriteRepository.findOne({
       where: {
         customerId,
         productId,
-
-        variantId: variantId ? variantId : IsNull(),
       },
     });
 

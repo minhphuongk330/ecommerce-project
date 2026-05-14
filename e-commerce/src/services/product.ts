@@ -1,12 +1,4 @@
-import {
-	CreateColorInput,
-	CreateImageInput,
-	CreateProductInput,
-	Product,
-	ProductColor,
-	ProductDetail,
-	ProductImage,
-} from "~/types/product";
+import { CreateProductInput, Product, ProductDetail } from "~/types/product";
 import axiosClient from "./axiosClient";
 
 export interface ProductResponse {
@@ -61,19 +53,21 @@ export const productService = {
 		return await axiosClient.delete(`/products/${id}`);
 	},
 
-	getImages: async (): Promise<ProductImage[]> => {
-		return await axiosClient.get("/product-images");
-	},
+	getBestSellers: async (limit: number = 8): Promise<Product[]> => {
+		try {
+			// Use createdAt desc by default since we just reset the database
+			// and have no sales data yet
+			console.log("Fetching best sellers (using createdAt since no sales data yet)...");
+			const response: ProductResponse = await axiosClient.get("/products", {
+				params: { sort: "createdAt", order: "desc", limit }
+			});
 
-	createImage: async (data: CreateImageInput) => {
-		return await axiosClient.post("/product-images", data);
-	},
-
-	getColors: async (): Promise<ProductColor[]> => {
-		return await axiosClient.get("/product-colors");
-	},
-
-	createColor: async (data: CreateColorInput) => {
-		return await axiosClient.post("/product-colors", data);
+			const items = Array.isArray(response) ? response : response?.items || [];
+			console.log("Best sellers items count:", items.length);
+			return items;
+		} catch (error) {
+			console.error("Error in getBestSellers:", error);
+			return [];
+		}
 	},
 };

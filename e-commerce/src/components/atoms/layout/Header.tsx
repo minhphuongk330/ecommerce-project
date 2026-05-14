@@ -15,6 +15,7 @@ import Close from "@mui/icons-material/Close";
 import CommonIconButton from "~/components/atoms/IconButton";
 import CyberLogo from "../CyberLogo";
 import UserMenu from "../UserMenu";
+import TopBar from "./TopBar";
 import { useCartStore } from "~/stores/cart";
 import { useAuthStore } from "~/stores/useAuth";
 import { useFavoriteStore } from "~/stores/useFavorite";
@@ -22,6 +23,7 @@ import { routerPaths } from "~/utils/router";
 import { authService } from "~/services/auth";
 import ProductSearch from "~/components/Products/Search";
 import { useScrollDirection } from "~/hooks/useScrollDirection";
+import CategoriesGrid from "~/components/CategoriesGrid";
 
 const ACTION_ICONS = [
 	{ name: "Favorite", icon: FavoriteBorderOutlined, href: routerPaths.favorite, hasBadge: true },
@@ -30,9 +32,9 @@ const ACTION_ICONS = [
 ];
 
 const NAV_LINKS = [
-	{ name: "Home", href: routerPaths.index },
-	{ name: "About", href: routerPaths.about },
-	{ name: "Contact Us", href: routerPaths.contact },
+	{ name: "Trang chủ", href: routerPaths.index },
+	{ name: "Giới thiệu", href: routerPaths.about },
+	{ name: "Liên hệ", href: routerPaths.contact },
 	{ name: "Blog", href: routerPaths.blog },
 ];
 
@@ -144,6 +146,8 @@ const Header: React.FC = () => {
 					boxShadow: isHidden ? "none" : "0 2px 4px rgba(0,0,0,0.02)",
 				}}
 			>
+				{/* Top bar trust badges */}
+				<TopBar />
 				<Box
 					sx={{
 						maxWidth: 1280,
@@ -223,9 +227,12 @@ const Header: React.FC = () => {
 						})}
 					</Box>
 				</Box>
+				<Box sx={{ display: { xs: "none", md: "block" } }}>
+          <CategoriesGrid />
+        </Box>
 			</Box>
 
-			<Box sx={{ height: { xs: "64px", md: "81px" } }} />
+			<Box sx={{ height: { xs: "100px", md: "117px" } }} />
 
 			<Drawer
 				anchor="left"
@@ -244,7 +251,7 @@ const Header: React.FC = () => {
 			>
 				<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
 					<Typography variant="h6" sx={{ fontWeight: "bold" }}>
-						Menu
+						Danh mục
 					</Typography>
 					<MuiIconButton onClick={() => setMobileMenuOpen(false)}>
 						<Close />

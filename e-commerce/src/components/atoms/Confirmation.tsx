@@ -54,7 +54,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 						variant="solid"
 						className="!w-[140px] !h-[48px] !rounded-[6px] !bg-gray-200 !text-black hover:!bg-gray-300 !border-none"
 					>
-						Cancel
+						Hủy
 					</Button>
 
 					<Button
@@ -65,7 +65,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 						variant="solid"
 						className={`!w-[140px] !h-[48px] !rounded-[6px] !text-white ${confirmButtonColor}`}
 					>
-						{loading ? "Processing..." : confirmLabel}
+						{loading ? "Đang xử lý..." : confirmLabel}
 					</Button>
 				</div>
 			</div>

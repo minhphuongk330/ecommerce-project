@@ -15,7 +15,7 @@ import { ProductsService } from './products.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
@@ -29,13 +29,20 @@ export class ProductsController {
     );
   }
 
+  @Get('seed')
+  async seedData() {
+    return this.productsService.seedData();
+  }
+
   @Get()
   findAll(@Query() query: Record<string, string>) {
-    const { sort, categoryId, name, page, limit, collection, minPrice, maxPrice, ...rest } = query;
+    const { sort, categoryId, name, brand, brandId, page, limit, collection, minPrice, maxPrice, ...rest } = query;
     return this.productsService.findAll({
       sort,
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       name,
+      brand,
+      brandId: brandId ? parseInt(brandId) : undefined,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 20,
       collection,

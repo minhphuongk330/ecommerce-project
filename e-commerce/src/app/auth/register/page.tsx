@@ -14,7 +14,7 @@ import { routerPaths } from "~/utils/router";
 import { useNotification } from "~/contexts/Notification";
 import { authService } from "~/services/auth";
 
-const REGISTER_BENEFITS = ["Check out faster", "Keep more than one address", "Track orders and more"];
+const REGISTER_BENEFITS = ["Thanh toán nhanh hơn", "Lưu nhiều địa chỉ giao hàng", "Theo dõi đơn hàng dễ dàng"];
 
 export default function RegisterPage() {
 	const router = useRouter();
@@ -44,13 +44,13 @@ export default function RegisterPage() {
 				confirm_password: data.confirmPassword,
 			};
 			await authService.register(payload);
-			showNotification("Registration successful! Please log in.", "success");
+			showNotification("Đăng ký thành công! Vui lòng đăng nhập.", "success");
 			router.push(routerPaths.login);
 		} catch (error: any) {
-			const errorMsg = error.response?.data?.message || error.message || "Unknown error";
+			const errorMsg = error.response?.data?.message || error.message || "Lỗi không xác định";
 			console.error("Registration error:", errorMsg);
 			if (errorMsg?.includes("Email") && errorMsg?.includes("exists")) {
-				setError("email", { type: "manual", message: "This email has already been used." });
+				setError("email", { type: "manual", message: "Email này đã được sử dụng." });
 			} else {
 				showNotification(errorMsg, "error");
 			}
@@ -85,33 +85,18 @@ export default function RegisterPage() {
 						boxShadow: 3,
 					}}
 				>
-					<AuthHeader title="Create Account" description="" />
+					<AuthHeader title="Tạo tài khoản" description="" />
 					<Box sx={{ mb: 1.5 }}>
-						<CommonInput name="fullName" control={control} label="Name " placeholder="Your name" type="text" required />
+						<CommonInput name="fullName" control={control} label="Họ và tên" placeholder="Họ và tên của bạn" type="text" required />
 					</Box>
 					<Box sx={{ mb: 1.5 }}>
-						<CommonInput name="email" control={control} label="Email " placeholder="Your email" type="email" required />
+						<CommonInput name="email" control={control} label="Email" placeholder="Email của bạn" type="email" required />
 					</Box>
 					<Box sx={{ mb: 1.5 }}>
-						<CommonInput
-							name="password"
-							control={control}
-							label="Password "
-							placeholder="Your password"
-							type="password"
-							required
-						/>
+						<CommonInput name="password" control={control} label="Mật khẩu" placeholder="Mật khẩu của bạn" type="password" required />
 					</Box>
-
 					<Box sx={{ mb: 1.5 }}>
-						<CommonInput
-							name="confirmPassword"
-							control={control}
-							label="Repeat Password "
-							placeholder="Your password"
-							type="password"
-							required
-						/>
+						<CommonInput name="confirmPassword" control={control} label="Nhập lại mật khẩu" placeholder="Nhập lại mật khẩu" type="password" required />
 					</Box>
 
 					<Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", mt: 2, mb: 3 }}>
@@ -122,17 +107,17 @@ export default function RegisterPage() {
 							variant="solid"
 							className="!py-3 !px-8 !min-w-[120px] !rounded-[25px]"
 						>
-							{isSubmitting ? "Loading..." : "Sign Up"}
+							{isSubmitting ? "Đang xử lý..." : "Đăng ký"}
 						</CommonButton>
 
 						<Typography variant="body2" align="center" sx={{ mt: 3, color: "text.secondary" }}>
-							Have ready an account ?
+							Đã có tài khoản?
 							<MuiLink
 								onClick={() => router.push(routerPaths.login)}
 								underline="hover"
 								sx={{ ml: 0.5, fontWeight: "bold", cursor: "pointer", color: "primary.main" }}
 							>
-								Login here
+								Đăng nhập tại đây
 							</MuiLink>
 						</Typography>
 					</Box>
@@ -153,8 +138,8 @@ export default function RegisterPage() {
 					}}
 				>
 					<AuthHeader
-						title="New Customer?"
-						description="Creating an account has many benefits:"
+						title="Khách hàng mới?"
+						description="Tạo tài khoản để trải nghiệm nhiều lợi ích:"
 						benefits={REGISTER_BENEFITS}
 					/>
 				</Box>

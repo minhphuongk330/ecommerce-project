@@ -19,9 +19,9 @@ export const calculateShippingDays = (selectedDate: string): number => {
 };
 
 export const calculateSchedulePrice = (days: number): number => {
-	if (days <= 1) return 15;
-	if (days <= 2) return 8.5;
-	if (days <= 6) return 5;
+	if (days <= 1) return 50000;
+	if (days <= 2) return 30000;
+	if (days <= 6) return 20000;
 	return 0;
 };
 

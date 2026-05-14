@@ -57,6 +57,22 @@ export class ProductReviewsService {
     });
   }
 
+  async findTop(limit = 10): Promise<ProductReview[]> {
+    return await this.productReviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.customer', 'customer')
+      .leftJoinAndSelect('review.product', 'product')
+      .where('review.rating = :rating', { rating: 5 })
+      .andWhere('review.comment IS NOT NULL')
+      .andWhere("review.comment != ''")
+      .andWhere('LENGTH(review.comment) >= :minLen', { minLen: 20 })
+      .addSelect('LENGTH(review.comment)', 'commentLen')
+      .orderBy('commentLen', 'DESC')
+      .addOrderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .getMany();
+  }
+
   async findByProductId(productId: number): Promise<ProductReview[]> {
     return await this.productReviewRepository.find({
       where: { productId },

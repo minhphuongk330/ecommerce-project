@@ -16,6 +16,11 @@ import { UpdateAttributeDefDto } from './dto/update-attribute-def.dto';
 export class AttributeDefsController {
   constructor(private readonly attributeDefsService: AttributeDefsService) {}
 
+  @Post('seed')
+  seed() {
+    return this.attributeDefsService.seedPhoneAttributes();
+  }
+
   @Post()
   create(@Body() createAttributeDefDto: CreateAttributeDefDto) {
     return this.attributeDefsService.create(createAttributeDefDto);

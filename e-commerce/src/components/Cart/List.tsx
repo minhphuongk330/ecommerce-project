@@ -23,8 +23,6 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 	return (
 		<div className="flex flex-col">
 			{items.map(item => {
-				const selectedVariant = item.variants?.find((v: any) => Number(v.id) === Number(item.variantId));
-
 				return (
 					<div
 						key={item.cartItemId}
@@ -44,8 +42,7 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 									{item.name}
 								</h3>
 								<div className="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-1">
-									{item.selectedColor && <span>{item.selectedColor}</span>}
-									{selectedVariant && <span>{selectedVariant.sku}</span>}
+									{item.selectedColor && <span>Color: {item.selectedColor}</span>}
 								</div>
 							</div>
 
@@ -56,7 +53,7 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 									onDecrease={() => (item.quantity > 1 ? onDecrease(item.cartItemId!) : setDeleteId(item.cartItemId!))}
 								/>
 								<span className="text-base sm:text-xl font-medium text-black">
-									{formatPrice(selectedVariant ? selectedVariant.price : item.price)}
+									{formatPrice(item.price)}
 								</span>
 								<div className="absolute top-4 right-0 sm:static">
 									<CommonIconButton

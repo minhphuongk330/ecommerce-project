@@ -2,25 +2,25 @@ import React from "react";
 
 const CONTENTS = {
 	story: {
-		title: "Our Story",
-		text: "Welcome to our e-commerce platform, where quality meets convenience. We are dedicated to providing you with the best shopping experience, offering a wide range of products that cater to your needs and lifestyle.",
+		title: "Câu chuyện của chúng tôi",
+		text: "Chào mừng bạn đến với Cyber Store — nơi công nghệ gặp gỡ sự tiện lợi. Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất với đa dạng sản phẩm công nghệ chính hãng, phù hợp với mọi nhu cầu và phong cách sống.",
 	},
 	mission: {
-		title: "Our Mission",
-		text: "Our mission is to make online shopping simple, enjoyable, and accessible to everyone. We strive to offer high-quality products at competitive prices while maintaining excellent customer service.",
+		title: "Sứ mệnh",
+		text: "Sứ mệnh của chúng tôi là làm cho việc mua sắm trực tuyến trở nên đơn giản, thú vị và dễ tiếp cận với tất cả mọi người. Chúng tôi nỗ lực cung cấp sản phẩm chất lượng cao với giá cạnh tranh, đồng thời duy trì dịch vụ khách hàng xuất sắc.",
 	},
 	contact: {
-		title: "Contact Information",
-		text: "If you have any questions or need assistance, please don't hesitate to reach out to us through our contact page. We're here to help!",
+		title: "Thông tin liên hệ",
+		text: "Nếu bạn có bất kỳ câu hỏi nào hoặc cần hỗ trợ, đừng ngần ngại liên hệ với chúng tôi qua trang Liên hệ. Chúng tôi luôn sẵn sàng giúp đỡ!",
 	},
 };
 
 const FEATURES = [
-	"Wide selection of quality products",
-	"Fast and reliable shipping",
-	"Secure payment options",
-	"24/7 customer support",
-	"Easy returns and refunds",
+	"Đa dạng sản phẩm công nghệ chính hãng",
+	"Giao hàng nhanh chóng và đáng tin cậy",
+	"Thanh toán bảo mật, nhiều hình thức",
+	"Hỗ trợ khách hàng 24/7",
+	"Đổi trả dễ dàng trong 30 ngày",
 ];
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
@@ -36,7 +36,7 @@ export default function AboutPage() {
 		<div className="w-full bg-white min-h-screen">
 			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8 md:py-[40px]">
 				<div className="max-w-4xl mx-auto">
-					<h1 className="text-3xl md:text-4xl font-bold text-black mb-6 md:mb-8">About Us</h1>
+					<h1 className="text-3xl md:text-4xl font-bold text-black mb-6 md:mb-8">Về chúng tôi</h1>
 
 					<div className="space-y-6 md:space-y-8 text-gray-700">
 						<section>
@@ -50,7 +50,7 @@ export default function AboutPage() {
 						</section>
 
 						<section>
-							<SectionTitle>Why Choose Us</SectionTitle>
+							<SectionTitle>Tại sao chọn chúng tôi</SectionTitle>
 							<ul className="list-disc list-inside space-y-3 text-base md:text-lg leading-relaxed">
 								{FEATURES.map((feature, index) => (
 									<li key={index}>{feature}</li>

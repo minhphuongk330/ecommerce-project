@@ -22,6 +22,18 @@ export default function ProductReviews({ productId: rawProductId }: ProductRevie
 	const [isExpanded, setIsExpanded] = useState(false);
 	const user = useAuthStore(state => state.user);
 
+	// Scroll đến section reviews nếu URL có #reviews
+	useEffect(() => {
+		if (typeof window !== "undefined" && window.location.hash === "#reviews") {
+			const el = document.getElementById("reviews");
+			if (el) {
+				setTimeout(() => {
+					el.scrollIntoView({ behavior: "smooth", block: "start" });
+				}, 500); // delay để trang load xong
+			}
+		}
+	}, []);
+
 	const fetchReviews = useCallback(
 		async (showLoading = false) => {
 			if (!productId || isNaN(productId)) return;
@@ -55,7 +67,7 @@ export default function ProductReviews({ productId: rawProductId }: ProductRevie
 	return (
 		<div id="reviews" className="w-full py-10 flex justify-center px-4 md:px-[160px]">
 			<div className="w-full max-w-[1120px] flex flex-col gap-[48px]">
-				<h2 className="font-bold text-[24px] text-[#000000] leading-[32px]">Reviews</h2>
+				<h2 className="font-bold text-[24px] text-[#000000] leading-[32px]">Đánh giá sản phẩm</h2>
 
 				<ReviewSummary stats={stats} />
 
@@ -63,10 +75,10 @@ export default function ProductReviews({ productId: rawProductId }: ProductRevie
 
 				<div className="flex flex-col gap-[24px]">
 					{isLoading ? (
-						<p className="text-center text-gray-400">Loading reviews...</p>
+						<p className="text-center text-gray-400">Đang tải đánh giá...</p>
 					) : reviews.length === 0 ? (
 						<p className="text-gray-500 text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-							There are no reviews for this product yet. Be the first to review it.!
+							Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
 						</p>
 					) : (
 						displayedReviews.map(review => (

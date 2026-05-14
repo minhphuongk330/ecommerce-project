@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import MuiSlider from "@mui/material/Slider";
-import FiltersAccordion from "./Accordion";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Button from "~/components/atoms/Button";
 import { formatPrice } from "~/utils/format";
+import FiltersAccordion from "./Accordion";
 
 interface PriceRangeFilterProps {
 	minPrice: number;
@@ -15,21 +15,43 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
-	const initMin = Number(searchParams.get("minPrice") ?? minPrice);
-	const initMax = Number(searchParams.get("maxPrice") ?? maxPrice);
+
+	// Ensure we have valid numbers (fallback if API hasn't loaded yet)
+	const safeMin = Math.max(0, Number(minPrice) || 0);
+	const safeMax = Math.max(safeMin + 1000000, Number(maxPrice) || 100000000);
+
+	const urlMin = searchParams.get("minPrice");
+	const urlMax = searchParams.get("maxPrice");
+
+	// Use URL values if present, otherwise use the dynamic range
+	const initMin = urlMin ? Number(urlMin) : safeMin;
+	const initMax = urlMax ? Number(urlMax) : safeMax;
+
 	const [sliderValues, setSliderValues] = useState<[number, number]>([initMin, initMax]);
 	const [focusedMin, setFocusedMin] = useState(false);
 	const [focusedMax, setFocusedMax] = useState(false);
 	const [inputMin, setInputMin] = useState(String(initMin));
 	const [inputMax, setInputMax] = useState(String(initMax));
 
+	// Reset slider when min/max price range changes (e.g., when category changes)
 	useEffect(() => {
-		const min = Number(searchParams.get("minPrice") ?? minPrice);
-		const max = Number(searchParams.get("maxPrice") ?? maxPrice);
-		setSliderValues([min, max]);
-		setInputMin(String(min));
-		setInputMax(String(max));
-	}, [searchParams, minPrice, maxPrice]);
+		const urlMinPrice = searchParams.get("minPrice");
+		const urlMaxPrice = searchParams.get("maxPrice");
+
+		if (urlMinPrice || urlMaxPrice) {
+			// User has set filters, respect them but clamp to valid range
+			const min = Math.max(safeMin, Number(urlMinPrice) || safeMin);
+			const max = Math.min(safeMax, Number(urlMaxPrice) || safeMax);
+			setSliderValues([min, max]);
+			setInputMin(String(min));
+			setInputMax(String(max));
+		} else {
+			// No URL filters, reset to full range
+			setSliderValues([safeMin, safeMax]);
+			setInputMin(String(safeMin));
+			setInputMax(String(safeMax));
+		}
+	}, [searchParams, safeMin, safeMax]);
 
 	const handleSliderChange = (_: Event, value: number | number[]) => {
 		const [min, max] = value as number[];
@@ -39,14 +61,14 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 	};
 
 	const handleMinBlur = () => {
-		const val = Math.max(minPrice, Math.min(Number(inputMin) || minPrice, sliderValues[1] - 1));
+		const val = Math.max(safeMin, Math.min(Number(inputMin) || safeMin, sliderValues[1] - 100000));
 		setSliderValues([val, sliderValues[1]]);
 		setInputMin(String(val));
 		setFocusedMin(false);
 	};
 
 	const handleMaxBlur = () => {
-		const val = Math.min(maxPrice, Math.max(Number(inputMax) || maxPrice, sliderValues[0] + 1));
+		const val = Math.min(safeMax, Math.max(Number(inputMax) || safeMax, sliderValues[0] + 100000));
 		setSliderValues([sliderValues[0], val]);
 		setInputMax(String(val));
 		setFocusedMax(false);
@@ -67,8 +89,9 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 					<MuiSlider
 						value={sliderValues}
 						onChange={handleSliderChange}
-						min={minPrice}
-						max={maxPrice}
+						min={safeMin}
+						max={safeMax}
+						step={500000}
 						disableSwap
 						sx={{
 							color: "#000",

@@ -1,33 +1,80 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Checkbox from "~/components/atoms/Checkbox";
+import { useMobileFilter } from "~/contexts/MobileFilterContext";
+import { AttributeDef, attributeService } from "~/services/attribute";
+import { productService } from "~/services/product";
+import { FilterCategory, FilterOption, FiltersProps } from "~/types/catalog";
+import SearchField from "../../atoms/SearchField";
 import FiltersAccordion from "./Accordion";
 import CategoryList from "./CategoryList";
-import PriceRangeFilter from "./PriceRangeFilter";
-import SearchField from "../../atoms/SearchField";
-import Checkbox from "~/components/atoms/Checkbox";
-import { FiltersProps, FilterCategory, FilterOption } from "~/types/catalog";
-import { attributeService, AttributeDef } from "~/services/attribute";
-import { productService } from "~/services/product";
 import FilterDrawer from "./Drawer";
-import { useMobileFilter } from "~/contexts/MobileFilterContext";
+import PriceRangeFilter from "./PriceRangeFilter";
 
 interface ExtendedFiltersProps extends FiltersProps {
 	categoryId?: number;
 }
 
+const specLabels: Record<string, string> = {
+	os: 'Hệ điều hành',
+	cpu: 'Chip xử lý (CPU)',
+	ram: 'RAM',
+	storage: 'Dung lượng lưu trữ',
+	screenSize: 'Màn hình rộng',
+	screenTech: 'Công nghệ màn hình',
+	rearCamera: 'Độ phân giải camera sau',
+	frontCamera: 'Độ phân giải camera trước',
+	battery: 'Dung lượng pin',
+	charging: 'Hỗ trợ sạc tối đa',
+	network: 'Mạng di động',
+	sim: 'SIM',
+	utilities: 'Tiện ích & Bảo mật',
+	material: 'Chất liệu',
+	dimensions: 'Kích thước, khối lượng',
+	screen: 'Màn hình',
+	chip: 'Chip xử lý',
+	gpu: 'Đồ họa',
+	weight: 'Trọng lượng',
+	ports: 'Cổng kết nối',
+	connectivity: 'Kết nối',
+	design: 'Thiết kế',
+	health: 'Sức khỏe',
+	sports: 'Thể thao',
+	waterproof: 'Chống nước',
+	compatibility: 'Tương thích',
+	chargingPort: 'Cổng sạc',
+	audioTech: 'Công nghệ âm thanh',
+	micro: 'Micro',
+	resolution: 'Độ phân giải',
+	viewAngle: 'Góc nhìn',
+	nightVision: 'Tầm nhìn đêm',
+	power: 'Nguồn điện',
+	wifi: 'WiFi',
+	bluetooth: 'Bluetooth',
+};
+
+const formatSpecLabel = (key: string): string => {
+	if (specLabels[key]) return specLabels[key];
+	return key
+		.replace(/_/g, ' ')
+		.replace(/([A-Z])/g, ' $1')
+		.trim()
+		.replace(/^\w/, (c) => c.toUpperCase());
+};
+
 const transformAttributeToFilter = (attr: AttributeDef): FilterCategory => {
 	const options: FilterOption[] = attr.value
 		? attr.value.split(",").map((val, index) => ({
-				id: `${attr.id}-${index}`,
-				name: val.trim(),
-			}))
+			id: `${attr.id}-${index}`,
+			name: val.trim(),
+		}))
 		: [];
 
-	const normalizedId = attr.name.toLowerCase().replace(/\s+/g, "_");
-
+	// Keep attr.name as-is (camelCase) so it matches the JSON key in specifications
+	// e.g. "rearCamera" → id = "rearCamera" → URL ?rearCamera=... → backend $.rearCamera ✅
 	return {
-		id: normalizedId,
-		title: attr.name,
+		id: attr.name,
+		title: formatSpecLabel(attr.name),
 		hasSearch: options.length > 1,
 		defaultOpen: false,
 		options,
@@ -69,12 +116,12 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	}, [categoryId]);
 
 	useEffect(() => {
-		if (!categoryId) return;
+		// Fetch price range - with category filter if selected, otherwise all products
 		productService
 			.getPriceRange(categoryId)
 			.then(setPriceRange)
 			.catch(() => {
-				setPriceRange({ minPrice: 0, maxPrice: 10000 });
+				setPriceRange({ minPrice: 0, maxPrice: 100000000 });
 			});
 	}, [categoryId]);
 

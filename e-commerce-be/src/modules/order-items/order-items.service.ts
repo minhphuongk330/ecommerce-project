@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderItem } from '../../entities/order-item.entity';
 import { Product } from '../../entities/product.entity';
-import { ProductVariant } from '../../entities/product-variant.entity';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 
@@ -18,9 +17,7 @@ export class OrderItemsService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    @InjectRepository(ProductVariant)
-    private readonly variantRepository: Repository<ProductVariant>,
-  ) {}
+  ) { }
 
   async create(createOrderItemDto: CreateOrderItemDto): Promise<OrderItem> {
     const quantity = createOrderItemDto.quantity || 1;
@@ -34,31 +31,14 @@ export class OrderItemsService {
         `Product with ID ${createOrderItemDto.productId} not found`,
       );
     }
-    if (createOrderItemDto.variantId) {
-      const variant = await this.variantRepository.findOne({
-        where: { id: createOrderItemDto.variantId },
-      });
-      if (!variant) {
-        throw new NotFoundException(
-          `Variant with ID ${createOrderItemDto.variantId} not found`,
-        );
-      }
-      if (variant.stock < quantity) {
-        throw new BadRequestException(
-          `Insufficient stock for product "${product.name}". Available: ${variant.stock}, Requested: ${quantity}`,
-        );
-      }
-      variant.stock -= quantity;
-      await this.variantRepository.save(variant);
-    } else {
-      if (product.stock < quantity) {
-        throw new BadRequestException(
-          `Insufficient stock for product "${product.name}". Available: ${product.stock}, Requested: ${quantity}`,
-        );
-      }
-      product.stock -= quantity;
-      await this.productRepository.save(product);
+
+    if (product.stock < quantity) {
+      throw new BadRequestException(
+        `Insufficient stock for product "${product.name}". Available: ${product.stock}, Requested: ${quantity}`,
+      );
     }
+    product.stock -= quantity;
+    await this.productRepository.save(product);
 
     const orderItem = this.orderItemRepository.create(createOrderItemDto);
     return await this.orderItemRepository.save(orderItem);

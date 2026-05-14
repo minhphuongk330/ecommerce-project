@@ -7,8 +7,6 @@ export interface CartItem extends Product {
 	cartItemId?: number;
 	quantity: number;
 	selectedColor?: string;
-	variantId?: number;
-	variants?: any[];
 }
 
 interface CartState {
@@ -47,20 +45,12 @@ export const useCartStore = create<CartState>()(
 						const data = await cartService.getAll();
 						const mappedItems: CartItem[] = data.map((item: any) => {
 							const baseProduct = item.product;
-							const selectedVariantId = item.variantId || item.productVariantId;
-							let displayPrice = baseProduct.price;
-							if (selectedVariantId && baseProduct.variants) {
-								const variant = baseProduct.variants.find((v: any) => Number(v.id) === Number(selectedVariantId));
-								if (variant) displayPrice = variant.price;
-							}
 							return {
 								...baseProduct,
 								cartItemId: item.id,
 								quantity: item.quantity,
 								selectedColor: item.color,
-								variantId: selectedVariantId,
-								price: displayPrice,
-								variants: baseProduct.variants,
+								price: baseProduct.price,
 							};
 						});
 

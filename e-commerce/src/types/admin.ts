@@ -54,18 +54,13 @@ export interface AdminProduct {
 	category?: AdminCategory;
 	categoryId?: number;
 	description?: string;
-	shortDescription?: string;
 	extraImage1?: string;
 	extraImage2?: string;
 	extraImage3?: string;
 	extraImage4?: string;
-	productColors?: {
-		id: number | string;
-		colorName: string;
-		colorHex: string;
-	}[];
+	color?: string;
+	specifications?: Record<string, any>;
 	attributes?: any;
-	variants?: { id: number; sku?: string }[];
 }
 
 export interface CreateProductPayload {
@@ -74,7 +69,6 @@ export interface CreateProductPayload {
 	price: number;
 	stock?: number;
 	description?: string;
-	shortDescription?: string;
 	mainImageUrl: string;
 	extraImage1?: string;
 	extraImage2?: string;

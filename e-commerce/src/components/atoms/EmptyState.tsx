@@ -13,7 +13,7 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({
 	title,
 	description,
-	buttonText = "Start Shopping",
+	buttonText = "Mua sắm ngay",
 	link = routerPaths.index || "/",
 }) => {
 	return (

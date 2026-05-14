@@ -1,27 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, UpdateDateColumn, CreateDateColumn } from 'typeorm';
 import { Product } from './product.entity';
 import { AttributeDef } from './attribute-def.entity';
 
 @Entity('categories')
 export class Category {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, unique: true })
   name: string;
-
-  @Column({ type: 'text', nullable: true, name: 'thumbnail_url' })
-  thumbnailUrl: string;
-
-  @Column({ type: 'text', nullable: true })
-  configs: string;
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
@@ -29,10 +16,9 @@ export class Category {
   @OneToMany(() => AttributeDef, (attributeDef) => attributeDef.category)
   attributeDefs: AttributeDef[];
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn()
   updatedAt: Date;
 }
-

@@ -10,26 +10,14 @@ export const productSchema = z.object({
 		.transform(val => Number(val)),
 	mainImageUrl: z.string().min(1, { message: "Main image is required" }),
 	description: z.string().optional(),
-	shortDescription: z.string().optional(),
-	colors: z.array(z.any()).optional().default([]),
+	color: z.string().optional(),
+	specifications: z.record(z.string(), z.any()).optional(),
 	extraImage1: z.string().optional().or(z.literal("")),
 	extraImage2: z.string().optional().or(z.literal("")),
 	extraImage3: z.string().optional().or(z.literal("")),
 	extraImage4: z.string().optional().or(z.literal("")),
 	isActive: z.boolean().optional(),
-	attributes: z.record(z.string(), z.any()).optional(),
 	isFeatured: z.boolean().optional().default(false),
-	variants: z
-		.array(
-			z.object({
-				sku: z.string().optional(),
-				price: numericInput.pipe(z.number().min(0, { message: "Price must be positive" })),
-				stock: numericInput.pipe(z.number().min(0, { message: "Stock must be positive" })),
-				options: z.any().optional(),
-			}),
-		)
-		.optional()
-		.default([]),
 });
 
 export interface ProductFormValues {
@@ -40,25 +28,14 @@ export interface ProductFormValues {
 	mainImageUrl: string;
 	categoryId: number | string | undefined | null;
 	description?: string;
-	shortDescription?: string;
-	colors?: {
-		id?: any;
-		colorName: string;
-		colorHex?: string;
-	}[];
+	color?: string;
+	specifications?: Record<string, any>;
 	extraImage1?: string;
 	extraImage2?: string;
 	extraImage3?: string;
 	extraImage4?: string;
 	isActive?: boolean;
-	attributes?: Record<string, any>;
 	isFeatured?: boolean;
-	variants?: {
-		sku?: string;
-		price: number | string;
-		stock: number | string;
-		options?: any;
-	}[];
 }
 
 export type ProductFormOutput = z.infer<typeof productSchema>;

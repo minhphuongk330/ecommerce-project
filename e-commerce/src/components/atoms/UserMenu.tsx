@@ -9,6 +9,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import { PersonOutline, Dashboard } from "@mui/icons-material";
 import Logout from "@mui/icons-material/Logout";
 import ShoppingBagOutlined from "@mui/icons-material/ShoppingBagOutlined";
+import LocalOffer from "@mui/icons-material/LocalOffer";
 import CommonIconButton from "~/components/atoms/IconButton";
 import { useScrollLock } from "~/hooks/useScrollLock";
 import { User, UserProfile } from "~/types/auth";
@@ -67,8 +68,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 									<Dashboard fontSize="small" color="primary" />
 								</ListItemIcon>
 								<Typography variant="body2" fontWeight="bold" color="primary">
-									Admin Dashboard
-								</Typography>
+									Admin Dashboard								</Typography>
 							</MenuItem>
 						</Link>
 						<Divider />
@@ -80,7 +80,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 						<ListItemIcon>
 							<PersonOutline fontSize="small" />
 						</ListItemIcon>
-						My Profile
+						Trang cá nhân
 					</MenuItem>
 				</Link>
 
@@ -89,7 +89,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 						<ListItemIcon>
 							<ShoppingBagOutlined fontSize="small" />
 						</ListItemIcon>
-						My Orders
+						Đơn hàng của tôi
+					</MenuItem>
+				</Link>
+
+				<Link href={routerPaths.myCoupons} style={{ textDecoration: "none", color: "inherit" }}>
+					<MenuItem onClick={handleClose}>
+						<ListItemIcon>
+							<LocalOffer fontSize="small" />
+						</ListItemIcon>
+						Mã giảm giá của tôi
 					</MenuItem>
 				</Link>
 
@@ -99,7 +108,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user, icon, onLogout }) => {
 					<ListItemIcon className="!text-red-600">
 						<Logout fontSize="small" />
 					</ListItemIcon>
-					Logout
+					Đăng xuất
 				</MenuItem>
 			</Menu>
 		</>

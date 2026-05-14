@@ -1,103 +1,65 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Brand } from './brand.entity';
+import { CartItem } from './cart-item.entity';
 import { Category } from './category.entity';
-import { ProductImage } from './product-image.entity';
-import { ProductColor } from './product-color.entity';
+import { Favorite } from './favorite.entity';
 import { OrderItem } from './order-item.entity';
 import { ProductReview } from './product-review.entity';
-import { Favorite } from './favorite.entity';
-import { CartItem } from './cart-item.entity';
-import { ProductVariant } from './product-variant.entity';
 
 @Entity('products')
 export class Product {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @Column({ type: 'int', default: 0 })
+  stock: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'bigint', nullable: true, name: 'category_id' })
-  categoryId: number;
+  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  price: number;
 
-  @ManyToOne(() => Category, (category) => category.products, {
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+  @Column({ type: 'text', nullable: true })
+  mainImageUrl: string;
 
-  @Column({ type: 'text', nullable: true, name: 'short_description' })
-  shortDescription: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  color: string;
+
+  // Lưu nguyên cục object { ram: "12GB", storage: "256GB" } vào đây cho gọn
+  @Column({ type: 'json', nullable: true })
+  specifications: Record<string, any>;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  price: number;
-
-  @Column({ type: 'int', default: 0 })
-  stock: number;
-
-  @Column({ type: 'text', name: 'main_image_url' })
-  mainImageUrl: string;
-
-  @Column({ type: 'text', nullable: true, name: 'extra_image_1' })
-  extraImage1: string;
-
-  @Column({ type: 'text', nullable: true, name: 'extra_image_2' })
-  extraImage2: string;
-
-  @Column({ type: 'text', nullable: true, name: 'extra_image_3' })
-  extraImage3: string;
-
-  @Column({ type: 'text', nullable: true, name: 'extra_image_4' })
-  extraImage4: string;
-
-  @Column({ type: 'boolean', default: true, name: 'is_active' })
+  @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'boolean', default: false, name: 'is_featured' })
-  isFeatured: boolean;
+  // --- Thiết lập khóa ngoại (Foreign Keys) ---
 
-  @Column({ type: 'json', nullable: true })
-  attributes: any;
+  @ManyToOne(() => Category, (category) => category.products, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
-  @OneToMany(() => ProductImage, (productImage) => productImage.product)
-  productImages: ProductImage[];
+  @ManyToOne(() => Brand, (brand) => brand.products, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'brand_id' })
+  brand: Brand;
 
-  @OneToMany(() => ProductColor, (productColor) => productColor.product, {
-    cascade: true,
-  })
-  productColors: ProductColor[];
+  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
+  cartItems: CartItem[];
 
-  @OneToMany(() => ProductVariant, (variant) => variant.product, {
-    cascade: true,
-  })
-  variants: ProductVariant[];
+  @OneToMany(() => Favorite, (favorite) => favorite.product)
+  favorites: Favorite[];
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
 
   @OneToMany(() => ProductReview, (review) => review.product)
   reviews: ProductReview[];
-
-  @OneToMany(() => Favorite, (favorite) => favorite.product)
-  favorites: Favorite[];
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
-
-  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
-  cartItems: CartItem[];
 }

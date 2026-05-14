@@ -4,58 +4,40 @@ export interface ProductAttributes {
 	[key: string]: string;
 }
 
-export interface ProductImage {
-	id: number;
-	productId: number;
-	url: string;
-	ordinal: number;
-	isPrimary: boolean;
-}
-
-export interface ProductColor {
-	id: number;
-	productId: number;
-	colorName: string;
-	colorHex: string;
-}
-
 export interface Product {
 	id: number;
 	name: string;
 	categoryId: number;
 	category?: CategoryShort;
-	shortDescription?: string;
 	description?: string;
 	price: number | string;
+	originalPrice?: number | string;
+	installmentPrice?: number | string;
+	memberPrice?: number | string;
 	stock: number;
+	stockStatus?: "in_stock" | "out_of_stock" | "contact";
+	badgeLabel?: string;
 	mainImageUrl: string;
 	extraImage1?: string;
 	extraImage2?: string;
 	extraImage3?: string;
 	extraImage4?: string;
 	isActive: boolean;
+	color?: string;
+	specifications?: Record<string, any>;
 	attributes?: ProductAttributes;
 	isFavorite?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
 	isFeatured?: boolean;
-	variants?: any[];
+	// Flash Sale fields
+	isFlashSale?: boolean;
+	flashSaleDiscount?: number;
 }
 
 export interface ProductDetail extends Product {
-	productImages: ProductImage[];
-	productColors: ProductColor[];
 	originalPrice?: number;
-	specs?: {
-		screen: string;
-		cpu: string;
-		cores: string;
-		main_camera: string;
-		front_camera: string;
-		battery: string;
-		os?: string;
-		ram?: string;
-	};
+	specifications?: Record<string, any>;
 	fullDescription?: string;
 	details?: {
 		category: string;
@@ -69,7 +51,6 @@ export interface ProductDetail extends Product {
 export interface CreateProductInput {
 	name: string;
 	categoryId?: number;
-	shortDescription?: string;
 	description?: string;
 	price: number;
 	stock?: number;
@@ -81,26 +62,4 @@ export interface CreateProductInput {
 	isActive?: boolean;
 }
 
-export interface CreateImageInput {
-	productId: number;
-	url: string;
-	ordinal?: number;
-	isPrimary?: boolean;
-}
 
-export interface CreateColorInput {
-	productId: number;
-	colorName: string;
-	colorHex?: string;
-}
-
-export interface ProductSpecs {
-	screen: string;
-	cpu: string;
-	cores: string;
-	main_camera: string;
-	front_camera: string;
-	battery: string;
-	os?: string;
-	ram?: string;
-}

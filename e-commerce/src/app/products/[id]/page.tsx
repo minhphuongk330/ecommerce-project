@@ -19,12 +19,12 @@ export default function ProductDetailsPage() {
 
 	useEffect(() => {
 		if (product) {
-			const categoryId = product.categoryId;
+			const categoryId = product.category?.id;
 			const categoryName = product.category?.name || "Products";
 
 			setBreadcrumbs([
 				{ label: "Home", href: routerPaths.index },
-				{ label: categoryName, href: `${routerPaths.productDetail}?categoryId=${categoryId}` },
+				{ label: categoryName, href: `/products?categoryId=${categoryId}` },
 				{ label: product.name, href: "#" },
 			]);
 		}
@@ -33,18 +33,22 @@ export default function ProductDetailsPage() {
 	const uiProduct: ProductDetailUI | null = useMemo(() => {
 		if (!product) return null;
 
-		const rawImages = product.productImages || [];
-		const rawColors = product.productColors || [];
+		// Build images array from mainImageUrl and extra images
+		const images: string[] = [];
+		if (product.mainImageUrl) images.push(product.mainImageUrl);
+		if (product.extraImage1) images.push(product.extraImage1);
+		if (product.extraImage2) images.push(product.extraImage2);
+		if (product.extraImage3) images.push(product.extraImage3);
+		if (product.extraImage4) images.push(product.extraImage4);
+
+		// Build colors array from single color string
+		const colors = product.color ? [{ id: 1, name: product.color, hex: "#000000" }] : [];
 
 		return {
 			...product,
-			images: rawImages.map(img => img.url),
-			colors: rawColors.map(col => ({
-				id: col.id,
-				name: col.colorName,
-				hex: col.colorHex || "#000000",
-			})),
-			specs: product.specs,
+			images,
+			colors,
+			specs: product.specifications || {},
 		};
 	}, [product]);
 

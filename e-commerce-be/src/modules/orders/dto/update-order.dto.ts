@@ -6,5 +6,10 @@ export class UpdateOrderDto {
   discount?: number;
   totalAmount?: number;
   note?: string;
+  // Payment
+  paymentMethod?: 'COD' | 'VNPAY';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'cancelled';
+  txnRef?: string; // VNPay transaction reference
 }
+
 

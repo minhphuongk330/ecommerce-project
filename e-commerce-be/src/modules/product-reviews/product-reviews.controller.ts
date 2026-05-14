@@ -40,6 +40,11 @@ export class ProductReviewsController {
     return this.productReviewsService.findAll(productIdNum);
   }
 
+  @Get('top')
+  findTop(@Query('limit') limit?: string) {
+    return this.productReviewsService.findTop(limit ? parseInt(limit) : 10);
+  }
+
   @Get('product/:productId')
   findByProductId(@Param('productId', ParseIntPipe) productId: number) {
     return this.productReviewsService.findByProductId(productId);

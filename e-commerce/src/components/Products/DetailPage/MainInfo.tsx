@@ -1,8 +1,7 @@
 "use client";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ColorSelector from "~/components/atoms/ColorSelector";
-import VariantSelector from "~/components/atoms/VariantSelector";
 import StepButton from "~/components/checkout/Button";
 import { useNotification } from "~/contexts/Notification";
 import { useCartStore } from "~/stores/cart";
@@ -13,12 +12,64 @@ import { routerPaths } from "~/utils/router";
 import DeliveryInfo from "./DeliveryInfo";
 import ImageGallery from "./ImageGallery";
 
+// Dynamic Color Mapping: Vietnamese color names to HEX codes
+const COLOR_MAP: Record<string, string> = {
+	"Đen": "#000000",
+	"Trắng": "#FFFFFF",
+	"Đỏ": "#FF0000",
+	"Xanh dương": "#0000FF",
+	"Xanh lá": "#008000",
+	"Xanh ngọc": "#00CED1",
+	"Vàng": "#FFFF00",
+	"Cam": "#FF8C00",
+	"Tím": "#800080",
+	"Hồng": "#FFC0CB",
+	"Nâu": "#8B4513",
+	"Xám": "#808080",
+	"Bạc": "#C0C0C0",
+	"Vàng gold": "#FFD700",
+	"Xanh navy": "#000080",
+	"Be": "#F5F5DC",
+	"Màu gỗ": "#DEB887",
+	"Xanh mint": "#98FF98",
+	"Hồng đào": "#FFDAB9",
+	"Xanh rêu": "#556B2F",
+};
+
+// Helper to get color list from product data
+const getColorList = (product: MainInfoProps["product"]): string[] => {
+	// Check specifications for color list
+	if (product.specifications) {
+		const specs = product.specifications;
+		// Common keys for color in specifications
+		const colorKeys = ["màu sắc", "color", "mau sac", "colors"];
+		for (const key of colorKeys) {
+			if (specs[key]) {
+				const specColors = String(specs[key]).split(",").map(c => c.trim()).filter(Boolean);
+				if (specColors.length > 0) return specColors;
+			}
+		}
+	}
+	// Fallback to single color field
+	if (product.color) {
+		return [product.color];
+	}
+	return [];
+};
+
+// Helper to format colors for ColorSelector
+const formatColors = (colorNames: string[]) => {
+	return colorNames.map((name, index) => ({
+		id: index + 1,
+		name: name,
+		hex: COLOR_MAP[name] || "#CCCCCC", // Fallback gray if color not in map
+	}));
+};
+
 const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const router = useRouter();
-	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [isExpanded, setIsExpanded] = useState(false);
-	const [activeVariant, setActiveVariant] = useState<any>(null);
 	const [isAddingToCart, setIsAddingToCart] = useState(false);
 	const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 	const addToCart = useCartStore(state => state.addToCart);
@@ -28,97 +79,60 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 	const { showNotification } = useNotification();
 
 	const isLiked = useMemo(() => {
-		return favorites.some(item => {
-			const sameProduct = Number(item.productId) === Number(product.id);
-			if (activeVariant) {
-				return sameProduct && Number(item.variantId) === Number(activeVariant.id);
-			}
-			return sameProduct && !item.variantId;
-		});
-	}, [favorites, product.id, activeVariant]);
+		return favorites.some(item => Number(item.productId) === Number(product.id));
+	}, [favorites, product.id]);
 
-	const createQueryString = useCallback(
-		(name: string, value: string) => {
-			const params = new URLSearchParams(searchParams.toString());
-			params.set(name, value);
-			return params.toString();
-		},
-		[searchParams],
-	);
+	// Get color list from product data
+	const colorList = useMemo(() => getColorList(product), [product]);
+	const formattedColors = useMemo(() => formatColors(colorList), [colorList]);
 
-	const activeSkuParam = searchParams.get("sku");
+	// Manage selectedColor state
+	const [selectedColor, setSelectedColor] = useState<string>("");
+
+	// Initialize selectedColor from URL or first available color
 	useEffect(() => {
-		if (!product.variants || product.variants.length === 0) return;
-		let targetVariant;
-		if (activeSkuParam) {
-			targetVariant = product.variants.find((v: any) => v.sku === activeSkuParam);
+		const colorFromUrl = searchParams.get("color");
+		if (colorFromUrl && colorList.includes(colorFromUrl)) {
+			setSelectedColor(colorFromUrl);
+		} else if (colorList.length > 0) {
+			setSelectedColor(colorList[0]);
 		}
-		if (!targetVariant) {
-			targetVariant = product.variants.find((v: any) => v.stock > 0) || product.variants[0];
-		}
-		setActiveVariant(targetVariant);
-		if (targetVariant && activeSkuParam !== targetVariant.sku) {
-			router.replace(pathname + "?" + createQueryString("sku", targetVariant.sku), { scroll: false });
-		}
-	}, [product.variants, activeSkuParam, pathname, router, createQueryString]);
+	}, [searchParams, colorList]);
 
-	const handleSelectVariant = (variant: any) => {
-		setActiveVariant(variant);
-		router.replace(pathname + "?" + createQueryString("sku", variant.sku), { scroll: false });
-	};
-
-	const formattedColors = useMemo(() => {
-		return (
-			product.productColors?.map(c => ({
-				name: c.colorName,
-				hex: c.colorHex || "#000000",
-				id: c.id,
-			})) || []
-		);
-	}, [product]);
-
-	const activeColorParam = searchParams.get("color");
-	useEffect(() => {
-		if (formattedColors.length > 0 && !activeColorParam) {
-			const firstColor = formattedColors[0].name;
-			router.replace(pathname + "?" + createQueryString("color", firstColor), { scroll: false });
-		}
-	}, [formattedColors, activeColorParam, pathname, router, createQueryString]);
-
-	const activeColorName = activeColorParam || formattedColors[0]?.name || "";
-	const handleSelectColor = (colorName: string) => {
-		router.replace(pathname + "?" + createQueryString("color", colorName), { scroll: false });
-	};
+	// Update URL when color is selected
+	const handleColorSelect = useCallback((colorName: string) => {
+		setSelectedColor(colorName);
+		// Update URL without page reload
+		const params = new URLSearchParams(searchParams.toString());
+		params.set("color", colorName);
+		router.push(`?${params.toString()}`, { scroll: false });
+	}, [router, searchParams]);
 
 	const imageUrls = useMemo(() => {
-		const images = [
-			product.mainImageUrl,
-			product.extraImage1,
-			product.extraImage2,
-			product.extraImage3,
-			product.extraImage4,
-		];
-		return images.filter((img): img is string => typeof img === "string" && img.trim() !== "");
-	}, [product]);
+		return product.images || [];
+	}, [product.images]);
 
 	const handleAddToCart = async () => {
 		if (!isAuthenticated) {
 			router.push(routerPaths.login);
 			return;
 		}
+		if (!selectedColor) {
+			showNotification("Vui lòng chọn màu sắc", "warning");
+			return;
+		}
 		setIsAddingToCart(true);
 		try {
 			const cartItemData = {
 				...product,
-				variantId: activeVariant?.id,
-				price: activeVariant ? activeVariant.price : product.price,
-				variants: product.variants,
+				price: product.price,
 			};
-			await addToCart(cartItemData, activeColorName);
-			showNotification("Added to cart successfully!", "success");
+			// Use selectedColor instead of product.color
+			await addToCart(cartItemData, selectedColor);
+			showNotification("Đã thêm vào giỏ hàng!", "success");
 			router.push(routerPaths.cart);
 		} catch (error: any) {
-			const message = error?.response?.data?.message || "Failed to add to cart";
+			const message = error?.response?.data?.message || "Không thể thêm vào giỏ hàng";
 			showNotification(message, "error");
 		} finally {
 			setIsAddingToCart(false);
@@ -134,13 +148,8 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 
 		setIsTogglingFavorite(true);
 		try {
-			await toggleFavorite(Number(product.id), activeVariant?.id);
-
-			if (!isLiked) {
-				showNotification("Added to wishlist!", "success");
-			} else {
-				showNotification("Removed from wishlist!", "success");
-			}
+			await toggleFavorite(Number(product.id));
+			showNotification(!isLiked ? "Added to wishlist!" : "Removed from wishlist!", "success");
 		} catch (error) {
 			console.error(error);
 			showNotification("Something went wrong", "error");
@@ -149,10 +158,14 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		}
 	};
 
-	const currentPrice = activeVariant ? Number(activeVariant.price) : Number(product.price);
-	const variantStock = activeVariant ? Number(activeVariant.stock) : null;
-	const currentStock = variantStock !== null ? variantStock : Number(product.stock);
+	const currentPrice = Number(product.price);
+	const currentStock = Number(product.stock);
 	const isOutOfStock = currentStock === 0;
+
+	// VND Formatting
+	const formatVND = (price: number) => {
+		return price.toLocaleString("vi-VN") + "₫";
+	};
 
 	return (
 		<div className="w-full flex flex-col items-center bg-[#F9F9F9]">
@@ -165,38 +178,29 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 								{product.name}
 							</h1>
 							<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
-								<span className="text-2xl md:text-[32px] font-medium text-black">${currentPrice}</span>
+								<span className="text-2xl md:text-[32px] font-medium text-black">{formatVND(currentPrice)}</span>
 							</div>
-							{product.variants && product.variants.length > 0 && (
-								<VariantSelector
-									variants={product.variants}
-									selectedSku={activeVariant?.sku}
-									onSelect={handleSelectVariant}
-								/>
-							)}
 							{formattedColors.length > 0 && (
 								<ColorSelector
 									colors={formattedColors}
-									selectedColor={activeColorName}
-									onSelect={handleSelectColor}
-									label="Select color :"
+									selectedColor={selectedColor}
+									onSelect={handleColorSelect}
+									label="Màu sắc:"
 									className="mb-4 md:mb-6"
 								/>
 							)}
 							<div className="mb-6 md:mb-8">
 								<p
-									className={`text-base text-[#6F6F6F] leading-relaxed transition-all duration-300 ${
-										isExpanded ? "" : "line-clamp-4"
-									}`}
+									className={`text-base text-[#6F6F6F] leading-relaxed transition-all duration-300 ${isExpanded ? "" : "line-clamp-4"
+										}`}
 								>
-									{product.shortDescription || ""}
+									{product.description || ""}
 								</p>
-								{(product.shortDescription || "").length > 250 && (
+								{(product.description || "").length > 250 && (
 									<button
 										onClick={() => setIsExpanded(!isExpanded)}
 										className="mt-2 text-sm font-medium text-black underline hover:text-gray-600"
 									>
-										{isExpanded ? "Show less" : "Read more"}
 									</button>
 								)}
 							</div>

@@ -18,7 +18,7 @@ export class AdminService {
     private customerRepository: Repository<Customer>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   async getDashboardStats() {
     const now = new Date();
@@ -114,16 +114,8 @@ export class AdminService {
   }
 
   async createProduct(dto: CreateProductDto) {
-    const { colors, ...productData } = dto;
-
     const product = this.productRepository.create({
-      ...productData,
-      category: dto.categoryId ? { id: dto.categoryId } : undefined,
-      productColors:
-        colors?.map((c) => ({
-          colorName: c.colorName,
-          colorHex: c.colorHex,
-        })) || [],
+      ...dto,
     });
 
     return this.productRepository.save(product);
@@ -133,10 +125,7 @@ export class AdminService {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    const updatedProduct = this.productRepository.merge(product, {
-      ...dto,
-      category: dto.categoryId ? { id: dto.categoryId } : undefined,
-    });
+    const updatedProduct = this.productRepository.merge(product, dto);
 
     return this.productRepository.save(updatedProduct);
   }

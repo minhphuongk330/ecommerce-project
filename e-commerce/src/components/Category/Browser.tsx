@@ -17,7 +17,7 @@ const CategoryBrowser = () => {
 		<div className="flex flex-col w-full max-w-[1440px] mx-auto pt-8 px-4 md:px-[160px] gap-4 md:gap-8">
 			<div className="flex justify-between items-center w-full h-auto">
 				<Typography variant="h5" className="!font-medium !text-xl md:!text-2xl !text-black !leading-8">
-					Browse By Category
+					Danh mục sản phẩm
 				</Typography>
 				<ArrowButton scrollContainerRef={scrollContainerRef} />
 			</div>
@@ -42,7 +42,7 @@ const CategoryBrowser = () => {
 							</div>
 						))
 					) : (
-						<div className="w-full text-center text-gray-500 py-4">No categories found.</div>
+						<div className="w-full text-center text-gray-500 py-4">Không tìm thấy danh mục.</div>
 					)}
 				</div>
 			)}

@@ -1,14 +1,13 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from './product.entity';
-import { ProductVariant } from './product-variant.entity';
 
 @Entity('order_items')
 export class OrderItem {
@@ -42,10 +41,4 @@ export class OrderItem {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
-
-  @Column({ type: 'bigint', nullable: true, name: 'variant_id' })
-  variantId: number;
-
-  @ManyToOne(() => ProductVariant, { onDelete: 'SET NULL' })
-  variant: ProductVariant;
 }

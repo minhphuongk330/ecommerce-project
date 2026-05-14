@@ -1,23 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Request,
+  Get,
+  Param,
   ParseIntPipe,
-  Query,
+  Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { FavoritesService } from './favorites.service';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateFavoriteDto } from './dto/create-favorite.dto';
+import { FavoritesService } from './favorites.service';
 
 @Controller('favorites')
 @UseGuards(JwtAuthGuard)
 export class FavoritesController {
-  constructor(private readonly favoritesService: FavoritesService) {}
+  constructor(private readonly favoritesService: FavoritesService) { }
 
   @Post()
   create(@Request() req, @Body() createFavoriteDto: CreateFavoriteDto) {
@@ -33,10 +32,7 @@ export class FavoritesController {
   remove(
     @Request() req,
     @Param('id', ParseIntPipe) productId: number,
-    @Query('variantId') variantId?: string,
   ) {
-    const vId = variantId ? parseInt(variantId) : undefined;
-
-    return this.favoritesService.remove(req.user.id, productId, vId);
+    return this.favoritesService.remove(req.user.id, productId);
   }
 }

@@ -40,6 +40,9 @@ export class Order {
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   discount: number;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0, name: 'shipping_discount' })
+  shippingDiscount: number;
+
   @Column({type: 'decimal', precision: 12, scale: 2, default: 0})
   subtotal: number;
 
@@ -54,6 +57,26 @@ export class Order {
 
   @Column({ type: 'text', nullable: true })
   note: string;
+
+  // ─── Payment ───────────────────────────────────────────────────────
+  @Column({
+    type: 'enum',
+    enum: ['COD', 'VNPAY'],
+    default: 'COD',
+    name: 'payment_method',
+  })
+  paymentMethod: 'COD' | 'VNPAY';
+
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'paid', 'failed', 'cancelled'],
+    default: 'pending',
+    name: 'payment_status',
+  })
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'cancelled';
+
+  @Column({ type: 'varchar', length: 100, nullable: true, name: 'txn_ref' })
+  txnRef: string; // VNPay transaction reference
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: OrderItem[];

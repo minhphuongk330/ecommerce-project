@@ -46,6 +46,11 @@ export const orderService = {
 		shippingCost: number;
 		items: CartItemInput[];
 		scheduledDeliveryDate?: string | null;
+		paymentMethod?: 'COD' | 'VNPAY';
+		discount?: number;
+		shippingDiscount?: number;
+		appliedCouponCode?: string;
+		appliedShippingCouponCode?: string;
 	}): Promise<Order> => {
 		const orderNo = `ORD-${Date.now()}`;
 
@@ -60,6 +65,11 @@ export const orderService = {
 			shippingCost: params.shippingCost,
 			scheduledDeliveryDate: params.scheduledDeliveryDate ?? undefined,
 			note: "Ordered via website",
+			paymentMethod: params.paymentMethod ?? 'COD',
+			discount: params.discount ?? 0,
+			shippingDiscount: params.shippingDiscount ?? 0,
+			appliedCouponCode: params.appliedCouponCode,
+			appliedShippingCouponCode: params.appliedShippingCouponCode,
 		});
 
 		if (!newOrder || !newOrder.id) {
@@ -85,5 +95,10 @@ export const orderService = {
 		}
 
 		return newOrder;
+	},
+
+	// Tạo VNPay payment URL cho order đã tạo
+	createVnpayUrl: async (orderId: number): Promise<{ paymentUrl: string }> => {
+		return axiosClient.post(`/payments/create-url/${orderId}`);
 	},
 };

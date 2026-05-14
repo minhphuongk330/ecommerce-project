@@ -3,6 +3,11 @@ import { productService } from "~/services/product";
 import { Product } from "~/types/product";
 
 const TABS = ["New Arrival", "Bestseller", "Featured Products"];
+const TAB_LABELS: Record<string, string> = {
+	"New Arrival": "Hàng mới về",
+	"Bestseller": "Bán chạy",
+	"Featured Products": "Nổi bật",
+};
 const STALE_TIME = 5 * 60 * 1000;
 
 const tabCache: Record<string, Product[]> = {};
@@ -44,5 +49,5 @@ export const useProductTabs = (defaultTab: string) => {
 	}, [fetchAll]);
 
 	const filteredProducts = tabCache[activeTab] || [];
-	return { activeTab, setActiveTab, filteredProducts, isLoading, refetch: () => fetchAll(true) };
+	return { activeTab, setActiveTab, filteredProducts, isLoading, refetch: () => fetchAll(true), TAB_LABELS };
 };
