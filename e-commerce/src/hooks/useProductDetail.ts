@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { productService } from "~/services/product";
+import { flashSaleService } from "~/services/flashSale";
 import { Product, ProductDetail } from "~/types/product";
 
 export const useProductDetail = (productId: string) => {
@@ -12,10 +13,23 @@ export const useProductDetail = (productId: string) => {
 
 		try {
 			setIsLoading(true);
-			const [productData, productResponse] = await Promise.all([
+			const [productData, productResponse, flashSaleData] = await Promise.all([
 				productService.getById(productId),
 				productService.getAll(),
+				flashSaleService.getActive(),
 			]);
+
+			const flashSaleItem = flashSaleData?.items?.find(
+				(item) => String(item.productId) === String(productId)
+			);
+
+			if (flashSaleItem) {
+				const isSaleAvailable = flashSaleItem.soldQuantity < flashSaleItem.quantity;
+				(productData as any).isFlashSale = isSaleAvailable;
+				(productData as any).flashSalePrice = Number(flashSaleItem.salePrice);
+				(productData as any).flashSaleOriginalPrice = Number(flashSaleItem.originalPrice);
+			}
+
 			setProduct(productData);
 			const allProducts = productResponse.items;
 			const related = allProducts

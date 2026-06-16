@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 import { memo, useMemo } from "react";
 import { ShippingMethod } from "~/types/shipping";
 import { calculateSchedulePrice, calculateShippingDays } from "~/utils/shippingCalculator";
-import { formatPrice } from "~/utils/format";
+import { formatPrice, formatDate } from "~/utils/format";
 
 interface ShippingListItemProps {
 	method: ShippingMethod;
@@ -41,9 +41,9 @@ const ShippingListItem = ({
 			isSchedule
 				? scheduledDate
 					? formatPrice(dynamicPrice)
-					: "SCHEDULE"
+					: "Đặt lịch"
 				: method.price === 0
-					? "FREE"
+					? "Miễn phí"
 					: formatPrice(method.price),
 		[isSchedule, scheduledDate, dynamicPrice, method.price],
 	);
@@ -83,14 +83,13 @@ const ShippingListItem = ({
 							value={scheduledDate}
 							onChange={e => onDateChange(e.target.value)}
 							disabled={!isSelected}
-							className={`w-full sm:w-auto text-xs md:text-sm font-medium outline-none border-b focus:border-black bg-transparent py-1 text-left sm:text-right transition-colors ${
-								isSelected ? "text-black border-gray-300" : "text-gray-300 border-transparent cursor-not-allowed"
-							}`}
+							className={`w-full sm:w-auto text-xs md:text-sm font-medium outline-none border-b focus:border-black bg-transparent py-1 text-left sm:text-right transition-colors ${isSelected ? "text-black border-gray-300" : "text-gray-300 border-transparent cursor-not-allowed"
+								}`}
 						/>
 					</div>
 				) : (
 					<span className={`text-sm md:text-base transition-all ${textColorClass} ${titleWeightClass}`}>
-						{method.estimatedDate}
+						{method.estimatedDate ? formatDate(method.estimatedDate) : ""}
 					</span>
 				)}
 			</div>

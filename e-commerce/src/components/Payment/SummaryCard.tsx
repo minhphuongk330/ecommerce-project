@@ -21,7 +21,7 @@ export default function SummaryCard() {
 
 	return (
 		<div className="w-full border border-[#EBEBEB] rounded-[10px] p-4 md:p-[24px] bg-white shadow-sm">
-			<h3 className="text-lg md:text-[20px] font-medium text-black mb-4">Summary</h3>
+			<h3 className="text-lg md:text-[20px] font-medium text-black mb-4">Thông tin đơn hàng</h3>
 
 			<SummaryList items={itemsWithTotal} />
 

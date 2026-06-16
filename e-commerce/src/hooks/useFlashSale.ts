@@ -20,10 +20,10 @@ export const useFlashSale = () => {
 			}
 		};
 
-		// Initial fetch
+
 		fetchFlashSale();
 
-		// Refresh every 30 seconds for real-time updates
+
 		const interval = setInterval(fetchFlashSale, 30000);
 
 		return () => clearInterval(interval);

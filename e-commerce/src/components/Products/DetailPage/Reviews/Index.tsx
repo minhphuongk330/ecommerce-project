@@ -22,14 +22,14 @@ export default function ProductReviews({ productId: rawProductId }: ProductRevie
 	const [isExpanded, setIsExpanded] = useState(false);
 	const user = useAuthStore(state => state.user);
 
-	// Scroll đến section reviews nếu URL có #reviews
+
 	useEffect(() => {
 		if (typeof window !== "undefined" && window.location.hash === "#reviews") {
 			const el = document.getElementById("reviews");
 			if (el) {
 				setTimeout(() => {
 					el.scrollIntoView({ behavior: "smooth", block: "start" });
-				}, 500); // delay để trang load xong
+				}, 500);
 			}
 		}
 	}, []);

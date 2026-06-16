@@ -30,7 +30,7 @@ export interface Product {
 	createdAt?: string;
 	updatedAt?: string;
 	isFeatured?: boolean;
-	// Flash Sale fields
+
 	isFlashSale?: boolean;
 	flashSaleDiscount?: number;
 }

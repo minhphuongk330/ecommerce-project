@@ -4,7 +4,7 @@ import ProductCard from "./Card";
 import CommonTabs from "~/components/atoms/Tabs";
 import { useProductTabs } from "~/hooks/useProductTabs";
 
-// Key gửi lên BE, value hiển thị tiếng Việt
+
 const TAB_MAP: Record<string, string> = {
 	"New Arrival": "Hàng mới về",
 	Bestseller: "Bán chạy",
@@ -16,7 +16,6 @@ const TAB_LABELS = Object.values(TAB_MAP);
 const ProductTabsSection: React.FC = () => {
 	const { activeTab, setActiveTab, filteredProducts, isLoading } = useProductTabs(TAB_KEYS[0]);
 
-	// Map label tiếng Việt → key BE khi user click
 	const handleTabChange = (label: string) => {
 		const key = TAB_KEYS.find(k => TAB_MAP[k] === label) ?? label;
 		setActiveTab(key);

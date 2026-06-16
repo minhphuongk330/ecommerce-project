@@ -9,7 +9,7 @@ export default function ShippingPage() {
 	return (
 		<div className="w-full flex flex-col gap-8 md:gap-[64px] px-4 md:px-0">
 			<div className="w-full max-w-[1120px] mx-auto flex flex-col gap-4 md:gap-[32px]">
-				<h2 className="text-lg md:text-[20px] font-medium text-black">Shipment Method</h2>
+				<h2 className="text-lg md:text-[20px] font-medium text-black">Phương thức vận chuyển</h2>
 
 				<ShippingList
 					methods={shippingMethods}
@@ -22,10 +22,10 @@ export default function ShippingPage() {
 				<StepButton
 					layout="fixed"
 					justify="end"
-					primaryLabel="Next"
+					primaryLabel="Tiếp tục"
 					onPrimaryClick={handleNext}
 					disabled={shippingMethods.length === 0}
-					secondaryLabel="Back"
+					secondaryLabel="Quay lại"
 					onSecondaryClick={handleBack}
 					className="mt-[100px] lg:mt-[224px]"
 					buttonClassName="!w-[180px] md:!w-[210px] !h-12 md:!h-[64px]"

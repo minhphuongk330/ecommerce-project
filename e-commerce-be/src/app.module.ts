@@ -9,6 +9,7 @@ import { AttributeDefsModule } from './modules/attribute-defs/attribute-defs.mod
 import { AuthModule } from './modules/auth/auth.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { BrandsModule } from './modules/brands/brands.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
@@ -25,6 +26,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { ProductReviewsModule } from './modules/product-reviews/product-reviews.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { UploadModule } from './modules/upload/upload.module';
     MailModule,
     TypeOrmModule.forRoot({
       ...(databaseConfig() as any),
+      timezone: 'Z',
       ssl:
         process.env.DB_HOST === 'localhost'
           ? false
@@ -62,6 +65,8 @@ import { UploadModule } from './modules/upload/upload.module';
     CouponsModule,
     CustomerCouponsModule,
     PaymentsModule,
+    ContactsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

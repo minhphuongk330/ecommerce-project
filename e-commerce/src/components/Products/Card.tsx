@@ -34,40 +34,52 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 }) => {
 	const router = useRouter();
 
+	const isFlashSale = (product as any).isFlashSale || false;
+	const flashSalePrice = (product as any).flashSalePrice as number | undefined;
+	const flashSaleOriginalPrice = (product as any).flashSaleOriginalPrice as number | undefined;
+	const flashSaleDiscount = (product as any).flashSaleDiscount || 0;
+
+	const finalQuantity = quantity !== undefined ? quantity : (product as any).quantity;
+	const finalSoldQuantity = soldQuantity !== undefined ? soldQuantity : (product as any).soldQuantity;
+
+
+	const remainingStock = finalQuantity !== undefined && finalSoldQuantity !== undefined ? finalQuantity - finalSoldQuantity : null;
+	const stockPercentage = finalQuantity !== undefined && finalSoldQuantity !== undefined ? (finalSoldQuantity / finalQuantity) * 100 : null;
+	const isLowStock = remainingStock !== null && remainingStock <= 3 && remainingStock > 0;
+	const isSoldOut = remainingStock === 0;
+
 	const handleClick = (e?: React.MouseEvent) => {
 		e?.stopPropagation();
+		if (isFlashSale && isSoldOut) return;
 		const url = preselectedSku ? `/products/${product.id}?sku=${preselectedSku}` : `/products/${product.id}`;
 		router.push(url);
 	};
 
-	// Auto-detect sale logic - Clean single source of truth
-	const isFlashSale = (product as any).isFlashSale || false;
-	const flashSaleDiscount = (product as any).flashSaleDiscount || 0;
-
-	// Calculate display prices based on sale condition
 	const getDisplayPrices = () => {
 		const basePrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
 		const originalPrice = product.originalPrice ?
 			(typeof product.originalPrice === 'string' ? parseFloat(product.originalPrice) : product.originalPrice) :
 			basePrice;
 
-		if (isFlashSale && flashSaleDiscount > 0) {
-			// Flash Sale: apply discount percentage
-			const salePrice = basePrice * (1 - flashSaleDiscount / 100);
-			return { displayPrice: salePrice, displayOriginal: originalPrice, discountPct: flashSaleDiscount };
+		if (isFlashSale) {
+			if (flashSalePrice && flashSalePrice > 0) {
+
+				const origForDisplay = flashSaleOriginalPrice || originalPrice || basePrice;
+				const pct = origForDisplay > 0 ? Math.round(((origForDisplay - flashSalePrice) / origForDisplay) * 100) : 0;
+				return { displayPrice: flashSalePrice, displayOriginal: origForDisplay, discountPct: pct };
+			}
+			if (flashSaleDiscount > 0) {
+
+				const salePrice = basePrice * (1 - flashSaleDiscount / 100);
+				return { displayPrice: salePrice, displayOriginal: originalPrice, discountPct: flashSaleDiscount };
+			}
 		}
 
-		// Regular pricing
+
 		return { displayPrice: basePrice, displayOriginal: originalPrice, discountPct: 0 };
 	};
 
 	const { displayPrice, displayOriginal, discountPct } = getDisplayPrices();
-
-	// Flash Sale stock calculation
-	const remainingStock = quantity && soldQuantity !== undefined ? quantity - soldQuantity : null;
-	const stockPercentage = quantity && soldQuantity !== undefined ? (soldQuantity / quantity) * 100 : null;
-	const isLowStock = remainingStock !== null && remainingStock <= 3 && remainingStock > 0;
-	const isSoldOut = remainingStock === 0;
 
 	const installment = product.installmentPrice
 		? `${formatPrice(product.installmentPrice)} x 6T`
@@ -81,10 +93,14 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 
 	return (
 		<div
-			className="w-full h-full flex flex-col bg-white rounded-lg border border-gray-100 hover:shadow-md transition-shadow duration-200 cursor-pointer overflow-hidden group"
-			onClick={handleClick}
+			className={`w-full h-full flex flex-col bg-white rounded-lg border border-gray-100 transition-all duration-200 overflow-hidden group ${
+				isFlashSale && isSoldOut
+					? "opacity-60 cursor-not-allowed select-none filter brightness-95 grayscale-[20%]"
+					: "hover:shadow-md cursor-pointer"
+			}`}
+			onClick={isFlashSale && isSoldOut ? undefined : handleClick}
 		>
-			{/* Image */}
+
 			<div className="relative w-full pt-[100%] bg-white overflow-hidden">
 				<img
 					src={product.mainImageUrl}
@@ -106,7 +122,7 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 				</div>
 			</div>
 
-			{/* Content */}
+
 			<div className="flex flex-col flex-1 px-3 pb-3 pt-2 gap-1">
 				<h3 className="text-[13px] font-medium text-gray-800 line-clamp-2 leading-snug min-h-[36px]">
 					{product.name}
@@ -119,19 +135,19 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 					)}
 				</div>
 
-				{installment && (
+				{!isFlashSale && installment && (
 					<p className="text-[11px] text-gray-500">
 						Hoặc <span className="font-medium text-gray-700">{installment}</span>
 					</p>
 				)}
 
-				{memberPrice && (
+				{!isFlashSale && memberPrice && (
 					<p className="text-[11px] text-blue-600">
 						Giá Member: <span className="font-semibold">{memberPrice}</span>
 					</p>
 				)}
 
-				{/* Flash Sale Stock Indicator - Style Thế Giới Di Động */}
+
 				{isFlashSale && remainingStock !== null && (
 					<div className="mt-2">
 						<div className="flex items-center justify-between mb-1">
@@ -139,9 +155,9 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 								}`}>
 								{isSoldOut ? 'Đã bán hết' : `Còn lại ${remainingStock} sản phẩm`}
 							</span>
-							{stockPercentage !== null && (
+							{finalSoldQuantity !== undefined && finalQuantity !== undefined && (
 								<span className="text-[11px] text-gray-500">
-									Đã bán {Math.round(stockPercentage)}%
+									Đã bán {finalSoldQuantity}/{finalQuantity}
 								</span>
 							)}
 						</div>
@@ -160,26 +176,37 @@ const ProductCard: React.FC<ExtendedProductCardProps> = ({
 
 				<div className="flex items-center justify-between mt-auto pt-2 gap-2">
 					<span
-						className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${isInStock
-							? "bg-green-50 text-green-600"
-							: isContact
-								? "bg-blue-50 text-blue-600"
-								: "bg-gray-100 text-gray-500"
-							}`}
+						className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+							isFlashSale && isSoldOut
+								? "bg-red-50 text-red-600"
+								: isInStock
+									? "bg-green-50 text-green-600"
+									: isContact
+										? "bg-blue-50 text-blue-600"
+										: "bg-gray-100 text-gray-500"
+						}`}
 					>
-						{isInStock ? "Sẵn hàng" : isContact ? "Liên hệ" : "Hết hàng"}
+						{isFlashSale && isSoldOut ? "Đã bán hết" : isInStock ? "Sẵn hàng" : isContact ? "Liên hệ" : "Hết hàng"}
 					</span>
 
 					<button
-						onClick={e => { e.stopPropagation(); handleClick(); }}
-						className={`text-[12px] font-semibold px-3 py-1.5 rounded-md flex-shrink-0 transition-colors ${isContact
-							? "bg-blue-600 hover:bg-blue-700 text-white"
-							: isInStock
-								? "bg-red-600 hover:bg-red-700 text-white"
-								: "bg-gray-300 text-gray-500 cursor-not-allowed"
-							}`}
+						onClick={e => {
+							e.stopPropagation();
+							if (isFlashSale && isSoldOut) return;
+							handleClick();
+						}}
+						disabled={isFlashSale && isSoldOut}
+						className={`text-[12px] font-semibold px-3 py-1.5 rounded-md flex-shrink-0 transition-colors ${
+							isFlashSale && isSoldOut
+								? "bg-gray-200 text-gray-400 cursor-not-allowed"
+								: isContact
+									? "bg-blue-600 hover:bg-blue-700 text-white"
+									: isInStock
+										? "bg-red-600 hover:bg-red-700 text-white"
+										: "bg-gray-300 text-gray-500 cursor-not-allowed"
+						}`}
 					>
-						{isContact ? "Liên hệ" : "Mua ngay"}
+						{isFlashSale && isSoldOut ? "Đã hết" : isContact ? "Liên hệ" : "Mua ngay"}
 					</button>
 				</div>
 			</div>

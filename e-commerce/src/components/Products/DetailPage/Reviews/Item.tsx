@@ -1,10 +1,10 @@
 "use client";
 import dayjs from "dayjs";
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import StarRating from "~/components/atoms/StarRating";
 import UserAvatar from "~/components/atoms/UserAvatar";
 import { Review } from "~/types/review";
-import { getDisplayName } from "~/utils/format";
+import { getDisplayName, parseSafeDate } from "~/utils/format";
 import DeleteReview from "./Modal/DeleteReview";
 import UpdateReview from "./Modal/UpdateReview";
 
@@ -17,6 +17,10 @@ interface ReviewItemProps {
 const ReviewItem = memo(({ data, currentUserId, onRefresh }: ReviewItemProps) => {
 	const displayName = getDisplayName(data.customer);
 	const isOwner = String(currentUserId) === String(data.customerId);
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	return (
 		<div className="bg-white p-6 rounded-[16px] mb-4 shadow-sm border border-transparent group hover:border-gray-200 transition-colors">
@@ -29,7 +33,7 @@ const ReviewItem = memo(({ data, currentUserId, onRefresh }: ReviewItemProps) =>
 					</div>
 				</div>
 				<div className="flex flex-col items-end gap-1">
-					<span className="text-gray-400 text-sm">{dayjs(data.createdAt).format("D MMMM YYYY")}</span>
+					<span className="text-gray-400 text-sm">{mounted ? dayjs(parseSafeDate(data.createdAt)).format("D MMMM YYYY") : ""}</span>
 
 					{isOwner && (
 						<div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">

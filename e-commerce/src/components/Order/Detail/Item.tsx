@@ -13,7 +13,7 @@ export default function OrderItems({ items }: OrderItemsProps) {
 	return (
 		<div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
 			<div className="p-4 border-b border-gray-100 bg-gray-50">
-				<h3 className="font-bold text-gray-800">Order Items</h3>
+				<h3 className="font-bold text-gray-800">Sản phẩm đã đặt</h3>
 			</div>
 			<div className="p-4 flex flex-col gap-4">
 				{items.map(item => {
@@ -35,16 +35,16 @@ export default function OrderItems({ items }: OrderItemsProps) {
 										className="object-cover"
 									/>
 								) : (
-									<div className="w-full h-full flex items-center justify-center text-xs text-gray-400">No Image</div>
+									<div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Không có ảnh</div>
 								)}
 							</Link>
 							<div className="flex-1">
 								<Link href={router.product(item.productId)} className="hover:underline">
-									<h4 className="font-medium text-black line-clamp-2">{item.product?.name || "Product Name"}</h4>
+									<h4 className="font-medium text-black line-clamp-2">{item.product?.name || "Tên sản phẩm"}</h4>
 								</Link>
-								{item.colorId && <p className="text-sm text-gray-500 mt-1">Color: {item.colorId}</p>}
-								{selectedVariant && <p className="text-sm text-gray-500">Variant: {selectedVariant.sku}</p>}
-								<p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+								{item.colorId && <p className="text-sm text-gray-500 mt-1">Màu sắc: {item.colorId}</p>}
+								{selectedVariant && <p className="text-sm text-gray-500">Phiên bản: {selectedVariant.sku}</p>}
+								<p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
 							</div>
 							<div className="text-right">
 								<p className="font-bold text-black">{formatPrice(Number(item.unitPrice))}</p>

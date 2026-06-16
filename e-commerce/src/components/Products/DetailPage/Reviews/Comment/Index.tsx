@@ -18,7 +18,7 @@ export default function CommentInput({ onSubmit }: CommentInputProps) {
 
 	const handleExpand = () => {
 		if (!user) {
-			showNotification("Please log in to write a review.", "warning");
+			showNotification("Vui lòng đăng nhập để viết đánh giá.", "warning");
 			return;
 		}
 		setIsExpanded(true);
@@ -32,7 +32,7 @@ export default function CommentInput({ onSubmit }: CommentInputProps) {
 
 	const handleSubmit = async () => {
 		if (!rating) {
-			showNotification("Please select a star rating.", "warning");
+			showNotification("Vui lòng chọn số sao.", "warning");
 			return;
 		}
 		await onSubmit(rating, content);

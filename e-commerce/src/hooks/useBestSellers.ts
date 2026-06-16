@@ -12,7 +12,7 @@ export const useBestSellers = (limit: number = 8) => {
 			setIsLoading(true);
 			setError(null);
 
-			// Gọi API để lấy sản phẩm bán chạy (không cần mốc thời gian)
+
 			const data = await productService.getBestSellers(limit);
 			setProducts(data);
 		} catch (err) {

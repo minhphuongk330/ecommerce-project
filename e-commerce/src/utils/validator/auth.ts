@@ -1,27 +1,27 @@
 import z from "zod";
 
 export const loginSchema = z.object({
-	email: z.string().min(1, { message: "Email is required" }).email({ message: "Invalid email format" }),
-	password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+	email: z.string().min(1, { message: "Vui lòng nhập email" }).email({ message: "Email không hợp lệ" }),
+	password: z.string().min(6, { message: "Mật khẩu tối thiểu 6 ký tự" }),
 });
 
 export const registerSchema = z
 	.object({
-		fullName: z.string().min(2, { message: "Name must be at least 2 characters" }),
-		email: z.string().min(1, { message: "Email is required" }).email({ message: "Invalid email format" }),
-		password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+		fullName: z.string().min(2, { message: "Họ tên tối thiểu 2 ký tự" }),
+		email: z.string().min(1, { message: "Vui lòng nhập email" }).email({ message: "Email không hợp lệ" }),
+		password: z.string().min(6, { message: "Mật khẩu tối thiểu 6 ký tự" }),
 		confirmPassword: z.string(),
 	})
 	.refine(data => data.password === data.confirmPassword, {
-		message: "Passwords do not match",
+		message: "Mật khẩu không khớp",
 		path: ["confirmPassword"],
 	});
 
 export const updateProfileSchema = z.object({
-	fullName: z.string().min(1, { message: "Please enter full name" }).trim(),
+	fullName: z.string().min(1, { message: "Vui lòng nhập họ tên" }).trim(),
 	phoneNumber: z
 		.string()
-		.regex(/^0\d{9}$/, { message: "Phone number must start with 0 and contain exactly 10 digits" })
+		.regex(/^0\d{9}$/, { message: "Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số" })
 		.optional()
 		.or(z.literal("")),
 	gender: z
@@ -39,34 +39,34 @@ export const updateProfileSchema = z.object({
 
 export const changePasswordSchema = z
 	.object({
-		currentPassword: z.string().min(6, { message: "Current password must be at least 6 characters" }),
-		newPassword: z.string().min(6, { message: "New password must be at least 6 characters" }),
-		confirmPassword: z.string().min(6, { message: "Confirm password must be at least 6 characters" }),
+		currentPassword: z.string().min(6, { message: "Mật khẩu hiện tại tối thiểu 6 ký tự" }),
+		newPassword: z.string().min(6, { message: "Mật khẩu mới tối thiểu 6 ký tự" }),
+		confirmPassword: z.string().min(6, { message: "Xác nhận mật khẩu tối thiểu 6 ký tự" }),
 	})
 	.refine(data => data.newPassword === data.confirmPassword, {
-		message: "Passwords do not match",
+		message: "Mật khẩu không khớp",
 		path: ["confirmPassword"],
 	})
 	.refine(data => data.currentPassword !== data.newPassword, {
-		message: "New password must be different from current password",
+		message: "Mật khẩu mới không được trùng với mật khẩu cũ",
 		path: ["newPassword"],
 	});
 
 export const forgotPasswordSchema = z.object({
-	email: z.string().min(1, "Email is required").email("Invalid email format"),
+	email: z.string().min(1, { message: "Vui lòng nhập email" }).email({ message: "Email không hợp lệ" }),
 });
 
 export const otpSchema = z.object({
-	otp: z.string().length(6, "OTP must be exactly 6 digits"),
+	otp: z.string().length(6, "OTP phải có 6 chữ số"),
 });
 
 export const newPasswordSchema = z
 	.object({
-		newPassword: z.string().min(6, "Password must be at least 6 characters"),
-		confirmPassword: z.string().min(1, "Confirm Password is required"),
+		newPassword: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
+		confirmPassword: z.string().min(1, "Xác nhận mật khẩu"),
 	})
 	.refine(data => data.newPassword === data.confirmPassword, {
-		message: "Passwords do not match",
+		message: "Mật khẩu không khớp",
 		path: ["confirmPassword"],
 	});
 

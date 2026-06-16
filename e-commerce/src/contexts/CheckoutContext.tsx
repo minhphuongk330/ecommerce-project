@@ -11,13 +11,13 @@ interface CheckoutContextType {
 	setSelectedShippingMethod: (method: ShippingMethod | null) => void;
 	scheduledDate: string | null;
 	setScheduledDate: (date: string | null) => void;
-	// Payment
+
 	paymentMethod: 'COD' | 'VNPAY';
 	setPaymentMethod: (method: 'COD' | 'VNPAY') => void;
-	// Coupon sản phẩm
+
 	appliedCoupon: ValidateCouponResult | null;
 	setAppliedCoupon: (coupon: ValidateCouponResult | null) => void;
-	// Coupon ship
+
 	appliedShippingCoupon: ValidateCouponResult | null;
 	setAppliedShippingCoupon: (coupon: ValidateCouponResult | null) => void;
 }

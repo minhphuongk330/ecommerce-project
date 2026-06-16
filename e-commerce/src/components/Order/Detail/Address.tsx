@@ -7,15 +7,15 @@ interface OrderAddressProps {
 export default function OrderAddress({ address }: OrderAddressProps) {
 	return (
 		<div className="bg-white p-6 rounded-lg border border-gray-200">
-			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Shipping Address</h3>
+			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Địa chỉ giao hàng</h3>
 			{address ? (
 				<div className="text-sm text-gray-600 space-y-2">
-					<p className="font-bold text-black">Name: {address.receiverName}</p>
-					<p>Address: {address.address}</p>
-					<p>Phone: {address.phone}</p>
+					<p className="font-bold text-black">Người nhận: {address.receiverName}</p>
+					<p>Địa chỉ: {address.address}</p>
+					<p>Số điện thoại: {address.phone}</p>
 				</div>
 			) : (
-				<p className="text-sm text-gray-400 italic">Address info not available</p>
+				<p className="text-sm text-gray-400 italic">Không tìm thấy thông tin địa chỉ</p>
 			)}
 		</div>
 	);

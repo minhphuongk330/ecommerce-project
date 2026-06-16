@@ -7,7 +7,7 @@ import { ProductGridSkeleton } from "~/components/Skeletons/index";
 
 export default function FavoritesPage() {
 	return (
-		<div className="w-full bg-white">
+		<div className="w-full bg-white font-sans">
 			<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8 md:py-[40px]">
 				<h1 className="text-2xl md:text-3xl font-bold text-black mb-6 md:mb-8">Yêu thích</h1>
 				<HydrationGuard fallback={<ProductGridSkeleton count={4} />} store={useFavoriteStore}>

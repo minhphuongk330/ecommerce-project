@@ -6,7 +6,7 @@ import OrderDetailsModal from "~/components/Admin/OrderDetailsModal";
 import PaginationComponent from "~/components/atoms/Pagination";
 import PeriodDropdown, { Period } from "~/components/atoms/PeriodDropdown";
 import { AdminOrder } from "~/types/admin";
-import { formatPrice } from "~/utils/format";
+import { formatPrice, parseSafeDate } from "~/utils/format";
 import { getDateRangeByPeriod } from "~/utils/admin/dashboardUtils";
 
 dayjs.extend(isBetween);
@@ -15,16 +15,31 @@ const ITEMS_PER_PAGE = 5;
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 	pending: { bg: "bg-yellow-100", text: "text-yellow-700" },
-	processing: { bg: "bg-blue-100", text: "text-blue-700" },
-	shipped: { bg: "bg-purple-100", text: "text-purple-700" },
+	processing: { bg: "bg-orange-100", text: "text-orange-700" },
+	shipped: { bg: "bg-blue-100", text: "text-blue-700" },
+	completed: { bg: "bg-green-100", text: "text-green-700" },
 	delivered: { bg: "bg-green-100", text: "text-green-700" },
 	cancelled: { bg: "bg-red-100", text: "text-red-700" },
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	pending: "Chờ xác nhận",
+	processing: "Đang chuẩn bị hàng",
+	shipped: "Đang giao hàng",
+	completed: "Đã hoàn thành",
+	delivered: "Đã giao",
+	cancelled: "Đã hủy",
 };
 
 export default function RecentOrders({ allOrders }: { allOrders: AdminOrder[] }) {
 	const [period, setPeriod] = useState<Period>("weekly");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	useEffect(() => {
 		setCurrentPage(1);
@@ -33,8 +48,8 @@ export default function RecentOrders({ allOrders }: { allOrders: AdminOrder[] })
 	const filteredAndSortedOrders = useMemo(() => {
 		const { startDate, endDate } = getDateRangeByPeriod(period);
 		return allOrders
-			.filter(order => dayjs(order.createdAt).isBetween(startDate, endDate, null, "[]"))
-			.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+			.filter(order => dayjs(parseSafeDate(order.createdAt)).isBetween(startDate, endDate, null, "[]"))
+			.sort((a, b) => parseSafeDate(b.createdAt).getTime() - parseSafeDate(a.createdAt).getTime());
 	}, [period, allOrders]);
 
 	const totalPages = Math.ceil(filteredAndSortedOrders.length / ITEMS_PER_PAGE);
@@ -47,23 +62,23 @@ export default function RecentOrders({ allOrders }: { allOrders: AdminOrder[] })
 		<>
 			<div className="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">
 				<div className="flex justify-between items-start mb-4">
-					<h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
+					<h2 className="text-xl font-bold text-gray-800">Đơn hàng gần đây</h2>
 					<PeriodDropdown period={period} onPeriodChange={setPeriod} />
 				</div>
 
 				{filteredAndSortedOrders.length === 0 ? (
-					<div className="text-center py-8 text-gray-500">No orders found</div>
+					<div className="text-center py-8 text-gray-500">Không có đơn hàng nào</div>
 				) : (
 					<div className="flex flex-col h-full justify-between">
 						<div className="overflow-x-auto mb-6">
 							<table className="w-full text-sm">
 								<thead>
 									<tr className="border-b border-gray-200">
-										<th className="text-left py-2 px-3 font-semibold text-gray-600">Order #</th>
-										<th className="text-left py-2 px-3 font-semibold text-gray-600">Customer</th>
-										<th className="text-right py-2 px-3 font-semibold text-gray-600">Total</th>
-										<th className="text-center py-2 px-3 font-semibold text-gray-600">Status</th>
-										<th className="text-left py-2 px-3 font-semibold text-gray-600">Date</th>
+										<th className="text-left py-2 px-3 font-semibold text-gray-600">Mã ĐH</th>
+										<th className="text-left py-2 px-3 font-semibold text-gray-600">Khách hàng</th>
+										<th className="text-right py-2 px-3 font-semibold text-gray-600">Tổng tiền</th>
+										<th className="text-center py-2 px-3 font-semibold text-gray-600">Trạng thái</th>
+										<th className="text-left py-2 px-3 font-semibold text-gray-600">Ngày đặt</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -83,11 +98,11 @@ export default function RecentOrders({ allOrders }: { allOrders: AdminOrder[] })
 												<span
 													className={`${STATUS_COLORS[order.status.toLowerCase()]?.bg} ${STATUS_COLORS[order.status.toLowerCase()]?.text} px-3 py-1 rounded-full text-xs font-semibold uppercase`}
 												>
-													{order.status}
+													{STATUS_LABELS[order.status.toLowerCase()] || order.status}
 												</span>
 											</td>
 											<td className="py-3 px-3 text-gray-600 text-xs">
-												{dayjs(order.createdAt).format("DD/MM/YYYY HH:mm")}
+												{mounted ? dayjs(parseSafeDate(order.createdAt)).format("DD/MM/YYYY HH:mm") : ""}
 											</td>
 										</tr>
 									))}

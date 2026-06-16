@@ -33,7 +33,7 @@ export class AttributeDefsService {
       relations: ['category'],
     });
     if (!attributeDef) {
-      throw new NotFoundException(`AttributeDef with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy thuộc tính với ID ${id}`);
     }
     return attributeDef;
   }

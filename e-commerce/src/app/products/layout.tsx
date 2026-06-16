@@ -6,7 +6,7 @@ import { BreadcrumbProvider } from "~/contexts/BreadcrumbContext";
 export default function ProductsGroupedLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<BreadcrumbProvider>
-			<div className="w-full bg-white min-h-screen flex flex-col items-center">
+			<div className="w-full bg-white min-h-screen flex flex-col items-center font-sans">
 				<Breadcrumb />
 				{children}
 			</div>

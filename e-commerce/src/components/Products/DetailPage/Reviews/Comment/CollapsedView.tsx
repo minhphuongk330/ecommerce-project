@@ -7,7 +7,7 @@ const CollapsedView = ({ onClick, isAuth }: CollapsedViewProps) => {
 	return (
 		<input
 			type="text"
-			placeholder="Leave Comment"
+			placeholder="Để lại bình luận"
 			readOnly
 			onClick={onClick}
 			className={`w-full h-[64px] border-[0.5px] rounded-[7px] px-[16px] py-[24px] 

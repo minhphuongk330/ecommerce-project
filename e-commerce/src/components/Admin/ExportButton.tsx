@@ -28,8 +28,8 @@ const EXPORT_ICONS = {
 } as const;
 
 const EXPORT_LABELS = {
-	excel: "Export as Excel",
-	json: "Export as JSON",
+	excel: "Xuất Excel",
+	json: "Xuất JSON",
 } as const;
 
 const getExportFormat = (variant: string): "excel" | "json" => {
@@ -42,12 +42,12 @@ const getButtonLabel = (label: string, count: number, showCount: boolean): strin
 };
 
 const getButtonTitle = (isEmpty: boolean, variant: string): string => {
-	if (isEmpty) return "No data to export";
-	return `Export as ${variant.toUpperCase()}`;
+	if (isEmpty) return "Không có dữ liệu để xuất";
+	return `Xuất dưới dạng ${variant.toUpperCase()}`;
 };
 
 const ExportButton = memo<ExportButtonProps<any>>(
-	({ data, columns, filename, label = "Export", variant = "excel", showCount = true, disabled = false }) => {
+	({ data, columns, filename, label = "Xuất Excel", variant = "excel", showCount = true, disabled = false }) => {
 		const [isLoading, setIsLoading] = useState(false);
 		const [isOpen, setIsOpen] = useState(false);
 		const { showNotification } = useNotification();
@@ -57,7 +57,7 @@ const ExportButton = memo<ExportButtonProps<any>>(
 		const handleExport = useCallback(
 			(format: "excel" | "json") => {
 				if (isEmpty) {
-					showNotification("No data to export", "warning");
+					showNotification("Không có dữ liệu để xuất", "warning");
 					return;
 				}
 
@@ -65,15 +65,15 @@ const ExportButton = memo<ExportButtonProps<any>>(
 					setIsLoading(true);
 					if (format === "excel") {
 						downloadExcel({ filename, columns, data });
-						showNotification(`Exported ${data.length} rows to Excel`, "success");
+						showNotification(`Đã xuất ${data.length} dòng ra Excel`, "success");
 					} else {
 						downloadJSON(filename, data);
-						showNotification(`Exported ${data.length} rows to JSON`, "success");
+						showNotification(`Đã xuất ${data.length} dòng ra JSON`, "success");
 					}
 					setIsOpen(false);
 				} catch (error) {
 					console.error("Export failed:", error);
-					showNotification("Export failed. Please try again.", "error");
+					showNotification("Lỗi xuất dữ liệu. Vui lòng thử lại.", "error");
 				} finally {
 					setIsLoading(false);
 				}

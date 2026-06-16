@@ -1,12 +1,8 @@
 "use client";
-import dynamic from "next/dynamic";
-import { Suspense } from "react";
-import StepButton from "~/components/checkout/Button";
 import SummaryCard from "~/components/Payment/SummaryCard";
 import CouponSelector from "~/components/Payment/CouponSelector";
 import PaymentMethodSelector from "~/components/Payment/PaymentMethod";
 import { usePayment } from "~/hooks/usePayment";
-
 
 export default function PaymentPage() {
 	const {
@@ -21,21 +17,17 @@ export default function PaymentPage() {
 	return (
 		<div className="w-full px-4 md:px-0">
 			<div className="w-full max-w-[1000px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-				{/* Cột trái: Summary */}
 					<SummaryCard />
 
-					{/* Cột phải: Coupon + Payment + Buttons */}
 					<div className="flex flex-col gap-4">
 						<CouponSelector />
 						<PaymentMethodSelector />
-
-						{/* Buttons */}
 						<div className="flex gap-3 mt-1">
 							<button
 								onClick={handleBack}
 								className="flex-1 h-12 border border-[#EBEBEB] rounded-[8px] text-black font-medium hover:bg-gray-50 transition-colors"
 							>
-								Back
+								Quay lại
 							</button>
 							<button
 								onClick={handlePay}
@@ -47,7 +39,7 @@ export default function PaymentPage() {
 										<span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
 										Đang xử lý...
 									</>
-								) : "Pay"}
+								) : "Thanh toán"}
 							</button>
 						</div>
 					</div>

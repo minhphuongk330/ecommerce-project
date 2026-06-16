@@ -8,6 +8,7 @@ import { Product } from '../../entities/product.entity';
 import { CreateProductDto } from '../products/dto/create-product.dto';
 import { UpdateProductDto } from './../products/dto/update-product.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
@@ -18,6 +19,7 @@ export class AdminService {
     private customerRepository: Repository<Customer>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   async getDashboardStats() {
@@ -76,19 +78,24 @@ export class AdminService {
   }
 
   async getCustomers() {
-    return this.customerRepository.find({
+    const customers = await this.customerRepository.find({
       where: { role: Role.CUSTOMER },
-      relations: ['profile'],
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        isActive: true,
-        isBanned: true,
-        createdAt: true,
-        role: true,
-      },
+      relations: ['profile', 'orders'],
       order: { createdAt: 'DESC' },
+    });
+
+    return customers.map((customer) => {
+      const totalSpent = customer.orders
+        ? customer.orders
+            .filter((o) => o.status === 'Completed')
+            .reduce((sum, o) => sum + parseFloat(String(o.totalAmount || 0)), 0)
+        : 0;
+
+      const { passwordHash, resetPasswordToken, resetPasswordExpires, orders, ...rest } = customer;
+      return {
+        ...rest,
+        totalSpent,
+      };
     });
   }
 
@@ -198,6 +205,8 @@ export class AdminService {
       revenuePercent: calcPercent(currentRevenue, prevRevenue),
       orders: currentOrders,
       ordersPercent: calcPercent(currentOrders, prevOrders),
+      prevRevenue,
+      prevOrders,
     };
   }
 
@@ -208,8 +217,6 @@ export class AdminService {
         'address',
         'orderItems',
         'orderItems.product',
-        'orderItems.product.variants',
-        'orderItems.product.productColors',
       ],
       order: { createdAt: 'DESC' },
     });
@@ -223,8 +230,6 @@ export class AdminService {
         'address',
         'orderItems',
         'orderItems.product',
-        'orderItems.product.variants',
-        'orderItems.product.productColors',
       ],
     });
     if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
@@ -236,7 +241,36 @@ export class AdminService {
     if (!order) throw new NotFoundException('Đơn hàng không tồn tại');
 
     order.status = dto.status;
-    return this.orderRepository.save(order);
+    if (dto.status === 'Completed' && order.paymentMethod === 'COD') {
+      order.paymentStatus = 'paid';
+    }
+    const savedOrder = await this.orderRepository.save(order);
+
+    if (savedOrder.customerId) {
+      try {
+        const orderStatusMap: Record<string, string> = {
+          Pending: 'Chờ xác nhận',
+          Processing: 'Đang chuẩn bị hàng',
+          Shipping: 'Đang giao hàng',
+          Completed: 'Đã hoàn thành',
+          Cancelled: 'Đã hủy',
+        };
+        const statusLabel = orderStatusMap[dto.status] || dto.status;
+
+        await this.notificationsService.createNotification(
+          savedOrder.customerId,
+          'Cập nhật đơn hàng',
+          `Trạng thái đơn hàng #${savedOrder.orderNo} đã được cập nhật thành "${statusLabel}".`,
+          'ORDER_STATUS',
+          `/orders`,
+          false,
+        );
+      } catch (error) {
+        console.error('Failed to create order status update notification:', error);
+      }
+    }
+
+    return savedOrder;
   }
 
   async deleteOrder(id: number) {
@@ -256,7 +290,7 @@ export class AdminService {
     if (!customer) throw new NotFoundException('Customer not found');
     customer.isBanned = true;
     await this.customerRepository.save(customer);
-    return { message: 'Customer banned successfully' };
+    return { message: 'Khách hàng đã bị cấm' };
   }
 
   async unbanCustomer(id: number) {
@@ -264,6 +298,6 @@ export class AdminService {
     if (!customer) throw new NotFoundException('Customer not found');
     customer.isBanned = false;
     await this.customerRepository.save(customer);
-    return { message: 'Customer unbanned successfully' };
+    return { message: 'Khách hàng đã được mở cấm' };
   }
 }

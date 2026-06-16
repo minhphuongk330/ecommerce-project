@@ -22,6 +22,10 @@ export const routerPaths = {
 	adminCustomers: "/admin/customers",
 	adminFlashSales: "/admin/flash-sales",
 	adminCoupons: "/admin/coupons",
+	adminBrands: "/admin/brands",
+	adminBanners: "/admin/banners",
+	adminContacts: "/admin/contacts",
+	adminCategories: "/admin/categories",
 	myCoupons: "/my-coupons",
 	comingsoon: "/coming-soon",
 };

@@ -26,65 +26,64 @@ export default function OrderSummary({ order, onCancelOrder }: OrderSummaryProps
 
 	return (
 		<div className="bg-white p-6 rounded-lg border border-gray-200">
-			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Order Summary</h3>
-
+			<h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Tóm tắt đơn hàng</h3>
+ 
 			<div className="space-y-3 text-sm">
 				<div className="flex justify-between text-gray-600">
-					<span>Subtotal</span>
+					<span>Tạm tính</span>
 					<span className="font-medium">{formatPrice(subtotal)}</span>
 				</div>
-
+ 
 				<div className="flex justify-between text-gray-600">
-					<span>Tax</span>
+					<span>Thuế (VAT)</span>
 					<span className="font-medium">{formatPrice(tax)}</span>
 				</div>
-
+ 
 				<div className="flex justify-between text-gray-600">
-					<span>Shipping & Handling</span>
-					<span className="font-medium">{shippingCost === 0 && shippingDiscount === 0 ? "Free" : formatPrice(shippingCost)}</span>
+					<span>Phí vận chuyển</span>
+					<span className="font-medium">{shippingCost === 0 && shippingDiscount === 0 ? "Miễn phí" : formatPrice(shippingCost)}</span>
 				</div>
-
+ 
 				{shippingDiscount > 0 && (
 					<div className="flex justify-between text-green-600">
 						<span>Giảm phí ship</span>
 						<span className="font-medium">-{formatPrice(shippingDiscount)}</span>
 					</div>
 				)}
-
+ 
 				{discount > 0 && (
 					<div className="flex justify-between text-green-600">
 						<span>Giảm giá sản phẩm</span>
 						<span className="font-medium">-{formatPrice(discount)}</span>
 					</div>
 				)}
-
-				{/* Phương thức thanh toán */}
+ 
 				<div className="flex justify-between items-center">
 					<span className="text-gray-600">Phương thức TT</span>
 					<span className={`font-semibold text-xs ${paymentColor}`}>{paymentLabel}</span>
 				</div>
-
+ 
 				<div className="border-t pt-3 flex justify-between font-bold text-lg text-black">
-					<span>Total</span>
+					<span>Tổng cộng</span>
 					<span>{formatPrice(total)}</span>
 				</div>
 			</div>
-
+ 
 			{isPending && (
 				<div className="mt-6">
 					<StepButton
-						primaryLabel="Cancel Order"
+						primaryLabel="Hủy đơn hàng"
 						onPrimaryClick={() => setIsCancelModalOpen(true)}
 						className="!w-full !bg-white !text-red-600 border-red-200"
 					/>
 				</div>
 			)}
-
+ 
 			<ConfirmationModal
 				isOpen={isCancelModalOpen}
 				onClose={() => setIsCancelModalOpen(false)}
-				title="Cancel Order"
-				message="Are you sure you want to cancel this order? This action cannot be undone."
+				title="Hủy đơn hàng"
+				message="Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác."
 				onConfirm={onCancelOrder}
 			/>
 		</div>

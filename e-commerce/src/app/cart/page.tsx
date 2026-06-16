@@ -13,8 +13,9 @@ import { useCartStore } from "~/stores/cart";
 
 export default function CartPage() {
 	return (
-		<div className="w-full bg-white min-h-screen">
+		<div className="w-full bg-white min-h-screen font-sans">
 			<div className="w-full max-w-[1440px] mx-auto pt-[40px] pb-[112px] px-4 md:px-[160px]">
+				<h1 className="text-2xl md:text-3xl font-bold text-black mb-6 md:mb-8">Giỏ hàng</h1>
 				<HydrationGuard fallback={<CartPageSkeleton />} store={useCartStore}>
 					<CartContent />
 				</HydrationGuard>
@@ -43,7 +44,7 @@ function CartContent() {
 		try {
 			await removeFromCart(cartItemId);
 		} catch (error: any) {
-			showNotification(error?.response?.data?.message || "Failed to remove item from cart", "error");
+			showNotification(error?.response?.data?.message || "Lỗi khi xóa sản phẩm khỏi giỏ hàng", "error");
 		}
 	};
 
@@ -55,9 +56,24 @@ function CartContent() {
 			const current = pendingQuantity.current[cartItemId] ?? item.quantity;
 			if (delta === -1 && current <= 1) return;
 			if (delta === 1) {
-				const maxStock = Number(item.stock);
-				if (maxStock && current >= maxStock) {
-					showNotification(`Only ${maxStock} items available. Cannot add more.`, "error");
+				const isFlashSale = (item as any).isFlashSale;
+				const flashSaleRemaining = (item as any).flashSaleRemaining;
+				const colorStockMap = item.specifications?.colorStock;
+				const selectedColor = item.selectedColor;
+
+
+				const colorLimit = (colorStockMap && selectedColor) ? Number(colorStockMap[selectedColor] ?? 0) : Number(item.stock);
+
+				const limit = isFlashSale && flashSaleRemaining !== undefined
+					? Math.min(colorLimit, flashSaleRemaining)
+					: colorLimit;
+
+				if (limit && current >= limit) {
+					if (isFlashSale && flashSaleRemaining <= colorLimit) {
+						showNotification(`Sản phẩm Flash Sale này chỉ còn ${flashSaleRemaining} suất giảm giá.`, "error");
+					} else {
+						showNotification(`Chỉ còn ${limit} sản phẩm màu này trong kho.`, "error");
+					}
 					return;
 				}
 			}
@@ -83,7 +99,7 @@ function CartContent() {
 								i.cartItemId === cartItemId ? { ...i, quantity: originalQuantity.current[cartItemId] } : i,
 							),
 					});
-					showNotification(error?.response?.data?.message || "Failed to update quantity", "error");
+					showNotification(error?.response?.data?.message || "Lỗi khi cập nhật số lượng", "error");
 				} finally {
 					delete pendingQuantity.current[cartItemId];
 					delete originalQuantity.current[cartItemId];
@@ -96,14 +112,13 @@ function CartContent() {
 	const handleIncrease = useCallback((cartItemId: number) => updateQuantity(cartItemId, 1), [updateQuantity]);
 	const handleDecrease = useCallback((cartItemId: number) => updateQuantity(cartItemId, -1), [updateQuantity]);
 	if (cartItems.length === 0) {
-		return <EmptyState title="Your Cart is Empty" description="Looks like you haven't made your choice yet." />;
+		return <EmptyState title="Giỏ hàng trống" description="Hãy thêm sản phẩm vào giỏ hàng để bắt đầu mua sắm." />;
 	}
 
 	return (
 		<div className="flex flex-col gap-10 md:gap-[64px]">
 			<div className="flex flex-col md:flex-row gap-6 md:gap-[48px]">
 				<div className="w-full md:w-[536px] flex flex-col gap-6 md:gap-[40px]">
-					<h1 className="text-2xl md:text-3xl font-bold text-black">Shopping Cart</h1>
 					<CartList items={cartItems} onRemove={handleRemove} onIncrease={handleIncrease} onDecrease={handleDecrease} />
 				</div>
 				<div className="w-full md:w-[536px]">

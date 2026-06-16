@@ -18,8 +18,7 @@ interface OrderItemRowProps {
 }
 
 const OrderItemRow = ({ item }: OrderItemRowProps) => {
-	const selectedVariant = item.product?.variants?.find(v => Number(v.id) === Number(item.variantId));
-	const variantDisplay = selectedVariant?.sku || item.variant?.sku;
+	const variantDisplay = item.variant?.sku;
 	const productLink = router.product(item.productId);
 
 	return (
@@ -49,16 +48,16 @@ const OrderItemRow = ({ item }: OrderItemRowProps) => {
 
 					<div className="flex flex-wrap items-center gap-2">
 						<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-							Qty: {item.quantity}
+							SL: {item.quantity}
 						</span>
 						{item.colorId && (
 							<span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-								Color: {item.colorId}
+								Màu: {item.colorId}
 							</span>
 						)}
 						{variantDisplay && (
 							<span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-								Variant: {variantDisplay}
+								Phân loại: {variantDisplay}
 							</span>
 						)}
 					</div>
@@ -77,12 +76,12 @@ const DeliveryAddressSection = ({ address }: { address: AdminOrder["address"] })
 			<p className="text-xs text-gray-600">{address.phone}</p>
 		</div>
 	) : (
-		<p className="text-xs text-gray-400 italic">Address info not available</p>
+		<p className="text-xs text-gray-400 italic">Thông tin địa chỉ không có sẵn</p>
 	);
 
 	return (
 		<div className="mb-6">
-			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Delivery Address</h4>
+			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Địa chỉ giao hàng</h4>
 			{addressContent}
 		</div>
 	);
@@ -91,7 +90,7 @@ const DeliveryAddressSection = ({ address }: { address: AdminOrder["address"] })
 const OrderProductsSection = ({ items = [] }: { items?: AdminOrder["orderItems"] }) => {
 	return (
 		<div>
-			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Products in this order</h4>
+			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Sản phẩm trong đơn hàng</h4>
 			<ul className="flex flex-col gap-3">
 				{items.map(item => (
 					<OrderItemRow key={item.id} item={item} />
@@ -115,11 +114,11 @@ const ModalHeader = ({
 	return (
 		<div className="p-6 border-b border-gray-100 flex justify-between items-start">
 			<div>
-				<h3 className="text-xl font-bold text-gray-800">Order Details</h3>
-				<p className="text-sm text-gray-500 mt-1">Order #{orderNo}</p>
-				<p className="text-sm text-gray-500 mt-1">Placed on: {formatDate(createdAt)}</p>
+				<h3 className="text-xl font-bold text-gray-800">Chi tiết đơn hàng</h3>
+				<p className="text-sm text-gray-500 mt-1">Đơn hàng #{orderNo}</p>
+				<p className="text-sm text-gray-500 mt-1">Ngày đặt: {formatDate(createdAt)}</p>
 				<p className="text-sm text-gray-700 mt-1">
-					Expected Delivery: {scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : "Not scheduled"}
+					Dự kiến giao hàng: {scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : "Chưa lên lịch"}
 				</p>
 			</div>
 			<button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 transition-colors">
@@ -136,7 +135,7 @@ const ModalFooter = ({ onClose }: { onClose: () => void }) => {
 				onClick={onClose}
 				className="px-8 py-2 bg-[#111827] text-white font-bold rounded-md hover:bg-black active:scale-95 transition-all"
 			>
-				Close
+				Đóng
 			</button>
 		</div>
 	);

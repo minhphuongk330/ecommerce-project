@@ -43,7 +43,7 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 	const handleCreate = async (data: AddressFormData) => {
 		try {
 			if (!user?.id) {
-				showNotification("Please log in again to proceed.", "error");
+				showNotification("Vui lòng đăng nhập lại để tiếp tục.", "error");
 				return;
 			}
 
@@ -52,12 +52,12 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 				customerId: Number(user.id),
 			});
 
-			showNotification("Address added successfully!", "success");
+			showNotification("Địa chỉ đã được thêm thành công!", "success");
 			setIsOpen(false);
 			onSuccess(newAddress);
 		} catch (error) {
 			console.error(error);
-			showNotification("Add failed. Please try again.", "error");
+			showNotification("Thêm thất bại. Vui lòng thử lại.", "error");
 		}
 	};
 
@@ -68,7 +68,7 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 			<BaseDialog
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Add New Address"
+				title="Thêm địa chỉ mới"
 				showCloseIcon={true}
 				width={600}
 			>
@@ -81,9 +81,9 @@ export default function CreateAddress({ onSuccess }: CreateAddressProps) {
 						<StepButton
 							layout="full"
 							type="submit"
-							primaryLabel="Save"
+							primaryLabel="Thêm mới"
 							isLoading={isSubmitting}
-							secondaryLabel="Cancel"
+							secondaryLabel="Hủy"
 							onSecondaryClick={() => setIsOpen(false)}
 							className="w-full"
 							buttonClassName="!h-[48px]"

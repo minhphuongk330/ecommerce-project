@@ -63,12 +63,12 @@ export default function TopSellingProducts({ allOrders, allProducts }: { allOrde
 	return (
 		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">
 			<div className="flex justify-between items-start mb-6 relative">
-				<h2 className="text-2xl font-bold text-gray-900">Top sale</h2>
+				<h2 className="text-2xl font-bold text-gray-900">Sản phẩm bán chạy</h2>
 				<PeriodDropdown period={period} onPeriodChange={setPeriod} />
 			</div>
 			{data.length === 0 ? (
 				<div className="flex-1 flex items-center justify-center text-gray-500 font-medium">
-					No sales data in this period
+					Không có dữ liệu bán hàng trong khoảng thời gian này
 				</div>
 			) : (
 				<div className="flex flex-col gap-4">
@@ -106,7 +106,7 @@ export default function TopSellingProducts({ allOrders, allProducts }: { allOrde
 
 								<div className="flex flex-col items-end min-w-[60px]">
 									<span className="text-base font-bold text-gray-900">{product.quantity}</span>
-									<span className="text-xs text-gray-500 font-medium mt-0.5">Sales</span>
+									<span className="text-xs text-gray-500 font-medium mt-0.5">Đã bán</span>
 								</div>
 							</div>
 						);

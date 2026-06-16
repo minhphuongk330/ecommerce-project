@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coupon, CouponType, DiscountType } from '../../entities/coupon.entity';
+import { CustomerCoupon } from '../../entities/customer-coupon.entity';
 
 @Injectable()
 export class CouponsService {
@@ -13,6 +14,20 @@ export class CouponsService {
   /** Lấy tất cả coupon hiển thị trên trang chủ */
   async findHomepage(): Promise<Coupon[]> {
     const now = new Date();
+    const allHomepageCoupons = await this.couponRepository.find({
+      where: { showOnHomepage: true, isActive: true }
+    });
+    console.log('[DEBUG findHomepage] Current server now:', now.toISOString(), now.toString());
+    for (const c of allHomepageCoupons) {
+      console.log(`[DEBUG findHomepage] Coupon ${c.code}:`, {
+        expiresAt: c.expiresAt ? (c.expiresAt instanceof Date ? c.expiresAt.toISOString() : c.expiresAt) : 'NULL',
+        expiresAtRaw: c.expiresAt,
+        usedCount: c.usedCount,
+        usageLimit: c.usageLimit,
+        isExpired: c.expiresAt ? new Date(c.expiresAt) <= now : false,
+        isExhausted: c.usageLimit ? c.usedCount >= c.usageLimit : false,
+      });
+    }
     return this.couponRepository
       .createQueryBuilder('coupon')
       .where('coupon.isActive = :isActive', { isActive: true })
@@ -33,6 +48,7 @@ export class CouponsService {
     code: string,
     orderValue: number,
     shippingCost: number = 0,
+    customerId?: number,
   ): Promise<{ coupon: Coupon; discountAmount: number }> {
     const now = new Date();
     const coupon = await this.couponRepository.findOne({
@@ -44,6 +60,19 @@ export class CouponsService {
       throw new BadRequestException('Mã giảm giá đã hết hạn');
     if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
       throw new BadRequestException('Mã giảm giá đã hết lượt sử dụng');
+
+    // Kiểm tra lượt sử dụng của khách hàng
+    if (customerId) {
+      const customerCoupon = await this.couponRepository.manager.findOne(CustomerCoupon, {
+        where: { customerId, couponId: coupon.id },
+      });
+      if (customerCoupon) {
+        const limit = coupon.usageLimitPerUser ?? 1;
+        if (customerCoupon.usedCount >= limit) {
+          throw new BadRequestException('Bạn đã sử dụng hết lượt của mã giảm giá này');
+        }
+      }
+    }
 
     // Coupon ship: check shippingCost > 0
     if (coupon.couponType === CouponType.SHIPPING && shippingCost <= 0) {

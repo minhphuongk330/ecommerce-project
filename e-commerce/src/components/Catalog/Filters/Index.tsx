@@ -51,6 +51,8 @@ const specLabels: Record<string, string> = {
 	power: 'Nguồn điện',
 	wifi: 'WiFi',
 	bluetooth: 'Bluetooth',
+	brand: 'Thương hiệu',
+	vision: 'Tầm nhìn ban đêm',
 };
 
 const formatSpecLabel = (key: string): string => {
@@ -70,8 +72,6 @@ const transformAttributeToFilter = (attr: AttributeDef): FilterCategory => {
 		}))
 		: [];
 
-	// Keep attr.name as-is (camelCase) so it matches the JSON key in specifications
-	// e.g. "rearCamera" → id = "rearCamera" → URL ?rearCamera=... → backend $.rearCamera ✅
 	return {
 		id: attr.name,
 		title: formatSpecLabel(attr.name),
@@ -116,7 +116,6 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	}, [categoryId]);
 
 	useEffect(() => {
-		// Fetch price range - with category filter if selected, otherwise all products
 		productService
 			.getPriceRange(categoryId)
 			.then(setPriceRange)
@@ -155,7 +154,7 @@ const Filters: React.FC<ExtendedFiltersProps> = ({ selectedFilters, toggleFilter
 	return (
 		<FilterDrawer>
 			<div className="flex flex-col gap-[24px] w-full">
-				<FiltersAccordion title="All Categories" defaultOpen={false}>
+				<FiltersAccordion title="Tất cả danh mục" defaultOpen={false}>
 					<CategoryList />
 				</FiltersAccordion>
 				{priceRange && <PriceRangeFilter minPrice={priceRange.minPrice} maxPrice={priceRange.maxPrice} />}

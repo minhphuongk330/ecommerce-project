@@ -14,9 +14,9 @@ export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: 
 		<BaseDialog isOpen={isOpen} onClose={() => {}} width={450}>
 			<div className="flex flex-col items-center text-center">
 				<CheckCircleOutline sx={{ fontSize: 80 }} className="text-green-500 mb-6" />
-				<h3 className="text-[28px] font-bold text-black mb-3 leading-tight">Payment Successful!</h3>
+				<h3 className="text-[28px] font-bold text-black mb-3 leading-tight">Thanh toán thành công!</h3>
 				<p className="mb-8 text-[16px] text-gray-600">
-					Thank you for your order. Your transaction has been completed successfully.
+					Cảm ơn bạn đã đặt hàng. Giao dịch của bạn đã được hoàn thành thành công.
 				</p>
 
 				<div className="w-full flex flex-col gap-3">
@@ -26,7 +26,7 @@ export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: 
 						variant="solid"
 						className="!w-full !h-[52px] !rounded-[8px] !bg-green-600 hover:!bg-green-700 !text-white !text-lg !font-medium"
 					>
-						View my Orders
+						Xem đơn hàng của tôi
 					</Button>
 					<Button
 						type="button"
@@ -34,7 +34,7 @@ export default function SuccessModal({ isOpen, onConfirm, onContinueShopping }: 
 						variant="outline"
 						className="!w-full !h-[52px] !rounded-[8px] !text-lg !font-medium"
 					>
-						Continue Shopping
+						Tiếp tục mua sắm
 					</Button>
 				</div>
 			</div>

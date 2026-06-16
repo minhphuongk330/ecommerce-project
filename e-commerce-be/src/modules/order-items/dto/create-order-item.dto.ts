@@ -4,5 +4,8 @@ export class CreateOrderItemDto {
   colorId?: string;
   unitPrice: number;
   quantity?: number;
+  variantId?: number;
+  skipStockDecrement?: boolean;
 }
+
 

@@ -76,6 +76,7 @@ export const orderService = {
 			throw new Error("Failed to retrieve new order ID.");
 		}
 
+		const isVnpay = params.paymentMethod === 'VNPAY';
 		const createItemPromises = params.items.map(item =>
 			orderService.createOrderItem({
 				orderId: newOrder.id,
@@ -84,21 +85,30 @@ export const orderService = {
 				unitPrice: Number(item.price),
 				quantity: item.quantity,
 				variantId: item.variantId,
+				skipStockDecrement: isVnpay,
 			}),
 		);
 		await Promise.all(createItemPromises);
 
-		try {
-			await axiosClient.post(`/orders/${newOrder.id}/confirmation`);
-		} catch (error) {
-			console.error("Failed to trigger email confirmation:", error);
+		if (params.paymentMethod !== 'VNPAY') {
+			try {
+				await axiosClient.post(`/orders/${newOrder.id}/confirmation`);
+			} catch (error) {
+				console.error("Failed to trigger email confirmation:", error);
+			}
 		}
 
 		return newOrder;
 	},
 
-	// Tạo VNPay payment URL cho order đã tạo
+
 	createVnpayUrl: async (orderId: number): Promise<{ paymentUrl: string }> => {
 		return axiosClient.post(`/payments/create-url/${orderId}`);
 	},
+
+
+	createVnpayCheckout: async (params: any): Promise<{ paymentUrl: string }> => {
+		return axiosClient.post("/payments/vnpay-checkout", params);
+	},
 };
+

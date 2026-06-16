@@ -17,7 +17,7 @@ export class ChatbotAdminService {
   async getDashboardContext(): Promise<string> {
     try {
       const stats = await this.adminService.getDashboardStats();
-      const productsResponse = await this.productsService.findAll();
+      const productsResponse = await this.productsService.findAll({ limit: 1000 });
       const allProducts = productsResponse.items || [];
 
       return `
@@ -127,7 +127,7 @@ export class ChatbotAdminService {
 
   async executeGetProductStats(): Promise<string> {
     try {
-      const response = await this.productsService.findAll();
+      const response = await this.productsService.findAll({ limit: 1000 });
       const products = response.items || [];
       const lowStock = products.filter((p) => p.stock <= 20);
       const outOfStock = products.filter((p) => p.stock === 0);
@@ -173,19 +173,19 @@ export class ChatbotAdminService {
         THONG KE DOANH THU:
 
         THANG NAY (${monthly.periodLabel}):
-        - Doanh thu: ${monthly.revenue.toLocaleString('vi-VN')} VND
-        - Don hang: ${monthly.orders}
-        - So voi thang truoc: ${fmt(monthly.revenuePercent)}
+        - Doanh thu: ${monthly.revenue.toLocaleString('vi-VN')} VND (Don hang: ${monthly.orders})
+        - Doanh thu thang truoc: ${(monthly as any).prevRevenue.toLocaleString('vi-VN')} VND (Don hang: ${(monthly as any).prevOrders})
+        - So voi thang truoc: ${fmt(monthly.revenuePercent)} (Don hang: ${fmt(monthly.ordersPercent)})
 
         TUAN NAY (${weekly.periodLabel}):
-        - Doanh thu: ${weekly.revenue.toLocaleString('vi-VN')} VND
-        - Don hang: ${weekly.orders}
-        - So voi tuan truoc: ${fmt(weekly.revenuePercent)}
+        - Doanh thu: ${weekly.revenue.toLocaleString('vi-VN')} VND (Don hang: ${weekly.orders})
+        - Doanh thu tuan truoc: ${(weekly as any).prevRevenue.toLocaleString('vi-VN')} VND (Don hang: ${(weekly as any).prevOrders})
+        - So voi tuan truoc: ${fmt(weekly.revenuePercent)} (Don hang: ${fmt(weekly.ordersPercent)})
 
         NAM NAY (${yearly.periodLabel}):
-        - Doanh thu: ${yearly.revenue.toLocaleString('vi-VN')} VND
-        - Don hang: ${yearly.orders}
-        - So voi nam truoc: ${fmt(yearly.revenuePercent)}
+        - Doanh thu: ${yearly.revenue.toLocaleString('vi-VN')} VND (Don hang: ${yearly.orders})
+        - Doanh thu nam truoc: ${(yearly as any).prevRevenue.toLocaleString('vi-VN')} VND (Don hang: ${(yearly as any).prevOrders})
+        - So voi nam truoc: ${fmt(yearly.revenuePercent)} (Don hang: ${fmt(yearly.ordersPercent)})
       `;
     } catch {
       return 'Loi khi tai thong ke doanh thu.';

@@ -8,14 +8,14 @@ import { useMobileFilter } from "~/contexts/MobileFilterContext";
 import { ListHeaderProps } from "~/types/catalog";
 
 const SORT_OPTIONS = [
-	{ value: "newest", label: "Newest" },
-	{ value: "rating", label: "Rating" },
+	{ value: "newest", label: "Mới nhất" },
+	{ value: "rating", label: "Đánh giá" },
 ];
 
 const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const currentSort = searchParams.get("sort") || null;
+	const currentSort = searchParams.get("sort") || "newest";
 	const currentPrice = currentSort === "price_asc" || currentSort === "price_desc" ? currentSort : null;
 	const mobileContext = useMobileFilter();
 
@@ -70,7 +70,7 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 							currentPrice ? "text-red-500 font-bold bg-gray-50" : "text-gray-600 hover:bg-gray-50"
 						}`}
 					>
-						<span>Price</span>
+						<span>Giá</span>
 						{renderPriceIcon()}
 					</button>
 
@@ -78,14 +78,14 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 						onClick={() => mobileContext?.setIsMobileDrawerOpen(true)}
 						className="w-[80px] h-full flex items-center justify-center gap-1 text-gray-600 hover:bg-gray-50 hover:text-black font-medium"
 					>
-						<span>Filter</span>
+						<span>Bộ lọc</span>
 						<FilterListIcon sx={{ fontSize: 18 }} />
 					</button>
 				</div>
 			</div>
 
 			<div className="hidden md:flex items-center w-full min-h-[40px] gap-4">
-				<span className="text-sm text-gray-600 font-medium whitespace-nowrap shrink-0">Sort by</span>
+				<span className="text-sm text-gray-600 font-medium whitespace-nowrap shrink-0">Sắp xếp theo</span>
 
 				<div className="grid grid-cols-3 gap-3 flex-1">
 					{SORT_OPTIONS.map(option => (
@@ -110,7 +110,7 @@ const ListHeader: React.FC<ListHeaderProps> = ({ count }) => {
 								: "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
 						}`}
 					>
-						<span>Price</span>
+						<span>Giá</span>
 						{renderPriceIcon()}
 					</button>
 				</div>

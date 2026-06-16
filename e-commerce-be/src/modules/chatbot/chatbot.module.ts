@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Chatbot } from '../../entities/chatbot.entity';
 import { AdminModule } from '../admin/admin.module';
 import { CartModule } from '../cart/cart.module';
 import { CategoriesModule } from '../categories/categories.module';
@@ -13,6 +15,7 @@ import { ChatbotService } from './chatbot.service';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Chatbot]),
     ProductsModule,
     CategoriesModule,
     CartModule,

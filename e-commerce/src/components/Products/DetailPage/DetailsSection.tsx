@@ -3,9 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { DetailsSectionProps } from "~/types/component";
 
-// Vietnamese label dictionary for specifications
 const specLabels: Record<string, string> = {
-	// Điện thoại
 	os: 'Hệ điều hành',
 	cpu: 'Chip xử lý (CPU)',
 	ram: 'RAM',
@@ -22,20 +20,18 @@ const specLabels: Record<string, string> = {
 	material: 'Chất liệu',
 	dimensions: 'Kích thước, khối lượng',
 	brand: 'Hãng sản xuất',
-	// Laptop
 	cpuDetail: 'Chi tiết CPU',
 	gpu: 'Card đồ họa (GPU)',
 	ramDetail: 'Chi tiết RAM',
 	storageDetail: 'Chi tiết ổ cứng',
 	screenDetail: 'Chi tiết màn hình',
 	ports: 'Cổng kết nối',
-	connectivity: 'Kết nối không dây',
+	connectivity: 'Kết nối',
 	webcam: 'Webcam',
 	keyboard: 'Bàn phím',
 	audio: 'Âm thanh',
 	batteryOs: 'Pin & Hệ điều hành',
 	dimensionsWeight: 'Kích thước & Trọng lượng',
-	// Legacy / các danh mục khác
 	screen: 'Màn hình',
 	chip: 'Chip xử lý',
 	weight: 'Trọng lượng',
@@ -60,9 +56,8 @@ const specLabels: Record<string, string> = {
 	mountType: 'Kiểu gắn / lắp',
 };
 
-// specGroups per danh mục — chỉ render key nào có dữ liệu
 const SPEC_GROUPS_BY_CATEGORY: Record<number, { title: string; keys: string[] }[]> = {
-	1: [ // Điện thoại
+	1: [ 
 		{ title: 'Cấu hình & Bộ nhớ', keys: ['os', 'cpu', 'ram', 'storage', 'chip', 'gpu'] },
 		{ title: 'Camera & Màn hình', keys: ['screenSize', 'screenTech', 'rearCamera', 'frontCamera', 'screen', 'resolution', 'viewAngle', 'nightVision'] },
 		{ title: 'Pin & Sạc', keys: ['battery', 'charging', 'chargingPort', 'power'] },
@@ -70,7 +65,7 @@ const SPEC_GROUPS_BY_CATEGORY: Record<number, { title: string; keys: string[] }[
 		{ title: 'Kết nối', keys: ['network', 'sim', 'wifi', 'bluetooth', 'ports', 'connectivity'] },
 		{ title: 'Thiết kế & Chất liệu', keys: ['brand', 'material', 'dimensions', 'design', 'weight'] },
 	],
-	2: [ // Laptop
+	2: [ 
 		{ title: 'Cấu hình', keys: ['brand', 'cpu', 'ram', 'storage', 'os'] },
 		{ title: 'Chi tiết CPU & GPU', keys: ['cpuDetail', 'gpu'] },
 		{ title: 'Bộ nhớ', keys: ['ramDetail', 'storageDetail'] },
@@ -80,7 +75,7 @@ const SPEC_GROUPS_BY_CATEGORY: Record<number, { title: string; keys: string[] }[
 		{ title: 'Pin & Hệ điều hành', keys: ['batteryOs', 'battery'] },
 		{ title: 'Thiết kế & Kích thước', keys: ['material', 'dimensionsWeight', 'weight'] },
 	],
-	3: [ // Tablet
+	3: [ 
 		{ title: 'Cấu hình & Bộ nhớ', keys: ['brand', 'os', 'cpu', 'ram', 'storage', 'gpu'] },
 		{ title: 'Màn hình', keys: ['screenSize', 'screenTech'] },
 		{ title: 'Camera', keys: ['rearCamera', 'frontCamera'] },
@@ -89,33 +84,29 @@ const SPEC_GROUPS_BY_CATEGORY: Record<number, { title: string; keys: string[] }[
 		{ title: 'Pin & Sạc', keys: ['battery', 'charging'] },
 		{ title: 'Thiết kế & Chất liệu', keys: ['material', 'dimensions', 'weight'] },
 	],
-	4: [ // Smartwatch
+	4: [ 
 		{ title: 'Cấu hình', keys: ['brand', 'os', 'screenSize', 'screenTech'] },
 		{ title: 'Sức khỏe & Tập luyện', keys: ['health', 'sports', 'sensors'] },
 		{ title: 'Tiện ích & Kết nối', keys: ['utilities', 'connectivity', 'waterproof'] },
 		{ title: 'Pin & Thiết kế', keys: ['battery', 'material', 'dimensions', 'weight'] },
 	],
-	6: [ // Camera an ninh / hành trình
+	6: [ 
 		{ title: 'Thông tin chung', keys: ['brand', 'resolution', 'vision', 'storage'] },
 		{ title: 'Tiện ích & Kết nối', keys: ['utilities', 'connectivity'] },
 		{ title: 'Nguồn điện & Kích thước', keys: ['power', 'dimensions', 'dimensionsWeight', 'weight'] },
 	],
 };
 
-// Fallback groups cho các danh mục chưa định nghĩa
-const DEFAULT_SPEC_GROUPS = [
+ const DEFAULT_SPEC_GROUPS = [
 	{ title: 'Thông số kỹ thuật', keys: ['brand', 'os', 'cpu', 'ram', 'storage', 'screen', 'chip', 'battery', 'connectivity', 'resolution', 'viewAngle', 'nightVision', 'waterproof', 'power', 'utilities', 'health', 'sports', 'audioTech', 'micro', 'chargingPort', 'compatibility', 'ports'] },
 	{ title: 'Thiết kế & Chất liệu', keys: ['material', 'dimensions', 'dimensionsWeight', 'design', 'weight'] },
 ];
 
-// Helper to format spec key to Vietnamese label
-const formatSpecLabel = (key: string): string => {
-	// Use Vietnamese label if available
-	if (specLabels[key]) {
+ const formatSpecLabel = (key: string): string => {
+ 	if (specLabels[key]) {
 		return specLabels[key];
 	}
-	// Fallback: capitalize first letter and replace underscores with spaces
-	return key
+ 	return key
 		.replace(/_/g, " ")
 		.replace(/([A-Z])/g, " $1")
 		.trim()
@@ -146,8 +137,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ product }) => {
 		const specsMap = new Map(specEntries);
 		const usedKeys = new Set<string>();
 
-		// Chọn specGroups theo danh mục sản phẩm
-		const categoryId = product.category?.id ?? product.categoryId;
+ 		const categoryId = product.category?.id ?? product.categoryId;
 		const specGroups = (categoryId && SPEC_GROUPS_BY_CATEGORY[categoryId])
 			? SPEC_GROUPS_BY_CATEGORY[categoryId]
 			: DEFAULT_SPEC_GROUPS;
@@ -166,8 +156,7 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({ product }) => {
 			return { ...group, specs: groupSpecs };
 		}).filter(group => group.specs.length > 0);
 
-		// Thêm những specs không nằm trong mapping vào nhóm "Thông tin khác"
-		const otherSpecs = specEntries
+ 		const otherSpecs = specEntries
 			.filter(([key]) => !usedKeys.has(key))
 			.map(([key, value]) => ({
 				key,

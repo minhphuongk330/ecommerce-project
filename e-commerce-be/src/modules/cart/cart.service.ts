@@ -4,9 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { CartItem } from '../../entities/cart-item.entity';
 import { Product } from '../../entities/product.entity';
+import { FlashSaleItem } from '../../entities/flash-sale-item.entity';
 import { CreateCartDto } from './dto/create-cart.dto';
 
 @Injectable()
@@ -17,7 +18,23 @@ export class CartService {
 
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly dataSource: DataSource,
   ) { }
+
+  private async getRemainingFlashSale(productId: number): Promise<number | null> {
+    const now = new Date();
+    const flashSaleItem = await this.dataSource.manager
+      .createQueryBuilder(FlashSaleItem, 'fsi')
+      .innerJoin('fsi.flashSale', 'fs')
+      .where('fsi.productId = :productId', { productId })
+      .andWhere('fs.isActive = true')
+      .andWhere('fs.endsAt > :now', { now })
+      .select(['fsi.id', 'fsi.quantity', 'fsi.soldQuantity'])
+      .getOne();
+
+    if (!flashSaleItem) return null;
+    return Math.max(0, flashSaleItem.quantity - flashSaleItem.soldQuantity);
+  }
 
   async create(customerId: number, createCartDto: CreateCartDto) {
     const { productId, quantity, color } = createCartDto;
@@ -27,15 +44,19 @@ export class CartService {
     });
 
     if (!product) {
-      throw new NotFoundException('The product does not exist!');
+      throw new NotFoundException('Sản phẩm không tồn tại!');
     }
 
-    const stockAvailable = product.stock;
+    const remainingFlashSale = await this.getRemainingFlashSale(productId);
+    const stockAvailable = remainingFlashSale !== null
+      ? Math.min(product.stock, remainingFlashSale)
+      : product.stock;
 
     if (quantity > stockAvailable) {
-      throw new BadRequestException(
-        `Only ${stockAvailable} items available. Cannot add ${quantity}.`,
-      );
+      const message = remainingFlashSale !== null
+        ? `Sản phẩm Flash Sale này chỉ còn ${remainingFlashSale} suất giảm giá. Bạn đang chọn ${quantity}.`
+        : `Only ${stockAvailable} items available. Cannot add ${quantity}.`;
+      throw new BadRequestException(message);
     }
 
     const existing = await this.cartRepository.findOne({
@@ -49,9 +70,10 @@ export class CartService {
     if (existing) {
       const totalQuantity = existing.quantity + quantity;
       if (totalQuantity > stockAvailable) {
-        throw new BadRequestException(
-          `Cart already has ${existing.quantity}. Stock available: ${stockAvailable}. Cannot add more.`,
-        );
+        const message = remainingFlashSale !== null
+          ? `Giỏ hàng đã có ${existing.quantity} sản phẩm. Suất Flash Sale còn lại: ${remainingFlashSale}.`
+          : `Cart already has ${existing.quantity}. Stock available: ${stockAvailable}. Cannot add more.`;
+        throw new BadRequestException(message);
       }
 
       existing.quantity += quantity;
@@ -83,15 +105,19 @@ export class CartService {
     });
 
     if (!item) {
-      throw new NotFoundException('Product not found in cart.');
+      throw new NotFoundException('Sản phẩm không có trong giỏ hàng.');
     }
 
-    const stockAvailable = item.product.stock;
+    const remainingFlashSale = await this.getRemainingFlashSale(item.productId);
+    const stockAvailable = remainingFlashSale !== null
+      ? Math.min(item.product.stock, remainingFlashSale)
+      : item.product.stock;
 
     if (quantity > stockAvailable) {
-      throw new BadRequestException(
-        `Only ${stockAvailable} items available. Cannot update to ${quantity}.`,
-      );
+      const message = remainingFlashSale !== null
+        ? `Sản phẩm Flash Sale này chỉ còn ${remainingFlashSale} suất giảm giá.`
+        : `Only ${stockAvailable} items available. Cannot update to ${quantity}.`;
+      throw new BadRequestException(message);
     }
 
     item.quantity = quantity;

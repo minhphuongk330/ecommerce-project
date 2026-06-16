@@ -5,9 +5,9 @@ import { UpdateProfilePayload } from "~/types/auth";
 import CommonInput from "~/components/atoms/Input";
 
 const GENDER_OPTIONS = [
-	{ value: "MALE", label: "Male" },
-	{ value: "FEMALE", label: "Female" },
-	{ value: "OTHER", label: "Others" },
+	{ value: "MALE", label: "Nam" },
+	{ value: "FEMALE", label: "Nữ" },
+	{ value: "OTHER", label: "Khác" },
 ];
 
 interface Props {
@@ -29,11 +29,11 @@ const ProfileForm = ({ control, email }: Props) => {
 					},
 				}}
 			/>
-			<CommonInput name="fullName" control={control} label="Full Name" required />
-			<CommonInput name="phoneNumber" control={control} label="Phone Number" type="tel" />
+			<CommonInput name="fullName" control={control} label="Họ và tên" required />
+			<CommonInput name="phoneNumber" control={control} label="Số điện thoại" type="tel" />
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-				<CommonInput name="gender" control={control} label="Gender" select>
+				<CommonInput name="gender" control={control} label="Giới tính" select>
 					{GENDER_OPTIONS.map(option => (
 						<MenuItem key={option.value} value={option.value}>
 							{option.label}
@@ -44,7 +44,7 @@ const ProfileForm = ({ control, email }: Props) => {
 				<CommonInput
 					name="dateOfBirth"
 					control={control}
-					label="Date of Birth"
+					label="Ngày sinh"
 					type="date"
 					InputLabelProps={{ shrink: true }}
 				/>

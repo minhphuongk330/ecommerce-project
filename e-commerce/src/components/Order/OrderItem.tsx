@@ -1,32 +1,45 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
 import { Order } from "~/types/order";
-import { formatPrice } from "~/utils/format";
+import { formatPrice, parseSafeDate } from "~/utils/format";
 import { router } from "~/utils/router";
-import { getOrderStatusColor } from "~/utils/order";
+import { getOrderStatusColor, getOrderStatusText, getPaymentStatusColor, getPaymentStatusText } from "~/utils/order";
 
 interface OrderItemProps {
 	order: Order;
 }
 
 export default function OrderItem({ order }: OrderItemProps) {
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
 	return (
 		<div className="bg-white border border-gray-200 rounded-lg p-4 md:p-5 mb-4 hover:shadow-md transition-shadow">
 			<div className="flex flex-col sm:flex-row justify-between items-start mb-4 border-b border-gray-100 pb-3 gap-3 sm:gap-0">
 				<div className="flex-1">
-					<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+					<div className="flex flex-wrap items-center gap-2 md:gap-3">
 						<h3 className="font-bold text-base md:text-lg text-black">{order.orderNo}</h3>
 						<span
 							className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border w-fit ${getOrderStatusColor(
 								order.status,
-							)} capitalize`}
+							)}`}
 						>
-							{order.status}
+							{getOrderStatusText(order.status)}
+						</span>
+						<span
+							className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border w-fit ${getPaymentStatusColor(
+								order.paymentStatus,
+							)}`}
+						>
+							{getPaymentStatusText(order.paymentStatus)}
 						</span>
 					</div>
 					<p className="text-gray-500 text-xs md:text-sm mt-1">
-						Ordered on: {dayjs(order.createdAt).format("MMM DD, YYYY")}
+						Ngày đặt hàng: {mounted ? dayjs(parseSafeDate(order.createdAt)).format("DD/MM/YYYY") : ""}
 					</p>
 				</div>
 				<div className="text-left sm:text-right w-full sm:w-auto">
@@ -34,7 +47,7 @@ export default function OrderItem({ order }: OrderItemProps) {
 						href={router.orderDetail(order.id)}
 						className="text-blue-600 text-xs md:text-sm font-medium hover:underline"
 					>
-						View Details &rarr;
+						Xem chi tiết &rarr;
 					</Link>
 				</div>
 			</div>
@@ -59,7 +72,7 @@ export default function OrderItem({ order }: OrderItemProps) {
 			</div>
 
 			<div className="flex justify-between items-center pt-3 border-t border-gray-100">
-				<span className="text-gray-500 text-xs md:text-sm">Total Amount:</span>
+				<span className="text-gray-500 text-xs md:text-sm">Tổng số tiền:</span>
 				<span className="text-red-600 font-bold text-base md:text-lg">{formatPrice(Number(order.totalAmount))}</span>
 			</div>
 		</div>

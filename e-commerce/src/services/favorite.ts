@@ -14,7 +14,11 @@ export interface FavoriteItem {
 	customerId: number;
 	productId: number;
 	variantId?: number | null;
-	product: Product;
+	product: Product & {
+		isFlashSale?: boolean;
+		flashSalePrice?: number;
+		flashSaleOriginalPrice?: number;
+	};
 	variant?: FavoriteVariant | null;
 }
 

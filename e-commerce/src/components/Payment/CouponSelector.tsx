@@ -5,10 +5,12 @@ import { couponService } from "~/services/coupon";
 import { formatPrice } from "~/utils/format";
 import type { CustomerCoupon } from "~/types/coupon";
 import { usePaymentSummary } from "~/hooks/usePaymentSummary";
+import { useAuthStore } from "~/stores/useAuth";
 
 export default function CouponSelector() {
 	const { appliedCoupon, setAppliedCoupon, appliedShippingCoupon, setAppliedShippingCoupon } = useCheckoutContext();
 	const { subtotal, rawShippingCost } = usePaymentSummary();
+	const { user } = useAuthStore();
 	const [myCoupons, setMyCoupons] = useState<CustomerCoupon[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -32,7 +34,12 @@ export default function CouponSelector() {
 		const isShipping = cc.coupon.couponType === 'shipping';
 
 		try {
-			const result = await couponService.validate(cc.coupon.code, subtotal, rawShippingCost);
+			const result = await couponService.validate(
+				cc.coupon.code,
+				subtotal,
+				rawShippingCost,
+				user?.id ? Number(user.id) : undefined,
+			);
 			if (isShipping) {
 				setAppliedShippingCoupon(result);
 			} else {
@@ -86,7 +93,6 @@ export default function CouponSelector() {
 				</button>
 			</div>
 
-			{/* Applied coupons */}
 			<div className="flex flex-col gap-2">
 				<CouponTag type="product" />
 				<CouponTag type="shipping" />
@@ -95,20 +101,16 @@ export default function CouponSelector() {
 				)}
 			</div>
 
-			{/* Modal */}
+		
 			{isModalOpen && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					{/* Backdrop */}
 					<div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
 
 					<div className="relative w-full max-w-md bg-white rounded-[16px] shadow-2xl overflow-hidden">
-						{/* Header */}
 						<div className="flex items-center justify-between p-5 border-b border-[#EBEBEB]">
 							<h2 className="text-lg font-semibold text-black">Chọn mã giảm giá</h2>
 							<button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-black transition-colors text-2xl leading-none">×</button>
 						</div>
-
-						{/* Tabs */}
 						<div className="flex border-b border-[#EBEBEB]">
 							{(['product', 'shipping'] as const).map(tab => (
 								<button
@@ -122,22 +124,30 @@ export default function CouponSelector() {
 							))}
 						</div>
 
-						{/* Coupon list */}
 						<div className="max-h-[360px] overflow-y-auto p-4 flex flex-col gap-3">
 							{activeTab === 'product' && (
 								productCoupons.length === 0
 									? <p className="text-center text-gray-400 py-8 text-sm">Bạn chưa có coupon giảm giá sản phẩm</p>
 									: productCoupons.map(cc => {
 										const isApplied = appliedCoupon?.coupon.id === cc.coupon.id;
+										const isUsed = cc.usedCount >= (cc.coupon.usageLimitPerUser ?? 1);
 										const isIneligible = subtotal < (cc.coupon.minOrderValue || 0);
+										
+										const isDisabled = isUsed || isIneligible;
+										const disabledReason = isUsed 
+											? "Bạn đã sử dụng hết lượt của mã này" 
+											: isIneligible 
+												? `Đơn tối thiểu ${formatPrice(cc.coupon.minOrderValue)}` 
+												: undefined;
+
 										return (
 											<CouponCard
 												key={cc.id}
 												cc={cc}
 												badge={getCouponBadge(cc)}
 												isApplied={isApplied}
-												isDisabled={isIneligible}
-												disabledReason={isIneligible ? `Đơn tối thiểu ${formatPrice(cc.coupon.minOrderValue)}` : undefined}
+												isDisabled={isDisabled}
+												disabledReason={disabledReason}
 												error={errors[cc.id]}
 												onSelect={() => handleSelect(cc)}
 											/>
@@ -150,19 +160,26 @@ export default function CouponSelector() {
 									? <p className="text-center text-gray-400 py-8 text-sm">Bạn chưa có coupon giảm phí ship</p>
 									: shippingCoupons.map(cc => {
 										const isApplied = appliedShippingCoupon?.coupon.id === cc.coupon.id;
+										const isUsed = cc.usedCount >= (cc.coupon.usageLimitPerUser ?? 1);
 										const isIneligible = subtotal < (cc.coupon.minOrderValue || 0);
+										
+										const isDisabled = isUsed || isFreeShipping || isIneligible;
+										const disabledReason = isUsed
+											? "Bạn đã sử dụng hết lượt của mã này"
+											: isFreeShipping 
+												? "Miễn phí ship, không áp dụng được"
+												: isIneligible 
+													? `Đơn tối thiểu ${formatPrice(cc.coupon.minOrderValue)}`
+													: undefined;
+
 										return (
 											<CouponCard
 												key={cc.id}
 												cc={cc}
 												badge={getCouponBadge(cc)}
 												isApplied={isApplied}
-												isDisabled={isFreeShipping || isIneligible}
-												disabledReason={
-													isFreeShipping ? "Miễn phí ship, không áp dụng được"
-													: isIneligible ? `Đơn tối thiểu ${formatPrice(cc.coupon.minOrderValue)}`
-													: undefined
-												}
+												isDisabled={isDisabled}
+												disabledReason={disabledReason}
 												error={errors[cc.id]}
 												onSelect={() => handleSelect(cc)}
 											/>
@@ -170,8 +187,6 @@ export default function CouponSelector() {
 									})
 							)}
 						</div>
-
-						{/* Footer */}
 						<div className="p-4 border-t border-[#EBEBEB]">
 							<button
 								onClick={() => setIsModalOpen(false)}
@@ -186,8 +201,6 @@ export default function CouponSelector() {
 		</div>
 	);
 }
-
-// Sub-component card coupon
 function CouponCard({ cc, badge, isApplied, isDisabled, disabledReason, error, onSelect }: {
 	cc: CustomerCoupon;
 	badge: string;

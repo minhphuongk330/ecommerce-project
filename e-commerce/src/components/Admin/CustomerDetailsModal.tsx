@@ -15,7 +15,7 @@ const ModalHeader = ({ id, fullName, onClose }: { id: number; fullName: string; 
 	return (
 		<div className="p-6 border-b border-gray-100 flex justify-between items-start">
 			<div>
-				<h3 className="text-xl font-bold text-gray-800">Customer Details</h3>
+				<h3 className="text-xl font-bold text-gray-800">Chi tiết khách hàng</h3>
 				<p className="text-sm text-gray-500 mt-1">ID #{id}</p>
 				<p className="text-sm font-semibold text-gray-900 mt-2">{fullName}</p>
 			</div>
@@ -31,7 +31,7 @@ const InfoField = ({ label, value }: { label: string; value: string | React.Reac
 		<div className="py-3 border-b border-gray-100 last:border-b-0">
 			<p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
 			<p className="text-sm text-gray-900 font-medium">
-				{value || <span className="text-gray-400 italic">Not provided</span>}
+				{value || <span className="text-gray-400 italic">Không có thông tin</span>}
 			</p>
 		</div>
 	);
@@ -40,24 +40,24 @@ const InfoField = ({ label, value }: { label: string; value: string | React.Reac
 const ProfileSection = ({ customer }: { customer: AdminCustomer }) => {
 	return (
 		<div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Personal Information</h4>
+			<h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Thông tin cá nhân</h4>
 
 			<InfoField label="Email" value={customer.email} />
-			<InfoField label="Phone Number" value={customer.profile?.phoneNumber || ""} />
+			<InfoField label="Số điện thoại" value={customer.profile?.phoneNumber || ""} />
 			<InfoField
-				label="Gender"
+				label="Giới tính"
 				value={
 					customer.profile?.gender
 						? customer.profile.gender === "MALE"
-							? "Male"
+							? "Nam"
 							: customer.profile.gender === "FEMALE"
-								? "Female"
-								: "Other"
+								? "Nữ"
+								: "Khác"
 						: ""
 				}
 			/>
 			<InfoField
-				label="Date of Birth"
+				label="Ngày sinh"
 				value={customer.profile?.dateOfBirth ? formatDate(customer.profile.dateOfBirth) : ""}
 			/>
 		</div>
@@ -71,7 +71,7 @@ const ModalFooter = ({ onClose }: { onClose: () => void }) => {
 				onClick={onClose}
 				className="px-8 py-2 bg-[#111827] text-white font-bold rounded-md hover:bg-black active:scale-95 transition-all"
 			>
-				Close
+				Đóng
 			</button>
 		</div>
 	);

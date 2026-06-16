@@ -26,7 +26,7 @@ export class BannersService {
   async findOne(id: number): Promise<Banner> {
     const banner = await this.bannerRepository.findOne({ where: { id } });
     if (!banner) {
-      throw new NotFoundException(`Banner with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy Banner với ID ${id}`);
     }
     return banner;
   }

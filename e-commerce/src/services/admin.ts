@@ -1,5 +1,6 @@
 import {
 	AdminCategory,
+	AdminBrand,
 	AdminCustomer,
 	AdminOrder,
 	AdminProduct,
@@ -23,6 +24,14 @@ export const adminService = {
 		return axiosClient.get("/admin/customers");
 	},
 
+	getContacts(): Promise<any[]> {
+		return axiosClient.get("/admin/contacts");
+	},
+
+	resolveContact(id: number, adminReply: string): Promise<any> {
+		return axiosClient.patch(`/admin/contacts/${id}/resolve`, { adminReply });
+	},
+
 	getProducts(): Promise<AdminProduct[]> {
 		return axiosClient.get("/admin/products");
 	},
@@ -33,6 +42,50 @@ export const adminService = {
 
 	getCategories(): Promise<AdminCategory[]> {
 		return axiosClient.get("/admin/categories");
+	},
+
+	getBrands(): Promise<AdminBrand[]> {
+		return axiosClient.get("/brands");
+	},
+
+	createBrand(payload: { name: string; logoUrl?: string }): Promise<AdminBrand> {
+		return axiosClient.post("/brands", payload);
+	},
+
+	updateBrand(id: number, payload: { name?: string; logoUrl?: string }): Promise<AdminBrand> {
+		return axiosClient.patch(`/brands/${id}`, payload);
+	},
+
+	deleteBrand(id: number): Promise<void> {
+		return axiosClient.delete(`/brands/${id}`);
+	},
+
+	createCategory(payload: { name: string }): Promise<AdminCategory> {
+		return axiosClient.post("/categories", payload);
+	},
+
+	updateCategory(id: number, payload: { name?: string }): Promise<AdminCategory> {
+		return axiosClient.patch(`/categories/${id}`, payload);
+	},
+
+	deleteCategory(id: number): Promise<void> {
+		return axiosClient.delete(`/categories/${id}`);
+	},
+
+	getBanners(): Promise<any[]> {
+		return axiosClient.get("/banners");
+	},
+
+	createBanner(payload: { title: string; content?: string; imageUrl: string; isActive?: boolean; displayType?: string }): Promise<any> {
+		return axiosClient.post("/banners", payload);
+	},
+
+	updateBanner(id: number, payload: Partial<{ title: string; content: string; imageUrl: string; isActive: boolean; displayType: string }>): Promise<any> {
+		return axiosClient.patch(`/banners/${id}`, payload);
+	},
+
+	deleteBanner(id: number): Promise<void> {
+		return axiosClient.delete(`/banners/${id}`);
 	},
 
 	createProduct(payload: CreateProductPayload): Promise<AdminProduct> {
@@ -79,7 +132,7 @@ export const adminService = {
 		return axiosClient.get(`/admin/products/low-stock?threshold=${threshold}`);
 	},
 
-	// Flash Sales
+
 	getFlashSales(): Promise<any[]> {
 		return axiosClient.get("/flash-sales");
 	},
@@ -97,7 +150,15 @@ export const adminService = {
 		return axiosClient.post("/flash-sales", payload);
 	},
 
-	updateFlashSale(id: number, payload: { title?: string; endsAt?: string; isActive?: boolean }): Promise<any> {
+	updateFlashSale(
+		id: number,
+		payload: {
+			title?: string;
+			endsAt?: string;
+			isActive?: boolean;
+			items?: { id?: number; productId: number; salePrice: number; originalPrice: number; quantity: number }[];
+		},
+	): Promise<any> {
 		return axiosClient.patch(`/flash-sales/${id}`, payload);
 	},
 
@@ -105,7 +166,7 @@ export const adminService = {
 		return axiosClient.delete(`/flash-sales/${id}`);
 	},
 
-	// Coupons
+
 	getCoupons(): Promise<any[]> {
 		return axiosClient.get("/coupons");
 	},

@@ -67,7 +67,7 @@ export class AuthService {
     });
 
     if (existingCustomer) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Email đã tồn tại');
     }
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -103,17 +103,17 @@ export class AuthService {
 
     if (!customer) {
       throw new HttpException(
-        'Invalid email or password',
+        'Email hoặc mật khẩu không chính xác',
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
 
     if (!customer.isActive) {
-      throw new UnauthorizedException('Account is inactive');
+      throw new UnauthorizedException('Tài khoản chưa được kích hoạt');
     }
 
     if (customer.isBanned) {
-      throw new UnauthorizedException('Account has been banned');
+      throw new UnauthorizedException('Tài khoản đã bị khoá');
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -123,7 +123,7 @@ export class AuthService {
 
     if (!isPasswordValid) {
       throw new HttpException(
-        'Invalid email or password',
+        'Email hoặc mật khẩu không chính xác',
         HttpStatus.PAYMENT_REQUIRED,
       );
     }
@@ -146,7 +146,7 @@ export class AuthService {
       where: { id: customerId },
     });
     if (!customer || !customer.isActive) {
-      throw new UnauthorizedException('Invalid or inactive customer');
+      throw new UnauthorizedException('Khách hàng không hợp lệ hoặc chưa được kích hoạt');
     }
     return customer;
   }
@@ -156,7 +156,7 @@ export class AuthService {
       relations: ['profile'],
     });
     if (!customer) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
     return {
       id: customer.id,
@@ -175,7 +175,7 @@ export class AuthService {
       relations: ['profile'],
     });
     if (!customer) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
     if (dto.fullName) {
       customer.fullName = dto.fullName;
@@ -195,20 +195,20 @@ export class AuthService {
   }
   async changePassword(customerId: number, dto: ChangePasswordDto) {
     if (dto.newPassword !== dto.confirmPassword) {
-      throw new BadRequestException('Passwords do not match');
+      throw new BadRequestException('Mật khẩu không khớp');
     }
     const customer = await this.customerRepository.findOne({
       where: { id: customerId },
     });
     if (!customer) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
     const isPasswordValid = await bcrypt.compare(
       dto.currentPassword,
       customer.passwordHash,
     );
     if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException('Mật khẩu hiện tại không chính xác');
     }
     const passwordHash = await bcrypt.hash(dto.newPassword, 10);
     customer.passwordHash = passwordHash;
@@ -221,7 +221,7 @@ export class AuthService {
       where: { email },
     });
     if (!customer) {
-      throw new NotFoundException('Email not registered');
+      throw new NotFoundException('Email chưa được đăng ký');
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = new Date();
@@ -232,34 +232,34 @@ export class AuthService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        subject: '[YOUR APP] Reset Password OTP',
+        subject: '[CyberMart] Mã OTP Khôi phục mật khẩu',
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2 style="color: #2c3e50;">Password Reset Request</h2>
-            <p>Hello <strong>${customer.fullName}</strong>,</p>
-            <p>You requested to reset your password. Here is your OTP code:</p>
+            <h2 style="color: #2c3e50;">Yêu cầu Khôi phục mật khẩu</h2>
+            <p>Xin chào <strong>${customer.fullName}</strong>,</p>
+            <p>Bạn đã yêu cầu khôi phục mật khẩu. Dưới đây là mã OTP của bạn:</p>
             <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center; width: fit-content; margin: 20px 0;">
               <h1 style="color: #333; letter-spacing: 5px; margin: 0;">${otp}</h1>
             </div>
-            <p style="color: #666; font-size: 14px;">This code will expire in 15 minutes.</p>
-            <p style="color: #999; font-size: 12px;">If you did not request this, please ignore this email.</p>
+            <p style="color: #666; font-size: 14px;">Mã này sẽ hết hạn trong 15 phút.</p>
+            <p style="color: #999; font-size: 12px;">Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này.</p>
           </div>
         `,
       });
     } catch (error) {
       console.error('Error sending email:', error);
       throw new HttpException(
-        'Error sending email',
+        'Lỗi khi gửi email',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    return { message: 'OTP sent to your email' };
+    return { message: 'OTP đã gửi tới email của bạn' };
   }
   async deactivateAccount(customerId: number) {
     const customer = await this.customerRepository.findOne({
       where: { id: customerId },
     });
-    if (!customer) throw new NotFoundException('User not found');
+    if (!customer) throw new NotFoundException('Không tìm thấy người dùng');
     customer.isActive = false;
     await this.customerRepository.save(customer);
     return { message: 'Account deactivated successfully' };
@@ -274,31 +274,31 @@ export class AuthService {
         where: { id: payload.sub },
       });
       if (!customer || !customer.isActive) {
-        throw new UnauthorizedException('Invalid refresh token');
+        throw new UnauthorizedException('Refresh token không hợp lệ');
       }
       const tokens = this.generateTokens(customer);
       return tokens;
     } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new UnauthorizedException('Refresh token không hợp lệ hoặc đã hết hạn');
     }
   }
 
   async resetPassword(dto: ResetPasswordDto) {    const { email, otp, newPassword, confirmPassword } = dto;
     if (newPassword !== confirmPassword) {
-      throw new BadRequestException('Passwords do not match');
+      throw new BadRequestException('Mật khẩu không khớp');
     }
     const customer = await this.customerRepository.findOne({
       where: { email },
     });
     if (!customer) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
     if (!customer.resetPasswordToken || customer.resetPasswordToken !== otp) {
-      throw new BadRequestException('Invalid OTP');
+      throw new BadRequestException('Mã OTP không hợp lệ');
     }
     const now = new Date();
     if (!customer.resetPasswordExpires || now > customer.resetPasswordExpires) {
-      throw new BadRequestException('OTP has expired');
+      throw new BadRequestException('Mã OTP đã hết hạn');
     }
     const passwordHash = await bcrypt.hash(newPassword, 10);
     customer.passwordHash = passwordHash;

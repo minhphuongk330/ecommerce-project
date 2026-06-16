@@ -25,7 +25,7 @@ export class ProductReviewsService {
     const { productId, rating, comment } = createProductReviewDto;
 
     if (rating < 1 || rating > 5) {
-      throw new BadRequestException('Rating must be between 1 and 5 stars');
+      throw new BadRequestException('Đánh giá phải từ 1 đến 5 sao');
     }
 
     const existingReview = await this.productReviewRepository.findOne({
@@ -87,7 +87,7 @@ export class ProductReviewsService {
       relations: ['customer', 'product'],
     });
     if (!review) {
-      throw new NotFoundException(`Product review with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy đánh giá sản phẩm với ID ${id}`);
     }
     return review;
   }
@@ -100,7 +100,7 @@ export class ProductReviewsService {
     const review = await this.findOne(id);
 
     if (review.customerId !== customerId) {
-      throw new ForbiddenException('You can only update your own reviews');
+      throw new ForbiddenException('Bạn chỉ có thể cập nhật đánh giá của chính mình');
     }
 
     if (updateProductReviewDto.rating !== undefined) {
@@ -108,7 +108,7 @@ export class ProductReviewsService {
         updateProductReviewDto.rating < 1 ||
         updateProductReviewDto.rating > 5
       ) {
-        throw new BadRequestException('Rating must be between 1 and 5 stars');
+        throw new BadRequestException('Đánh giá phải từ 1 đến 5 sao');
       }
     }
 
@@ -120,7 +120,7 @@ export class ProductReviewsService {
     const review = await this.findOne(id);
 
     if (review.customerId !== customerId) {
-      throw new ForbiddenException('You can only delete your own reviews');
+      throw new ForbiddenException('Bạn chỉ có thể xoá đánh giá của chính mình');
     }
 
     await this.productReviewRepository.remove(review);

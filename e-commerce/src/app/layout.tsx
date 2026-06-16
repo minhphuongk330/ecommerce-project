@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Providers from "~/components/atoms/Providers";
+import ThemeRegistry from "~/components/atoms/ThemeRegistry";
 import Chatbot from "~/components/Chatbot/Index";
 import PromoPopup from "~/components/PromoPopup";
 import "~/styles/globals.css";
@@ -20,11 +21,13 @@ export default function RootLayout({
 	return (
 		<html lang="vi">
 			<body style={{ margin: 0, padding: 0 }}>
-				<Providers>
-					{children}
-					<Chatbot />
-					<PromoPopup />
-				</Providers>
+				<ThemeRegistry>
+					<Providers>
+						{children}
+						<Chatbot />
+						<PromoPopup />
+					</Providers>
+				</ThemeRegistry>
 			</body>
 		</html>
 	);

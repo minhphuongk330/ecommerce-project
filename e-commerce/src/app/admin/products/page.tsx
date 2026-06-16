@@ -9,6 +9,7 @@ import { useNotification } from "~/contexts/Notification";
 import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminCategory, AdminProduct } from "~/types/admin";
+import AdminEmptyState from "~/components/Admin/AdminEmptyState";
 import {
 	getProductFilterConfig,
 	PRODUCT_EXPORT_COLUMNS,
@@ -25,7 +26,7 @@ export default function ProductsPage() {
 	const onFetchError = useCallback(
 		(error: any) => {
 			console.error(error);
-			showNotification("Failed to load product list", "error");
+			showNotification("Lỗi khi tải danh sách sản phẩm", "error");
 		},
 		[showNotification],
 	);
@@ -56,7 +57,7 @@ export default function ProductsPage() {
 			setCategories(data);
 		} catch (error) {
 			console.error(error);
-			showNotification("Error loading catalog", "error");
+			showNotification("Lỗi khi tải danh mục", "error");
 		}
 	}, [showNotification]);
 
@@ -67,9 +68,9 @@ export default function ProductsPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		try {
 			await Promise.all(ids.map(id => adminService.deleteProduct(id)));
-			showNotification("Products deleted successfully", "success");
+			showNotification("Xóa sản phẩm thành công", "success");
 		} catch (error) {
-			showNotification("Failed to delete some products", "error");
+			showNotification("Lỗi khi xóa một số sản phẩm", "error");
 		} finally {
 			clearSelection();
 			setIsMobileSelectMode(false);
@@ -80,7 +81,7 @@ export default function ProductsPage() {
 	if (loading) {
 		return (
 			<div className="space-y-6">
-				<h1 className="text-2xl font-bold text-gray-800">Product Management</h1>
+				<h1 className="text-2xl font-bold text-gray-800">Quản lý sản phẩm</h1>
 				<TableSkeleton rows={8} columns={5} />
 			</div>
 		);
@@ -89,13 +90,13 @@ export default function ProductsPage() {
 	return (
 		<div className="space-y-4">
 			<AdminPageHeader
-				title="Product Management"
+				title="Quản lý sản phẩm"
 				selectCount={selectCount}
 				totalCount={filteredProducts.length}
 				allData={filteredProducts}
 				exportColumns={PRODUCT_EXPORT_COLUMNS}
 				exportFilename="products"
-				exportLabel="Export"
+				exportLabel="Xuất Excel"
 				actions={<CreateProduct categories={categories} onSuccess={fetchProducts} />}
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
@@ -115,15 +116,19 @@ export default function ProductsPage() {
 				loading={loading}
 			/>
 
-			<ProductsTable
-				products={filteredProducts}
-				categories={categories}
-				onRefresh={fetchProducts}
-				selectedIds={selectedIds}
-				onSelectChange={handleSelectChange}
-				onSelectAll={handleSelectAllVisible}
-				isMobileSelectMode={isMobileSelectMode}
-			/>
+			{filteredProducts.length === 0 && isFiltered ? (
+				<AdminEmptyState title="Không tìm thấy sản phẩm phù hợp" />
+			) : (
+				<ProductsTable
+					products={filteredProducts}
+					categories={categories}
+					onRefresh={fetchProducts}
+					selectedIds={selectedIds}
+					onSelectChange={handleSelectChange}
+					onSelectAll={handleSelectAllVisible}
+					isMobileSelectMode={isMobileSelectMode}
+				/>
+			)}
 		</div>
 	);
 }

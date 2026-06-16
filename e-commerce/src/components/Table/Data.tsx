@@ -8,7 +8,7 @@ interface DataTableProps extends DataGridProps {
 	sx?: SxProps<Theme>;
 }
 
-export default function DataTable({ noRowsLabel = "No data", sx, ...props }: DataTableProps) {
+export default function DataTable({ noRowsLabel = "Không có dữ liệu", sx, ...props }: DataTableProps) {
 	return (
 		<Paper
 			sx={{
@@ -31,7 +31,13 @@ export default function DataTable({ noRowsLabel = "No data", sx, ...props }: Dat
 				disableColumnMenu
 				disableColumnSelector
 				disableDensitySelector
-				localeText={{ noRowsLabel: noRowsLabel }}
+				localeText={{
+					noRowsLabel: noRowsLabel,
+					MuiTablePagination: {
+						labelRowsPerPage: "Số hàng mỗi trang:",
+						labelDisplayedRows: ({ from, to, count }) => `${from}-${to} trong số ${count}`,
+					},
+				}}
 				{...props}
 				sx={{
 					border: 0,

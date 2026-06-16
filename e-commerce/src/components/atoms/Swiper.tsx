@@ -27,20 +27,28 @@ export default function CommonSwiper<T>({
 }: SwiperProps<T>) {
 	if (!data || data.length === 0) return null;
 
+	const isSwiperActive = data.length > 1;
+	const finalShowNavigation = showNavigation && isSwiperActive;
+	const finalShowPagination = showPagination && isSwiperActive;
+
 	return (
 		<div className={`relative group ${className}`}>
 			<Swiper
 				modules={[Autoplay, Navigation, Pagination]}
-				loop={true}
+				loop={isSwiperActive}
 				speed={800}
 				slidesPerView={slidesPerView}
-				autoplay={{
-					delay: autoplayDelay,
-					disableOnInteraction: false,
-					pauseOnMouseEnter: true,
-				}}
-				navigation={showNavigation}
-				pagination={showPagination ? { clickable: true } : false}
+				autoplay={
+					isSwiperActive
+						? {
+								delay: autoplayDelay,
+								disableOnInteraction: false,
+								pauseOnMouseEnter: true,
+							}
+						: false
+				}
+				navigation={finalShowNavigation}
+				pagination={finalShowPagination ? { clickable: true } : false}
 				className="h-full w-full"
 			>
 				{data.map((item, index) => (
@@ -48,7 +56,7 @@ export default function CommonSwiper<T>({
 				))}
 			</Swiper>
 
-			{showNavigation && (
+			{finalShowNavigation && (
 				<style jsx global>{`
 					.swiper-button-next,
 					.swiper-button-prev {

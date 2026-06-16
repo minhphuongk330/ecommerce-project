@@ -50,13 +50,13 @@ export class CustomerCouponsService {
     await this.customerCouponRepo.remove(record);
   }
 
-  /** Lấy danh sách coupon đã thu thập của user, chưa dùng hết lượt */
+  /** Lấy danh sách coupon đã thu thập của user (bao gồm cả đã dùng để hiển thị trạng thái) */
   async findByCustomer(customerId: number): Promise<CustomerCoupon[]> {
     const records = await this.customerCouponRepo.find({
       where: { customerId },
       order: { collectedAt: 'DESC' },
     });
-    return records.filter(r => r.usedCount < (r.coupon?.usageLimitPerUser || 1));
+    return records;
   }
 
   /** Kiểm tra user đã thu thập coupon nào chưa (trả về set couponId) */

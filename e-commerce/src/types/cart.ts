@@ -4,6 +4,9 @@ export interface CartItemType extends Product {
 	cartItemId?: number;
 	quantity: number;
 	selectedColor?: string;
+	isFlashSale?: boolean;
+	originalPrice?: number;
+	flashSaleRemaining?: number;
 }
 
 export interface CartItemProps {

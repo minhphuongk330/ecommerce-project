@@ -1,49 +1,35 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import Button from "~/components/atoms/Button";
 import { BannerProps } from "~/types/banner";
 
 interface ExtendedBannerProps extends BannerProps {
 	buttonClass?: string;
+	children?: React.ReactNode;
 }
 
 const Banner: React.FC<ExtendedBannerProps> = ({
 	data,
-	buttonText = "Shop Now",
-	onClick,
 	bgImage,
 	className = "",
 	contentClass = "",
 	titleClass = "",
 	descClass = "text-gray-500",
 	imageClass = "",
-	btnTheme = "light",
 	link,
-	buttonClass = "",
+	children,
 }) => {
 	const router = useRouter();
 	if (!data) return null;
 	const { title, content, imageUrl } = data;
 	const alignClass = contentClass.includes("text-center") ? "items-center" : "items-start";
 
-	const handleClick = () => {
-		if (onClick) {
-			onClick();
-		} else if (link) {
-			router.push(link);
-		}
-	};
-
 	const handleImageClick = () => {
-		if (link) {
-			router.push(link);
-		}
 	};
 
 	return (
 		<div
-			className={`w-full relative overflow-hidden flex ${className} ${link ? "cursor-pointer" : ""}`}
+			className={`w-full relative overflow-hidden flex ${className}`}
 			style={
 				bgImage
 					? {
@@ -53,25 +39,20 @@ const Banner: React.FC<ExtendedBannerProps> = ({
 						}
 					: {}
 			}
-			onClick={link ? () => router.push(link) : undefined}
 		>
 			<div className={`h-full flex relative w-full ${contentClass}`}>
-				<div className={`z-7 flex flex-col justify-center h-full w-full ${alignClass}`}>
-					{title && (
-						<div
-							className={`mb-6 leading-none tracking-tight  ${titleClass}`}
-							dangerouslySetInnerHTML={{ __html: title }}
-						/>
-					)}
-					{content && <p className={`text-lg mb-8 leading-relaxed w-full whitespace-normal ${descClass}`}>{content}</p>}
-					{buttonText && (
-						<div onClick={e => e.stopPropagation()}>
-							<Button theme={btnTheme} onClick={handleClick} className={buttonClass}>
-								{buttonText}
-							</Button>
-						</div>
-					)}
-				</div>
+				{(title || content || children) && (
+					<div className={`z-7 flex flex-col justify-center h-full w-full ${alignClass}`}>
+						{title && (
+							<div
+								className={`mb-6 leading-none tracking-tight  ${titleClass}`}
+								dangerouslySetInnerHTML={{ __html: title }}
+							/>
+						)}
+						{content && <p className={`text-lg mb-8 leading-relaxed w-full whitespace-normal ${descClass}`}>{content}</p>}
+						{children}
+					</div>
+				)}
 
 				{imageUrl && (
 					<img

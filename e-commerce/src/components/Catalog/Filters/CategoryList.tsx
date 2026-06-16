@@ -12,7 +12,7 @@ const CategoryList: React.FC<{ showTitle?: boolean }> = ({ showTitle = false }) 
 	if (isLoading) {
 		return (
 			<div className="flex flex-col gap-2 w-full">
-				<p className="text-sm font-semibold text-black mb-2">Categories</p>
+				<p className="text-sm font-semibold text-black mb-2">Danh mục</p>
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div key={i} className="flex items-center gap-3 py-2">
 						<Skeleton variant="rounded" width={28} height={28} />
@@ -25,11 +25,20 @@ const CategoryList: React.FC<{ showTitle?: boolean }> = ({ showTitle = false }) 
 
 	return (
 		<div className="flex flex-col gap-1 w-full">
-			{showTitle && <p className="text-sm font-semibold text-black mb-2">Categories</p>}
+			{showTitle && <p className="text-sm font-semibold text-black mb-2">Danh mục</p>}
 			{categories.map(category => (
 				<button
 					key={category.id}
-					onClick={() => router.push(`${routerPaths.productDetail}?categoryId=${category.id}`)}
+					onClick={() => {
+						const currentParams = new URLSearchParams(window.location.search);
+						const flashSale = currentParams.get("flashSale");
+						const newParams = new URLSearchParams();
+						newParams.set("categoryId", category.id.toString());
+						if (flashSale) {
+							newParams.set("flashSale", flashSale);
+						}
+						router.push(`${routerPaths.productDetail}?${newParams.toString()}`);
+					}}
 					className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-gray-100 transition-colors text-left w-full group"
 				>
 					{category.thumbnailUrl && (

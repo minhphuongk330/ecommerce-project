@@ -1,8 +1,9 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { sendChatMessage } from "~/services/chatbot";
+import { sendChatMessage, saveChatHistory, getChatHistory } from "~/services/chatbot";
 import { useCartStore } from "~/stores/cart";
+import { useAuthStore } from "~/stores/useAuth";
 
 interface ChatMessage {
 	id: number;
@@ -43,7 +44,6 @@ function BotIcon({ size = 16 }: { size?: number }) {
 function ChatbotComponent() {
 	const pathname = usePathname();
 	const mode = pathname?.startsWith("/admin") ? "admin" : "client";
-	const STORAGE_KEY = `chatbot_history_${mode}`;
 	const [isOpen, setIsOpen] = useState(false);
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const [input, setInput] = useState("");
@@ -51,6 +51,77 @@ function ChatbotComponent() {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const abortControllerRef = useRef<AbortController | null>(null);
 	const fetchCart = useCartStore(state => state.fetchCart);
+	const [sessionId, setSessionId] = useState<string>("");
+
+	const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+	const userId = useAuthStore(state => state.user?.id);
+
+
+	const STORAGE_KEY = `chatbot_history_${mode}_${userId ?? 'guest'}`;
+
+	const prevAuthRef = useRef<{ isAuthenticated: boolean; userId: number | string | undefined }>({
+		isAuthenticated: false,
+		userId: undefined,
+	});
+
+	useEffect(() => {
+		let currentSessionId = sessionStorage.getItem(`chatbot_session_id_${mode}`);
+		if (!currentSessionId) {
+			currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+			sessionStorage.setItem(`chatbot_session_id_${mode}`, currentSessionId);
+		}
+		setSessionId(currentSessionId);
+	}, [mode]);
+
+	const getGreeting = useCallback((): ChatMessage => ({
+		id: Date.now(),
+		sender: "bot" as const,
+		text: mode === "admin"
+			? "Xin chào Quản trị viên. Tôi có thể báo cáo số liệu gì cho bạn hôm nay?"
+			: "Xin chào! Mình là trợ lý AI của Cyber Store. Mình có thể giúp gì cho bạn?",
+	}), [mode]);
+
+
+	const clearChatStorage = useCallback(() => {
+		["client", "admin"].forEach(m => {
+			sessionStorage.removeItem(`chatbot_history_${m}_guest`);
+			if (userId) sessionStorage.removeItem(`chatbot_history_${m}_${userId}`);
+			sessionStorage.removeItem(`chatbot_session_id_${m}`);
+		});
+	}, [userId]);
+
+
+	useEffect(() => {
+		const prev = prevAuthRef.current;
+
+		if (prev.isAuthenticated && !isAuthenticated) {
+			const hasUserMessages = messages.some(m => m.sender === "user");
+			if (hasUserMessages) {
+				saveChatHistory(messages).catch(err =>
+					console.error("[Chatbot] Auto-save khi logout thất bại:", err)
+				);
+			}
+			clearChatStorage();
+			setMessages([getGreeting()]);
+		}
+
+		if (isAuthenticated && userId && prev.userId !== userId) {
+			clearChatStorage();
+			getChatHistory()
+				.then(history => {
+					if (history.length > 0) {
+						setMessages(history.map((msg, i) => ({ id: Date.now() + i, ...msg })));
+					} else {
+						setMessages([getGreeting()]);
+					}
+				})
+				.catch(() => setMessages([getGreeting()]));
+		}
+
+
+		prevAuthRef.current = { isAuthenticated, userId };
+	}, [isAuthenticated, userId]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 	useEffect(() => {
 		try {
@@ -58,24 +129,13 @@ function ChatbotComponent() {
 			if (stored) {
 				setMessages(JSON.parse(stored));
 			} else {
-				const greeting =
-					mode === "admin"
-						? {
-								id: Date.now(),
-								sender: "bot" as const,
-								text: "Xin chào Quản trị viên. Tôi có thể báo cáo số liệu gì cho bạn hôm nay?",
-							}
-						: {
-								id: Date.now(),
-								sender: "bot" as const,
-								text: "Xin chào! Mình là trợ lý AI của Cyber Store. Mình có thể giúp gì cho bạn?",
-							};
-				setMessages([greeting]);
+				setMessages([getGreeting()]);
 			}
-		} catch (error) {
-			console.error("Failed to load chat history:", error);
+		} catch {
+			setMessages([getGreeting()]);
 		}
-	}, [mode, STORAGE_KEY]);
+	}, [mode]);
+
 
 	useEffect(() => {
 		try {
@@ -84,6 +144,7 @@ function ChatbotComponent() {
 			console.error("Failed to save chat history:", error);
 		}
 	}, [messages, STORAGE_KEY]);
+
 
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -95,6 +156,12 @@ function ChatbotComponent() {
 		};
 	}, []);
 
+	const getProductIdFromPath = useCallback(() => {
+		if (!pathname) return null;
+		const match = pathname.match(/^\/products\/(\d+)/);
+		return match ? match[1] : null;
+	}, [pathname]);
+
 	const handleSend = useCallback(async () => {
 		if (!input.trim() || isLoading) return;
 		const userMsg = input.trim();
@@ -105,8 +172,16 @@ function ChatbotComponent() {
 		if (abortControllerRef.current) abortControllerRef.current.abort();
 		abortControllerRef.current = new AbortController();
 
+		const currentProductId = getProductIdFromPath();
+
 		try {
-			const res = await sendChatMessage(userMsg, currentHistory, mode, abortControllerRef.current.signal);
+			const res = await sendChatMessage(
+				userMsg,
+				currentHistory,
+				mode,
+				currentProductId,
+				abortControllerRef.current.signal,
+			);
 			if (res?.reply) {
 				setMessages(prev => [...prev, { id: Date.now(), sender: "bot", text: res.reply }]);
 			}
@@ -123,7 +198,7 @@ function ChatbotComponent() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [input, isLoading, messages, mode]);
+	}, [input, isLoading, messages, mode, getProductIdFromPath]);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -136,6 +211,22 @@ function ChatbotComponent() {
 	);
 
 	const toggleChat = useCallback(() => setIsOpen(prev => !prev), []);
+
+	const handleNewChat = useCallback(() => {
+		const hasActualMessages = messages.some(msg => msg.sender === "user");
+		if (hasActualMessages) {
+			saveChatHistory(messages).catch(err => {
+				console.error("Failed to auto-save chat history:", err);
+			});
+		}
+
+		const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+		setSessionId(newSessionId);
+		sessionStorage.setItem(`chatbot_session_id_${mode}`, newSessionId);
+
+		setMessages([]);
+		sessionStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+	}, [messages, mode, STORAGE_KEY]);
 
 	return (
 		<div className="fixed bottom-6 right-6 z-50">
@@ -171,26 +262,49 @@ function ChatbotComponent() {
 								<p className="text-xs text-gray-400 mt-0.5">Cyber Store</p>
 							</div>
 						</div>
-						<button
-							onClick={toggleChat}
-							className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-							aria-label="Close chat"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="16"
-								height="16"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2.5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
+						<div className="flex items-center gap-1.5">
+							<button
+								onClick={handleNewChat}
+								className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+								title="Cuộc trò chuyện mới"
+								aria-label="New chat"
 							>
-								<line x1="18" y1="6" x2="6" y2="18" />
-								<line x1="6" y1="6" x2="18" y2="18" />
-							</svg>
-						</button>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<line x1="12" y1="5" x2="12" y2="19" />
+									<line x1="5" y1="12" x2="19" y2="12" />
+								</svg>
+							</button>
+							<button
+								onClick={toggleChat}
+								className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+								aria-label="Close chat"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<line x1="18" y1="6" x2="6" y2="18" />
+									<line x1="6" y1="6" x2="18" y2="18" />
+								</svg>
+							</button>
+						</div>
 					</div>
 
 					<div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">

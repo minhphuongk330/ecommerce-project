@@ -28,7 +28,7 @@ export const useShipping = () => {
 
 	const handleNext = () => {
 		if (methodId === "schedule" && !date) {
-			return showNotification("Please select a delivery date.", "error");
+			return showNotification("Vui lòng chọn ngày giao hàng.", "error");
 		}
 
 		const method = shippingMethods.find(m => m.id === methodId);
@@ -38,7 +38,7 @@ export const useShipping = () => {
 			setCtxDate(methodId === "schedule" ? date : null);
 			router.push(routerPaths.payment);
 		} else {
-			showNotification("Invalid shipping method selected.", "error");
+			showNotification("Phương thức giao hàng không hợp lệ.", "error");
 		}
 	};
 

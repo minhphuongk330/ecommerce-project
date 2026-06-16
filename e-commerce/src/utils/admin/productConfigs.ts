@@ -7,13 +7,13 @@ export const getProductFilterConfig = (categories: AdminCategory[]): FilterConfi
 	fields: [
 		{
 			name: "name",
-			label: "Product Name",
+			label: "Tên sản phẩm",
 			type: "text",
-			placeholder: "Search by product name...",
+			placeholder: "Tìm kiếm theo tên sản phẩm...",
 		},
 		{
 			name: "category.name",
-			label: "Category",
+			label: "Danh mục",
 			type: "select",
 			options: categories.map(cat => ({
 				label: cat.name,
@@ -22,13 +22,13 @@ export const getProductFilterConfig = (categories: AdminCategory[]): FilterConfi
 		},
 		{
 			name: "priceRange",
-			label: "Price",
+			label: "Giá",
 			type: "numberrange",
-			placeholder: "e.g. 100 - 500",
+			placeholder: "Ví dụ: 100k - 500k",
 		},
 		{
 			name: "createdAt",
-			label: "Created Date",
+			label: "Ngày tạo",
 			type: "daterange",
 		},
 	],
@@ -66,12 +66,12 @@ export const PRODUCT_FILTER_PREDICATES = {
 };
 
 export const PRODUCT_EXPORT_COLUMNS: ExportColumn<AdminProduct>[] = [
-	{ key: "name" as const, label: "Product Name" },
-	{ key: "category.name" as any, label: "Category" },
+	{ key: "name" as const, label: "Tên sản phẩm" },
+	{ key: "category.name" as any, label: "Danh mục" },
 	{
 		key: "price" as const,
-		label: "Price",
+		label: "Giá",
 		formatter: (value: any) => (value != null && !isNaN(value) ? formatPrice(value) : ""),
 	},
-	{ key: "stock" as const, label: "Stock" },
+	{ key: "stock" as const, label: "Tồn kho" },
 ];

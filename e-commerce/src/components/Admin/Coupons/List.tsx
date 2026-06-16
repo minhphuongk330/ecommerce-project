@@ -49,18 +49,18 @@ export default function CouponList({ coupons, onToggleActive, onToggleHomepage, 
 	return (
 		<div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
 			{/* Table header */}
-			<div className="hidden md:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+			<div className="hidden md:grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_120px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
 				<span>Mã / Mô tả</span>
 				<span>Giảm giá</span>
 				<span>Đơn tối thiểu</span>
 				<span>Lượt dùng</span>
 				<span>Hết hạn</span>
-				<span>Thao tác</span>
+				<span className="text-right pr-2">Thao tác</span>
 			</div>
 
 			<div className="divide-y divide-gray-50">
 				{coupons.map((coupon) => (
-					<div key={coupon.id} className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_1fr_1fr_1fr_auto] gap-3 md:gap-4 px-5 py-4 items-center hover:bg-gray-50/50 transition-colors">
+					<div key={coupon.id} className="grid grid-cols-1 md:grid-cols-[2fr_1.5fr_1fr_1fr_1fr_120px] gap-3 md:gap-4 px-5 py-4 items-center hover:bg-gray-50/50 transition-colors">
 						{/* Code + desc */}
 						<div className="flex items-start gap-3">
 							{/* Active toggle */}
@@ -124,7 +124,7 @@ export default function CouponList({ coupons, onToggleActive, onToggleHomepage, 
 						<div className="text-sm text-gray-600">{formatDate(coupon.expiresAt)}</div>
 
 						{/* Actions */}
-						<div className="flex items-center gap-1">
+						<div className="flex items-center justify-end gap-1 pr-2">
 							{/* Toggle homepage */}
 							<button
 								onClick={() => {

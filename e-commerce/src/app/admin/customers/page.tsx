@@ -9,6 +9,7 @@ import { useNotification } from "~/contexts/Notification";
 import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminCustomer } from "~/types/admin";
+import AdminEmptyState from "~/components/Admin/AdminEmptyState";
 import {
 	CUSTOMER_EXPORT_COLUMNS,
 	CUSTOMER_FILTER_CONFIG,
@@ -23,7 +24,7 @@ export default function CustomersPage() {
 	const onFetchError = useCallback(
 		(error: any) => {
 			console.error("Failed to fetch customers", error);
-			showNotification("Failed to load customer list", "error");
+			showNotification("Không thể tải danh sách khách hàng", "error");
 		},
 		[showNotification],
 	);
@@ -51,9 +52,9 @@ export default function CustomersPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		try {
 			await Promise.all(ids.map(id => adminService.deleteCustomer(id)));
-			showNotification("Customers deleted successfully", "success");
+			showNotification("Đã xóa các khách hàng thành công", "success");
 		} catch (error) {
-			showNotification("Failed to delete some customers", "error");
+			showNotification("Xóa một số khách hàng thất bại", "error");
 		} finally {
 			clearSelection();
 			setIsMobileSelectMode(false);
@@ -65,21 +66,21 @@ export default function CustomersPage() {
 		try {
 			if (customer.isBanned) {
 				await adminService.unbanCustomer(customer.id);
-				showNotification(`${customer.fullName} has been unbanned`, "success");
+				showNotification(`Đã mở khóa tài khoản ${customer.fullName}`, "success");
 			} else {
 				await adminService.banCustomer(customer.id);
-				showNotification(`${customer.fullName} has been banned`, "success");
+				showNotification(`Đã khóa tài khoản ${customer.fullName}`, "success");
 			}
 			fetchCustomers();
 		} catch (error) {
-			showNotification("Failed to update customer status", "error");
+			showNotification("Không thể cập nhật trạng thái khách hàng", "error");
 		}
 	};
 
 	if (loading) {
 		return (
 			<div className="space-y-6">
-				<h1 className="text-2xl font-bold text-gray-800">Customer Management</h1>
+				<h1 className="text-2xl font-bold text-gray-800">Quản lý khách hàng</h1>
 				<TableSkeleton rows={8} columns={5} />
 			</div>
 		);
@@ -88,13 +89,13 @@ export default function CustomersPage() {
 	return (
 		<div className="space-y-6">
 			<AdminPageHeader
-				title="Customer Management"
+				title="Quản lý khách hàng"
 				selectCount={selectCount}
 				totalCount={filteredCustomers.length}
 				allData={filteredCustomers}
 				exportColumns={CUSTOMER_EXPORT_COLUMNS}
 				exportFilename="customers"
-				exportLabel="Export"
+				exportLabel="Xuất Excel"
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
 				isMobileSelectMode={isMobileSelectMode}
@@ -113,15 +114,19 @@ export default function CustomersPage() {
 				loading={loading}
 			/>
 
-			<CustomerTable
-				customers={filteredCustomers}
-				selectedIds={selectedIds}
-				onSelectChange={handleSelectChange}
-				onSelectAll={handleSelectAllVisible}
-				onSelectCustomer={setSelectedCustomer}
-				onBanToggle={handleBanToggle}
-				isMobileSelectMode={isMobileSelectMode}
-			/>
+			{filteredCustomers.length === 0 && isFiltered ? (
+				<AdminEmptyState title="Không tìm thấy khách hàng phù hợp" />
+			) : (
+				<CustomerTable
+					customers={filteredCustomers}
+					selectedIds={selectedIds}
+					onSelectChange={handleSelectChange}
+					onSelectAll={handleSelectAllVisible}
+					onSelectCustomer={setSelectedCustomer}
+					onBanToggle={handleBanToggle}
+					isMobileSelectMode={isMobileSelectMode}
+				/>
+			)}
 
 			<CustomerDetailsModal customer={selectedCustomer} onClose={() => setSelectedCustomer(null)} />
 		</div>

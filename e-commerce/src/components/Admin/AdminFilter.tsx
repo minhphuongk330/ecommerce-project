@@ -25,7 +25,7 @@ const AdminFilter = memo<AdminFilterProps>(
 					return (
 						<input
 							type="text"
-							placeholder={field.placeholder || `Search ${field.label.toLowerCase()}...`}
+							placeholder={field.placeholder || `Tìm kiếm ${field.label.toLowerCase()}...`}
 							value={value}
 							onChange={e => onFilterChange(field.name, e.target.value)}
 							disabled={loading}
@@ -41,7 +41,7 @@ const AdminFilter = memo<AdminFilterProps>(
 							disabled={loading}
 							className={commonInputClasses}
 						>
-							<option value="">All {field.label}</option>
+							<option value="">Tất cả {field.label.toLowerCase()}</option>
 							{field.options?.map(option => (
 								<option key={option.value} value={option.value}>
 									{option.label}
@@ -111,7 +111,7 @@ const AdminFilter = memo<AdminFilterProps>(
 									disabled={loading}
 									className={commonInputClasses}
 								/>
-								<span className="text-[10px] text-gray-400 pl-1">From</span>
+								<span className="text-[10px] text-gray-400 pl-1">Từ</span>
 							</div>
 							<span className="text-gray-400 flex-shrink-0 mt-2">—</span>
 							<div className="flex flex-col gap-1 flex-1 min-w-0">
@@ -126,7 +126,7 @@ const AdminFilter = memo<AdminFilterProps>(
 									disabled={loading}
 									className={commonInputClasses}
 								/>
-								<span className="text-[10px] text-gray-400 pl-1">To</span>
+								<span className="text-[10px] text-gray-400 pl-1">Đến</span>
 							</div>
 						</div>
 					);
@@ -136,7 +136,7 @@ const AdminFilter = memo<AdminFilterProps>(
 						<div className="flex gap-2 items-center">
 							<input
 								type="number"
-								placeholder="Min"
+								placeholder="Từ"
 								value={Array.isArray(value) ? (value[0] ?? "") : ""}
 								onChange={e => {
 									const max = Array.isArray(value) ? value[1] : null;
@@ -148,7 +148,7 @@ const AdminFilter = memo<AdminFilterProps>(
 							<span className="text-gray-400 flex-shrink-0">—</span>
 							<input
 								type="number"
-								placeholder="Max"
+								placeholder="Đến"
 								value={Array.isArray(value) ? (value[1] ?? "") : ""}
 								onChange={e => {
 									const min = Array.isArray(value) ? value[0] : null;
@@ -174,7 +174,7 @@ const AdminFilter = memo<AdminFilterProps>(
 							disabled={loading}
 							className="text-xs px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
-							Clear All
+							Xoá bộ lọc
 						</button>
 					)}
 				</div>

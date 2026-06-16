@@ -10,11 +10,13 @@ import MuiIconButton from "@mui/material/IconButton";
 import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
 import ShoppingCartOutlined from "@mui/icons-material/ShoppingCartOutlined";
 import PersonOutline from "@mui/icons-material/PersonOutline";
+import NotificationsOutlined from "@mui/icons-material/NotificationsOutlined";
 import Menu from "@mui/icons-material/Menu";
 import Close from "@mui/icons-material/Close";
 import CommonIconButton from "~/components/atoms/IconButton";
 import CyberLogo from "../CyberLogo";
 import UserMenu from "../UserMenu";
+import WebNotificationMenu from "~/components/atoms/WebNotificationMenu";
 import TopBar from "./TopBar";
 import { useCartStore } from "~/stores/cart";
 import { useAuthStore } from "~/stores/useAuth";
@@ -28,6 +30,7 @@ import CategoriesGrid from "~/components/CategoriesGrid";
 const ACTION_ICONS = [
 	{ name: "Favorite", icon: FavoriteBorderOutlined, href: routerPaths.favorite, hasBadge: true },
 	{ name: "ShoppingCart", icon: ShoppingCartOutlined, href: routerPaths.cart, hasBadge: true },
+	{ name: "Notification", icon: NotificationsOutlined, href: "#", hasBadge: true },
 	{ name: "Person", icon: PersonOutline, href: routerPaths.login, hasBadge: false },
 ];
 
@@ -213,6 +216,10 @@ const Header: React.FC = () => {
 										<IconComponent sx={{ fontSize: { xs: 24, md: 28 } }} />
 									</Badge>
 								);
+							}
+
+							if (item.name === "Notification") {
+								return <WebNotificationMenu key={item.name} iconColorClass="text-black" />;
 							}
 
 							if (item.name === "Person" && isMounted && user) {

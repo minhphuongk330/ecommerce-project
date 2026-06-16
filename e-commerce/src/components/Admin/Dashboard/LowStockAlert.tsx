@@ -30,9 +30,9 @@ export default function LowStockAlert() {
 			<div className="bg-white p-6 rounded-xl shadow-md">
 				<div className="flex items-center gap-2 mb-4">
 					<WarningAmber className="text-yellow-500" />
-					<h2 className="text-xl font-bold text-gray-800">Low Stock Alert</h2>
+					<h2 className="text-xl font-bold text-gray-800">Cảnh báo sắp hết hàng</h2>
 				</div>
-				<div className="text-gray-500">Loading...</div>
+				<div className="text-gray-500">Đang tải...</div>
 			</div>
 		);
 	}
@@ -41,26 +41,26 @@ export default function LowStockAlert() {
 		<div className="bg-white p-6 rounded-xl shadow-md">
 			<div className="flex items-center gap-2 mb-4">
 				<WarningAmber className="text-yellow-500" />
-				<h2 className="text-xl font-bold text-gray-800">Low Stock Alert</h2>
+				<h2 className="text-xl font-bold text-gray-800">Cảnh báo sắp hết hàng</h2>
 				{products.length > 0 && (
 					<span className="ml-auto bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-						{products.length} products
+						{products.length} sản phẩm
 					</span>
 				)}
 			</div>
 			{products.length === 0 ? (
 				<div className="text-center py-8">
 					<div className="text-green-500 text-4xl mb-2">✓</div>
-					<p className="text-gray-600">All products have sufficient stock!</p>
+					<p className="text-gray-600">Tất cả sản phẩm đều còn đủ hàng!</p>
 				</div>
 			) : (
 				<div className="overflow-x-auto">
 					<table className="w-full text-sm">
 						<thead>
 							<tr className="border-b border-gray-200">
-								<th className="text-left py-2 px-3 font-semibold text-gray-600">Product</th>
-								<th className="text-center py-2 px-3 font-semibold text-gray-600">Stock</th>
-								<th className="text-center py-2 px-3 font-semibold text-gray-600">Status</th>
+								<th className="text-left py-2 px-3 font-semibold text-gray-600">Sản phẩm</th>
+								<th className="text-center py-2 px-3 font-semibold text-gray-600">Tồn kho</th>
+								<th className="text-center py-2 px-3 font-semibold text-gray-600">Trạng thái</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -78,11 +78,11 @@ export default function LowStockAlert() {
 									<td className="py-3 px-3 text-center">
 										{product.stock === 0 ? (
 											<span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
-												Out of stock
+												Hết hàng
 											</span>
 										) : (
 											<span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-												Almost out of stock
+												Sắp hết hàng
 											</span>
 										)}
 									</td>

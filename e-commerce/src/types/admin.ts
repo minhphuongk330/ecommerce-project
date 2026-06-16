@@ -30,6 +30,7 @@ export interface AdminCustomer {
 	isBanned: boolean;
 	createdAt: string;
 	role: string;
+	totalSpent?: number;
 	profile?: {
 		phoneNumber?: string;
 		gender?: string;
@@ -41,6 +42,12 @@ export interface AdminCategory {
 	id: number;
 	name: string;
 	configs?: string | any;
+}
+
+export interface AdminBrand {
+	id: number;
+	name: string;
+	logoUrl?: string;
 }
 
 export interface AdminProduct {
@@ -69,6 +76,7 @@ export interface CreateProductPayload {
 	price: number;
 	stock?: number;
 	description?: string;
+	color?: string;
 	mainImageUrl: string;
 	extraImage1?: string;
 	extraImage2?: string;

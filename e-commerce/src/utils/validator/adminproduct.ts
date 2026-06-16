@@ -1,14 +1,14 @@
 import z from "zod";
 const numericInput = z.union([z.string(), z.number()]).transform(val => Number(val));
 export const productSchema = z.object({
-	name: z.string().min(1, { message: "Product name is required" }),
-	price: numericInput.pipe(z.number().min(0, { message: "Invalid price" })),
-	stock: numericInput.pipe(z.number().min(0, { message: "Invalid quantity" })),
+	name: z.string().min(1, { message: "Vui lòng nhập tên sản phẩm" }),
+	price: numericInput.pipe(z.number().min(0, { message: "Giá không hợp lệ" })),
+	stock: numericInput.pipe(z.number().min(0, { message: "Số lượng không hợp lệ" })),
 	categoryId: z
 		.any()
-		.refine(val => val !== "" && val !== null && val !== undefined, { message: "Please select a category" })
+		.refine(val => val !== "" && val !== null && val !== undefined, { message: "Vui lòng chọn danh mục" })
 		.transform(val => Number(val)),
-	mainImageUrl: z.string().min(1, { message: "Main image is required" }),
+	mainImageUrl: z.string().min(1, { message: "Vui lòng chọn ảnh chính" }),
 	description: z.string().optional(),
 	color: z.string().optional(),
 	specifications: z.record(z.string(), z.any()).optional(),

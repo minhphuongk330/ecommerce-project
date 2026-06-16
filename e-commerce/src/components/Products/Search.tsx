@@ -62,12 +62,12 @@ const ProductSearch = () => {
 		handleViewMore,
 	} = useProductSearch(scope, activeCategory?.id);
 
-	const dropdownOptions: DropdownOption[] = [{ value: "global", label: "In Cyber" }];
+	const dropdownOptions: DropdownOption[] = [{ value: "global", label: "Tất cả Cyber" }];
 
 	if (activeCategory) {
 		dropdownOptions.unshift({
 			value: "category",
-			label: `In ${activeCategory.name}`,
+			label: `Trong ${activeCategory.name}`,
 		});
 	}
 
@@ -80,7 +80,7 @@ const ProductSearch = () => {
 						onChange={handleChange}
 						onKeyDown={handleKeyDown}
 						placeholder={
-							scope === "category" && activeCategory ? `Search in ${activeCategory.name}` : "Search for products..."
+							scope === "category" && activeCategory ? `Tìm trong ${activeCategory.name}` : "Tìm kiếm sản phẩm..."
 						}
 						className="w-full h-full"
 						sx={{
@@ -112,7 +112,7 @@ const ProductSearch = () => {
 				<div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-[9999] flex flex-col">
 					<div className="px-3 md:px-4 py-2.5 md:py-3 border-b border-gray-100 bg-gray-50 flex-shrink-0">
 						<span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-							{searchTerm ? "Search Results" : "Newest Products"}
+							{searchTerm ? "Kết quả tìm kiếm" : "Sản phẩm mới nhất"}
 						</span>
 					</div>
 
@@ -140,14 +140,24 @@ const ProductSearch = () => {
 										</div>
 										<div className="flex-1 min-w-0">
 											<p className="text-sm font-semibold text-gray-800 truncate">{product.name}</p>
-											<p className="text-xs text-gray-500 mt-0.5">{formatPrice(product.price)}</p>
+											<div className="flex items-center gap-1.5 mt-0.5">
+												{(product as any).isFlashSale && (product as any).flashSalePrice ? (
+													<>
+														<span className="text-xs font-bold text-red-600">{formatPrice((product as any).flashSalePrice)}</span>
+														<span className="text-[11px] text-gray-400 line-through">{formatPrice(product.price)}</span>
+														<span className="text-[10px] bg-red-100 text-red-600 px-1 py-0.5 rounded font-semibold">SALE</span>
+													</>
+												) : (
+													<span className="text-xs text-gray-500">{formatPrice(product.price)}</span>
+												)}
+											</div>
 										</div>
 									</div>
 								))}
 							</div>
 						) : (
 							<div className="p-6 text-center text-gray-400 text-sm min-h-[200px] flex items-center justify-center">
-								<p>No products found.</p>
+								<p>Không tìm thấy sản phẩm nào.</p>
 							</div>
 						)}
 					</div>
@@ -159,7 +169,7 @@ const ProductSearch = () => {
 							onClick={handleViewMore}
 							className="w-full !h-9 md:!h-10 !text-xs md:!text-sm !rounded-lg"
 						>
-							View All Products
+							Xem tất cả sản phẩm
 						</CommonButton>
 					</div>
 				</div>

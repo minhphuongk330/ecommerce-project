@@ -27,14 +27,14 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 					<div className="flex items-center justify-between gap-6">
 						<div className="flex items-center gap-2">
 							<span className="w-3 h-3 rounded-full bg-[#FF8A4C]"></span>
-							<span className="text-xs text-gray-500 font-medium">Revenue</span>
+							<span className="text-xs text-gray-500 font-medium">Doanh thu</span>
 						</div>
 						<span className="text-sm font-bold text-gray-800">{formatPrice(payload[0]?.value as number)}</span>
 					</div>
 					<div className="flex items-center justify-between gap-6">
 						<div className="flex items-center gap-2">
 							<span className="w-3 h-3 rounded-full bg-[#8B5CF6]"></span>
-							<span className="text-xs text-gray-500 font-medium">Order</span>
+							<span className="text-xs text-gray-500 font-medium">Đơn hàng</span>
 						</div>
 						<span className="text-sm font-bold text-gray-800">{payload[1]?.value?.toLocaleString()}</span>
 					</div>
@@ -126,14 +126,14 @@ export default function RevenueChart({ allOrders }: { allOrders: AdminOrder[] })
 	return (
 		<div className="bg-white p-6 md:p-8 rounded-xl shadow-md h-full flex flex-col relative">
 			<div className="flex justify-between items-start mb-6 relative">
-				<h2 className="text-2xl font-bold text-gray-900">Revenue</h2>
+				<h2 className="text-2xl font-bold text-gray-900">Doanh thu</h2>
 
 				<PeriodDropdown period={period} onPeriodChange={setPeriod} />
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 border-b border-gray-100 pb-6">
 				<div className="flex flex-col items-start gap-1.5">
-					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Revenue</p>
+					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Doanh thu</p>
 					<div className="flex items-center gap-3">
 						<h3 className="text-3xl font-bold text-gray-900">{formatPrice(stats.revenue)}</h3>
 						<div className="flex items-center gap-1">
@@ -150,7 +150,7 @@ export default function RevenueChart({ allOrders }: { allOrders: AdminOrder[] })
 				</div>
 
 				<div className="flex flex-col items-start gap-1.5">
-					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Order</p>
+					<p className="text-gray-600 text-xs font-semibold tracking-wide uppercase">Đơn hàng</p>
 					<div className="flex items-center gap-3">
 						<h3 className="text-3xl font-bold text-gray-900">{stats.orders.toLocaleString()}</h3>
 						<div className="flex items-center gap-1">

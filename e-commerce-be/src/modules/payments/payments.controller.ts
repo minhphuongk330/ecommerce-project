@@ -18,6 +18,19 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   /**
+   * Tạo URL thanh toán VNPay từ payload checkout (chưa tạo order thực sự)
+   * POST /payments/vnpay-checkout
+   */
+  @Post('vnpay-checkout')
+  createVnpayCheckout(@Body() body: any, @Req() req: Request) {
+    const ipAddr =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      req.socket.remoteAddress ||
+      '127.0.0.1';
+    return this.paymentsService.createVnpayCheckout(body, ipAddr);
+  }
+
+  /**
    * Tạo URL thanh toán VNPay cho một order
    * POST /payments/create-url/:orderId
    */

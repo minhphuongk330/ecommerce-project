@@ -11,27 +11,28 @@ export default function PaymentResultPage() {
 	const [result, setResult] = useState<{
 		success: boolean;
 		orderNo?: string;
+		orderId?: string | number;
 		message: string;
 	} | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		// Lấy tất cả query params từ URL (VNPay gửi về)
+
 		const params: Record<string, string> = {};
 		searchParams.forEach((value, key) => {
 			params[key] = value;
 		});
 
 		if (params["vnp_ResponseCode"]) {
-			// Gọi backend verify VNPay
+
 			axiosClient
 				.get("/payments/vnpay-return", { params })
 				.then((res: any) => setResult(res))
 				.catch(() => setResult({ success: false, message: "Không thể xác nhận thanh toán" }))
 				.finally(() => setLoading(false));
 		} else if (status === "success") {
-			// Thanh toán COD thành công
-			setResult({ success: true, message: "Đặt hàng thành công", orderNo: params["orderNo"] });
+
+			setResult({ success: true, message: "Đặt hàng thành công", orderNo: params["orderNo"], orderId: params["orderId"] });
 			setLoading(false);
 		} else {
 			setResult({ success: false, message: "Thanh toán đã bị huỷ" });
@@ -55,7 +56,7 @@ export default function PaymentResultPage() {
 	return (
 		<div className="min-h-[60vh] flex items-center justify-center px-4">
 			<div className="w-full max-w-md text-center border border-[#EBEBEB] rounded-[16px] p-8 bg-white shadow-sm">
-				{/* Icon */}
+
 				<div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center
 					${isSuccess ? "bg-green-100" : "bg-red-100"}`}>
 					{isSuccess ? (
@@ -85,7 +86,7 @@ export default function PaymentResultPage() {
 					{isSuccess ? (
 						<>
 							<Link
-								href="/profile/orders"
+								href={result?.orderId ? `/orders/${result.orderId}` : "/orders"}
 								className="w-full py-3 bg-black text-white rounded-[8px] font-medium hover:bg-gray-800 transition-colors"
 							>
 								Xem đơn hàng

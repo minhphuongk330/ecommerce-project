@@ -27,7 +27,7 @@ export default function AddressPage() {
 
 	const handleNext = () => {
 		if (!selectedAddressId) {
-			showNotification("Please select an address to continue.", "error");
+			showNotification("Vui lòng chọn địa chỉ để tiếp tục.", "error");
 			return;
 		}
 
@@ -36,7 +36,7 @@ export default function AddressPage() {
 			setSelectedAddress(address);
 			router.push(routerPaths.shipping);
 		} else {
-			showNotification("Selected address not found.", "error");
+			showNotification("Không tìm thấy địa chỉ đã chọn.", "error");
 		}
 	};
 
@@ -65,10 +65,10 @@ export default function AddressPage() {
 				<StepButton
 					layout="fixed"
 					justify="end"
-					primaryLabel="Next"
+					primaryLabel="Tiếp tục"
 					onPrimaryClick={handleNext}
 					disabled={!addresses.length || !selectedAddressId}
-					secondaryLabel="Back"
+					secondaryLabel="Quay lại"
 					onSecondaryClick={() => router.back()}
 					className="mt-6 lg:mt-[100px]"
 					buttonClassName="!w-full md:!w-[210px] !h-12 md:!h-[64px]"

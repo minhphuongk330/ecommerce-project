@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { productService, ProductParams } from "~/services/product";
 import { Product } from "~/types/product";
 import { routerPaths, router as appRouter } from "~/utils/router";
+import { useFlashSaleMap, enrichWithFlashSale } from "~/hooks/useFlashSaleMap";
 
 export const useProductSearch = (scope: "global" | "category", categoryId?: number | null) => {
 	const router = useRouter();
@@ -12,6 +13,7 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 	const [isLoading, setIsLoading] = useState(false);
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const searchCache = useRef<Record<string, Product[]>>({});
+	const flashSaleMap = useFlashSaleMap();
 
 	const fetchProducts = async (term: string) => {
 		const cacheKey = scope === "category" ? `${term}_cat_${categoryId}` : `global_${term}`;
@@ -26,7 +28,7 @@ export const useProductSearch = (scope: "global" | "category", categoryId?: numb
 			if (scope === "category" && categoryId) params.categoryId = categoryId;
 			const response = await productService.getAll(params);
 			let data = Array.isArray(response) ? response : response?.items || [];
-			data = data.slice(0, 5);
+			data = enrichWithFlashSale(data.slice(0, 5), flashSaleMap);
 			searchCache.current[cacheKey] = data;
 			setProducts(data);
 		} catch (error) {

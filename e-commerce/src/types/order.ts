@@ -2,7 +2,7 @@ import { Address } from "./address";
 import { User } from "./auth";
 import { Product } from "./product";
 
-export type OrderStatus = "Pending" | "Shipped" | "Completed" | "Cancelled";
+export type OrderStatus = "Pending" | "Processing" | "Shipped" | "Completed" | "Cancelled";
 
 export interface OrderItem {
 	id: number;
@@ -64,7 +64,9 @@ export interface CreateOrderItemPayload {
 	unitPrice: number;
 	quantity: number;
 	variantId?: number;
+	skipStockDecrement?: boolean;
 }
+
 
 export interface UpdateOrderPayload {
 	status?: OrderStatus;

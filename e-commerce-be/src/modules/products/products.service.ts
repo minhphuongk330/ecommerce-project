@@ -2,11 +2,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
-import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, Repository, SelectQueryBuilder, MoreThan } from 'typeorm';
 
 import { Brand } from '../../entities/brand.entity';
 import { Category } from '../../entities/category.entity';
 import { Product } from '../../entities/product.entity';
+import { FlashSaleItem } from '../../entities/flash-sale-item.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -45,11 +46,12 @@ export class ProductsService {
         collection,
         minPrice,
         maxPrice,
-        // All remaining keys are dynamic specification filters (e.g. ram, storage, os...)
+        flashSale,
+
         ...attributeFilters
       } = options || {};
 
-      // Build attrFilters: skip undefined values only (brand/brandId already excluded above)
+
       const attrFilters: Record<string, string> = {};
       Object.entries(attributeFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -90,12 +92,32 @@ export class ProductsService {
         .leftJoinAndSelect('product.category', 'category')
         .where('product.isActive = :isActive', { isActive: true });
 
+      let flashSaleItems: FlashSaleItem[] = [];
+      if (flashSale === 'true' || flashSale === true) {
+        const now = new Date();
+        flashSaleItems = await this.entityManager.find(FlashSaleItem, {
+          where: {
+            flashSale: {
+              isActive: true,
+              endsAt: MoreThan(now)
+            }
+          },
+          relations: ['flashSale']
+        });
+
+        const productIds = flashSaleItems.map(item => Number(item.productId));
+        if (productIds.length === 0) {
+          return { items: [], total: 0 };
+        }
+        query.andWhere('product.id IN (:...fsProductIds)', { fsProductIds: productIds });
+      }
+
       if (name) {
         query.andWhere('product.name LIKE :name', { name: `%${name}%` });
       }
 
       if (categoryId) {
-        // Convert to Number for type safety and use correct DB column name
+
         const catId = Number(categoryId);
         if (!isNaN(catId)) {
           query.andWhere('product.category_id = :categoryId', { categoryId: catId });
@@ -103,7 +125,7 @@ export class ProductsService {
       }
 
       if (brandId) {
-        // Filter by brand ID (from brand entity relation)
+
         const bId = Number(brandId);
         if (!isNaN(bId)) {
           query.andWhere('product.brand_id = :brandId', { brandId: bId });
@@ -111,8 +133,7 @@ export class ProductsService {
       }
 
       if (brand) {
-        // brand is stored in specifications JSON (not the brand relation column),
-        // so redirect it to JSON filtering via applyDynamicFilters
+
         attrFilters['brand'] = brand;
       }
 
@@ -130,18 +151,35 @@ export class ProductsService {
         query.andWhere('product.isFeatured = :isFeatured', { isFeatured: true });
       }
 
-      // SQL Column Safety: validate sort fields
+
       this.applySafeSorting(query, sort);
 
       const skip = (page - 1) * limit;
       query.skip(skip).take(limit);
 
-      // Debug: log the generated SQL
-      console.log('Generated SQL:', query.getSql());
-      console.log('Query parameters:', query.getParameters());
+
 
       try {
         const [items, total] = await query.getManyAndCount();
+        
+        if (flashSale === 'true' || flashSale === true) {
+          const enrichedItems = items.map(product => {
+            const fsItem = flashSaleItems.find(item => Number(item.productId) === Number(product.id));
+            if (fsItem) {
+              return {
+                ...product,
+                isFlashSale: true,
+                flashSalePrice: Number(fsItem.salePrice),
+                flashSaleOriginalPrice: Number(fsItem.originalPrice),
+                quantity: Number(fsItem.quantity),
+                soldQuantity: Number(fsItem.soldQuantity)
+              } as any;
+            }
+            return product;
+          });
+          return { items: enrichedItems, total };
+        }
+        
         return { items, total };
       } catch (dbError) {
         console.error('Database error in getManyAndCount:', dbError);
@@ -155,11 +193,11 @@ export class ProductsService {
     }
   }
 
-  // Valid columns that exist in Product entity
+
   private readonly validSortColumns = ['id', 'name', 'price', 'createdAt', 'updatedAt', 'stock'];
 
   private applySafeSorting(query: SelectQueryBuilder<Product>, sort: string): void {
-    // Default to id DESC if sort is invalid
+
     const defaultSort = { column: 'product.id', direction: 'DESC' as const };
 
     switch (sort) {
@@ -212,11 +250,11 @@ export class ProductsService {
         query.orderBy('product.createdAt', 'ASC');
         break;
       default:
-        // Validate if sort matches a direct column
+
         if (sort && this.validSortColumns.includes(sort)) {
           query.orderBy(`product.${sort}`, 'DESC');
         } else {
-          // Default to id DESC for invalid sort values
+
           query.orderBy(defaultSort.column, defaultSort.direction);
         }
         break;
@@ -227,8 +265,7 @@ export class ProductsService {
     query: SelectQueryBuilder<Product>,
     filters: Record<string, string>,
   ): void {
-    // Only 'color' is a direct varchar column on the product entity.
-    // 'brand' is stored inside specifications JSON, so it goes through applyJsonSpecificationFilter.
+
     const directColumns = ['color'];
     let paramIndex = 0;
 
@@ -272,26 +309,25 @@ export class ProductsService {
   ): void {
     const jsonPath = `$.${key}`;
 
-    // Use COALESCE to handle null specifications gracefully
-    // JSON_UNQUOTE returns string, JSON_EXTRACT returns JSON value
+
     if (values.length === 1) {
       query.andWhere(
-        `COALESCE(JSON_UNQUOTE(JSON_EXTRACT(product.specifications, :${paramKey}_path)), '') = :${paramKey}_val`,
+        `COALESCE(JSON_UNQUOTE(JSON_EXTRACT(product.specifications, :${paramKey}_path)), '') LIKE :${paramKey}_val`,
         {
           [`${paramKey}_path`]: jsonPath,
-          [`${paramKey}_val`]: values[0],
+          [`${paramKey}_val`]: `%${values[0]}%`,
         },
       );
     } else {
       const orConditions = values.map(
         (_, i) =>
-          `COALESCE(JSON_UNQUOTE(JSON_EXTRACT(product.specifications, :${paramKey}_path)), '') = :${paramKey}_val${i}`,
+          `COALESCE(JSON_UNQUOTE(JSON_EXTRACT(product.specifications, :${paramKey}_path)), '') LIKE :${paramKey}_val${i}`,
       );
       const params: Record<string, any> = {
         [`${paramKey}_path`]: jsonPath,
       };
       values.forEach((v, i) => {
-        params[`${paramKey}_val${i}`] = v;
+        params[`${paramKey}_val${i}`] = `%${v}%`;
       });
       query.andWhere(`(${orConditions.join(' OR ')})`, params);
     }
@@ -307,8 +343,122 @@ export class ProductsService {
       ],
     });
     if (!product)
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy Sản phẩm với ID ${id}`);
     return product;
+  }
+
+  async getActiveFlashSaleItem(productId: number): Promise<FlashSaleItem | null> {
+    const now = new Date();
+    return this.entityManager.findOne(FlashSaleItem, {
+      where: {
+        productId,
+        flashSale: {
+          isActive: true,
+          endsAt: MoreThan(now),
+        },
+      },
+      relations: ['flashSale'],
+    });
+  }
+
+  /**
+   * Lấy toàn bộ sản phẩm đang được sale trong 1 query duy nhất.
+   * Trả về Map<productId, salePrice> để lookup O(1) khi build context chatbot.
+   */
+  async getActiveSalePriceMap(): Promise<Map<number, { salePrice: number; quantity: number; soldQuantity: number }>> {
+    const now = new Date();
+    const items = await this.entityManager.find(FlashSaleItem, {
+      where: {
+        flashSale: {
+          isActive: true,
+          endsAt: MoreThan(now),
+        },
+      },
+      relations: ['flashSale'],
+    });
+    const map = new Map<number, { salePrice: number; quantity: number; soldQuantity: number }>();
+    items.forEach((item) =>
+      map.set(Number(item.productId), {
+        salePrice: Number(item.salePrice),
+        quantity: Number(item.quantity),
+        soldQuantity: Number(item.soldQuantity),
+      }),
+    );
+    return map;
+  }
+
+  async searchByKeywords(keywords: string[]): Promise<Product[]> {
+    if (keywords.length === 0) {
+      return this.productRepository.find({
+        where: { isActive: true },
+        relations: ['category'],
+        order: { createdAt: 'DESC' },
+        take: 20,
+      });
+    }
+
+
+    const categoryQuery = this.productRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.isActive = :isActive', { isActive: true });
+
+    const categoryConditions = keywords.map((kw, i) => `category.name LIKE :catKw${i}`);
+    const categoryParams: Record<string, string> = {};
+    keywords.forEach((kw, i) => { categoryParams[`catKw${i}`] = `%${kw}%`; });
+
+    categoryQuery.andWhere(`(${categoryConditions.join(' OR ')})`, categoryParams);
+    const byCategory = await categoryQuery.take(20).getMany();
+
+    if (byCategory.length > 0) {
+      return byCategory;
+    }
+
+
+    const productQuery = this.productRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.isActive = :isActive', { isActive: true });
+
+    const productConditions = keywords.map((kw, i) => `product.name LIKE :prodKw${i}`);
+    const productParams: Record<string, string> = {};
+    keywords.forEach((kw, i) => { productParams[`prodKw${i}`] = `%${kw}%`; });
+
+    productQuery.andWhere(`(${productConditions.join(' OR ')})`, productParams);
+    return productQuery.take(20).getMany();
+  }
+
+  /**
+   * Tìm sản phẩm bán chạy nhất, dùng cho tính năng gợi ý của chatbot.
+   * @param categoryName - Tên danh mục cần lọc (tùy chọn, dùng LIKE)
+   * @param limit - Số lượng sản phẩm trả về (mặc định 1)
+   */
+  async getBestSellers(categoryName?: string, limit = 1): Promise<{ product: Product; totalSold: number }[]> {
+    const query = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .addSelect(
+        (sub) =>
+          sub
+            .select('COALESCE(SUM(oi.quantity), 0)', 'totalSold')
+            .from('order_items', 'oi')
+            .where('oi.product_id = product.id'),
+        'totalSold',
+      )
+      .where('product.isActive = :isActive', { isActive: true })
+      .andWhere('product.stock > 0');
+
+    if (categoryName) {
+      query.andWhere('category.name LIKE :catName', { catName: `%${categoryName}%` });
+    }
+
+    const rawResults = await query
+      .orderBy('totalSold', 'DESC')
+      .limit(limit)
+      .getRawAndEntities();
+
+    return rawResults.entities.map((product, i) => ({
+      product,
+      totalSold: Number(rawResults.raw[i]?.totalSold ?? 0),
+    }));
   }
 
   async create(createProductDto: CreateProductDto): Promise<Product> {

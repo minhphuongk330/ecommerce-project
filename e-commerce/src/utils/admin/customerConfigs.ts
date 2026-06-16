@@ -6,23 +6,23 @@ export const CUSTOMER_FILTER_CONFIG: FilterConfig = {
 	fields: [
 		{
 			name: "search",
-			label: "Search",
+			label: "Tìm kiếm",
 			type: "text",
-			placeholder: "Search by name or email...",
+			placeholder: "Tìm theo tên hoặc email...",
 		},
 		{
 			name: "status",
-			label: "Status",
+			label: "Trạng thái",
 			type: "select",
 			options: [
-				{ label: "Active", value: "active" },
-				{ label: "Inactive", value: "inactive" },
-				{ label: "Banned", value: "banned" },
+				{ label: "Đang hoạt động", value: "active" },
+				{ label: "Không hoạt động", value: "inactive" },
+				{ label: "Bị khóa", value: "banned" },
 			],
 		},
 		{
 			name: "createdAt",
-			label: "Join Date",
+			label: "Ngày tham gia",
 			type: "daterange",
 		},
 	],
@@ -70,20 +70,20 @@ export const CUSTOMER_FILTER_PREDICATES = {
 };
 
 export const CUSTOMER_EXPORT_COLUMNS: ExportColumn<AdminCustomer>[] = [
-	{ key: "fullName" as const, label: "Full Name" },
+	{ key: "fullName" as const, label: "Họ và tên" },
 	{ key: "email" as const, label: "Email" },
 	{
 		key: "profile.phoneNumber" as any,
-		label: "Phone Number",
+		label: "Số điện thoại",
 	},
 	{
 		key: "isActive" as const,
-		label: "Active",
-		formatter: (value: any) => (value != null ? (value ? "Yes" : "No") : ""),
+		label: "Trạng thái hoạt động",
+		formatter: (value: any) => (value != null ? (value ? "Có" : "Không") : ""),
 	},
 	{
 		key: "createdAt" as const,
-		label: "Join Date",
-		formatter: (value: any) => (value != null ? new Date(value).toLocaleDateString() : ""),
+		label: "Ngày tham gia",
+		formatter: (value: any) => (value != null ? new Date(value).toLocaleDateString("vi-VN") : ""),
 	},
 ];

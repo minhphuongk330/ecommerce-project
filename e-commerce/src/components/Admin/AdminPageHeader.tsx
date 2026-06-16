@@ -31,7 +31,7 @@ export default function AdminPageHeader<T>({
 	allData,
 	exportColumns,
 	exportFilename,
-	exportLabel = "Export",
+	exportLabel = "Xuất Excel",
 	actions,
 	selectedIds = EMPTY_SET,
 	onBulkDelete,
@@ -55,13 +55,13 @@ export default function AdminPageHeader<T>({
 
 	const handleMobileDelete = async () => {
 		await onBulkDelete!(Array.from(selectedIds).map(Number));
-		showNotification(`Deleted ${selectCount} items successfully`, "success");
+		showNotification(`Đã xoá ${selectCount} mục thành công`, "success");
 		setMobileDeleteOpen(false);
 		onToggleMobileSelect?.();
 	};
 
 	const handleMobileDeleteError = (error: any) => {
-		const message = error?.response?.data?.message || "Some deletions failed. Please try again.";
+		const message = error?.response?.data?.message || "Một số mục không thể xoá. Vui lòng thử lại.";
 		showNotification(message, "error");
 	};
 
@@ -72,7 +72,7 @@ export default function AdminPageHeader<T>({
 				<div className="flex items-center gap-4">
 					{selectCount > 0 && (
 						<span className="hidden md:inline text-sm text-gray-500 font-semibold">
-							Selected: <span className="text-blue-600">{selectCount}</span> / {totalCount}
+							Đã chọn: <span className="text-blue-600">{selectCount}</span> / {totalCount}
 						</span>
 					)}
 					<div className="flex gap-2 items-center">
@@ -97,14 +97,14 @@ export default function AdminPageHeader<T>({
 										onClick={() => setMobileDeleteOpen(true)}
 										className="text-sm font-medium text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
 									>
-										Delete ({selectCount})
+										Xoá ({selectCount})
 									</button>
 								)}
 								<button
 									onClick={onToggleMobileSelect}
 									className="text-sm font-medium text-gray-600 px-3 py-1.5 border border-gray-300 rounded-lg"
 								>
-									Cancel
+									Huỷ
 								</button>
 							</div>
 						) : (
@@ -133,7 +133,7 @@ export default function AdminPageHeader<T>({
 												data={allData}
 												columns={exportColumns}
 												filename={exportFilename}
-												label="Export"
+												label="Xuất Excel"
 												variant="both"
 												showCount={false}
 											/>
@@ -146,7 +146,7 @@ export default function AdminPageHeader<T>({
 													onToggleMobileSelect();
 												}}
 											>
-												Select
+												Chọn
 											</button>
 										)}
 									</div>
@@ -163,9 +163,9 @@ export default function AdminPageHeader<T>({
 					onClose={() => setMobileDeleteOpen(false)}
 					onConfirm={handleMobileDelete}
 					onError={handleMobileDeleteError}
-					title={`Delete ${selectCount} items`}
-					message={`Are you sure you want to delete ${selectCount} selected items? This action cannot be undone.`}
-					confirmLabel="Delete"
+					title={`Xoá ${selectCount} mục`}
+					message={`Bạn có chắc chắn muốn xoá ${selectCount} mục đã chọn không? Hành động này không thể hoàn tác.`}
+					confirmLabel="Xoá"
 					confirmButtonColor="!bg-red-600 hover:!bg-red-700"
 				/>
 			)}

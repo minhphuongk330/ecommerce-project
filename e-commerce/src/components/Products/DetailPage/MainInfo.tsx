@@ -12,8 +12,8 @@ import { routerPaths } from "~/utils/router";
 import DeliveryInfo from "./DeliveryInfo";
 import ImageGallery from "./ImageGallery";
 
-// Dynamic Color Mapping: Vietnamese color names to HEX codes
-const COLOR_MAP: Record<string, string> = {
+
+export const COLOR_MAP: Record<string, string> = {
 	"Đen": "#000000",
 	"Trắng": "#FFFFFF",
 	"Đỏ": "#FF0000",
@@ -36,12 +36,10 @@ const COLOR_MAP: Record<string, string> = {
 	"Xanh rêu": "#556B2F",
 };
 
-// Helper to get color list from product data
+
 const getColorList = (product: MainInfoProps["product"]): string[] => {
-	// Check specifications for color list
 	if (product.specifications) {
 		const specs = product.specifications;
-		// Common keys for color in specifications
 		const colorKeys = ["màu sắc", "color", "mau sac", "colors"];
 		for (const key of colorKeys) {
 			if (specs[key]) {
@@ -50,19 +48,20 @@ const getColorList = (product: MainInfoProps["product"]): string[] => {
 			}
 		}
 	}
-	// Fallback to single color field
+
 	if (product.color) {
-		return [product.color];
+		return product.color.split(",").map(c => c.trim()).filter(Boolean);
 	}
 	return [];
 };
 
-// Helper to format colors for ColorSelector
-const formatColors = (colorNames: string[]) => {
+
+const formatColors = (colorNames: string[], product: any) => {
+	const colorHexMap = product.specifications?.colorHex || {};
 	return colorNames.map((name, index) => ({
 		id: index + 1,
 		name: name,
-		hex: COLOR_MAP[name] || "#CCCCCC", // Fallback gray if color not in map
+		hex: colorHexMap[name] || COLOR_MAP[name] || "#CCCCCC",
 	}));
 };
 
@@ -82,14 +81,14 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		return favorites.some(item => Number(item.productId) === Number(product.id));
 	}, [favorites, product.id]);
 
-	// Get color list from product data
-	const colorList = useMemo(() => getColorList(product), [product]);
-	const formattedColors = useMemo(() => formatColors(colorList), [colorList]);
 
-	// Manage selectedColor state
+	const colorList = useMemo(() => getColorList(product), [product]);
+	const formattedColors = useMemo(() => formatColors(colorList, product), [colorList, product]);
+
+
 	const [selectedColor, setSelectedColor] = useState<string>("");
 
-	// Initialize selectedColor from URL or first available color
+
 	useEffect(() => {
 		const colorFromUrl = searchParams.get("color");
 		if (colorFromUrl && colorList.includes(colorFromUrl)) {
@@ -99,10 +98,10 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		}
 	}, [searchParams, colorList]);
 
-	// Update URL when color is selected
+
 	const handleColorSelect = useCallback((colorName: string) => {
 		setSelectedColor(colorName);
-		// Update URL without page reload
+
 		const params = new URLSearchParams(searchParams.toString());
 		params.set("color", colorName);
 		router.push(`?${params.toString()}`, { scroll: false });
@@ -127,7 +126,6 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 				...product,
 				price: product.price,
 			};
-			// Use selectedColor instead of product.color
 			await addToCart(cartItemData, selectedColor);
 			showNotification("Đã thêm vào giỏ hàng!", "success");
 			router.push(routerPaths.cart);
@@ -141,7 +139,7 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 
 	const handleToggleFavorite = async () => {
 		if (!isAuthenticated) {
-			showNotification("Please log in to add to wishlist", "warning");
+			showNotification("Vui lòng đăng nhập để thêm vào yêu thích", "warning");
 			router.push(routerPaths.login);
 			return;
 		}
@@ -149,10 +147,10 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 		setIsTogglingFavorite(true);
 		try {
 			await toggleFavorite(Number(product.id));
-			showNotification(!isLiked ? "Added to wishlist!" : "Removed from wishlist!", "success");
+			showNotification(!isLiked ? "Đã thêm vào yêu thích!" : "Đã bỏ khỏi yêu thích!", "success");
 		} catch (error) {
 			console.error(error);
-			showNotification("Something went wrong", "error");
+			showNotification("Có lỗi xảy ra", "error");
 		} finally {
 			setIsTogglingFavorite(false);
 		}
@@ -160,9 +158,21 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 
 	const currentPrice = Number(product.price);
 	const currentStock = Number(product.stock);
-	const isOutOfStock = currentStock === 0;
+	const colorStockMap = product.specifications?.colorStock;
+	const selectedColorStock = (selectedColor && colorStockMap) ? Number(colorStockMap[selectedColor] ?? 0) : currentStock;
+	const isOutOfStock = currentStock === 0 || (colorStockMap && selectedColorStock === 0);
 
-	// VND Formatting
+
+	const isFlashSale = (product as any).isFlashSale || false;
+	const flashSalePrice = (product as any).flashSalePrice as number | undefined;
+	const flashSaleOriginalPrice = (product as any).flashSaleOriginalPrice as number | undefined;
+	const displayPrice = isFlashSale && flashSalePrice ? flashSalePrice : currentPrice;
+	const originalForDisplay = isFlashSale && flashSaleOriginalPrice ? flashSaleOriginalPrice : null;
+	const discountPct = originalForDisplay && flashSalePrice
+		? Math.round(((originalForDisplay - flashSalePrice) / originalForDisplay) * 100)
+		: 0;
+
+
 	const formatVND = (price: number) => {
 		return price.toLocaleString("vi-VN") + "₫";
 	};
@@ -177,8 +187,38 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 							<h1 className="text-2xl md:text-[40px] font-bold text-black leading-tight mb-4 md:mb-6">
 								{product.name}
 							</h1>
-							<div className="flex items-end gap-3 md:gap-4 mb-4 md:mb-6">
-								<span className="text-2xl md:text-[32px] font-medium text-black">{formatVND(currentPrice)}</span>
+
+							<div className="mb-4 md:mb-6">
+								{isFlashSale && flashSalePrice ? (
+									<div className="flex flex-col gap-1.5">
+
+										<div className="flex items-center gap-2">
+											<span className="inline-flex items-center gap-1 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+												⚡ Flash Sale
+											</span>
+											{discountPct > 0 && (
+												<span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded">
+													-{discountPct}%
+												</span>
+											)}
+										</div>
+
+										<div className="flex items-baseline gap-3">
+											<span className="text-2xl md:text-[36px] font-bold text-red-600">
+												{formatVND(displayPrice)}
+											</span>
+											{originalForDisplay && originalForDisplay > displayPrice && (
+												<span className="text-lg md:text-[22px] text-gray-400 line-through">
+													{formatVND(originalForDisplay)}
+												</span>
+											)}
+										</div>
+									</div>
+								) : (
+									<div className="flex items-end gap-3 md:gap-4">
+										<span className="text-2xl md:text-[32px] font-medium text-black">{formatVND(currentPrice)}</span>
+									</div>
+								)}
 							</div>
 							{formattedColors.length > 0 && (
 								<ColorSelector
@@ -206,12 +246,12 @@ const MainInfo: React.FC<MainInfoProps> = ({ product }) => {
 							</div>
 							<StepButton
 								layout="full"
-								primaryLabel={isOutOfStock ? "Out of Stock" : "Add to Cart"}
+								primaryLabel={isOutOfStock ? "Hết hàng" : "Thêm vào giỏ hàng"}
 								onPrimaryClick={handleAddToCart}
 								disabled={isOutOfStock}
 								outOfStock={isOutOfStock}
 								isLoading={isAddingToCart}
-								secondaryLabel={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
+								secondaryLabel={isLiked ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
 								onSecondaryClick={handleToggleFavorite}
 								secondaryDisabled={isTogglingFavorite}
 								className="mb-6"

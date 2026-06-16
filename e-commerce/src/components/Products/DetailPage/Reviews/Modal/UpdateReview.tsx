@@ -28,7 +28,7 @@ export default function UpdateReview({ data, onSuccess }: UpdateReviewProps) {
 
 	const handleSubmit = async () => {
 		if (!editRating || editRating === 0) {
-			showNotification("Please select a star rating", "warning");
+			showNotification("Vui lòng chọn số sao", "warning");
 			return;
 		}
 		try {
@@ -38,12 +38,12 @@ export default function UpdateReview({ data, onSuccess }: UpdateReviewProps) {
 				comment: editContent,
 			});
 
-			showNotification("Update successful", "success");
+			showNotification("Cập nhật thành công", "success");
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
 			console.error(error);
-			showNotification("Update failed", "error");
+			showNotification("Cập nhật thất bại", "error");
 		} finally {
 			setIsUpdating(false);
 		}

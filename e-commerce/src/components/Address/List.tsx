@@ -24,7 +24,7 @@ const AddressList: React.FC<AddressListProps> = ({ addresses, selectedId, onSele
 
 	return (
 		<div className="flex flex-col w-full items-stretch gap-3 lg:gap-4">
-			<h3 className="text-base font-medium text-black mb-1 lg:text-[20px] lg:mb-2 text-left">Select Address</h3>
+			<h3 className="text-base font-medium text-black mb-1 lg:text-[20px] lg:mb-2 text-left">Địa chỉ của tôi</h3>
 			<div className="flex flex-col gap-3 lg:gap-4 items-stretch w-full">
 				{addresses.map(addr => (
 					<AddressItem

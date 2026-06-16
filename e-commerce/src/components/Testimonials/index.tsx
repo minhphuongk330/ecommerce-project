@@ -25,7 +25,7 @@ const formatDate = (iso: string) => {
 	return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 
-// Fallback khi chưa có review thật
+
 const FALLBACK_REVIEWS = [
 	{ id: -1, customerName: "Nguyễn Văn A", role: "Khách hàng thân thiết", rating: 5, comment: "Mua hàng tại đây rất hài lòng, sản phẩm chính hãng, giá tốt, giao hàng nhanh. Sẽ tiếp tục ủng hộ!", productName: "", date: "" },
 	{ id: -2, customerName: "Trần Thị B", role: "Khách hàng VIP", rating: 5, comment: "Dịch vụ chăm sóc khách hàng rất tốt, nhân viên tư vấn nhiệt tình. Sản phẩm đúng như mô tả.", productName: "", date: "" },
@@ -62,15 +62,13 @@ const Testimonials: React.FC = () => {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [activeIdx, setActiveIdx] = useState(0);
 
-	// Map data thật hoặc dùng fallback
 	const displayReviews: DisplayReview[] =
 		reviews.length > 0 ? reviews.map(mapReview) : FALLBACK_REVIEWS;
 
-	// ── Drag to scroll ──────────────────────────────────────────
 	const isDragging = useRef(false);
 	const startX = useRef(0);
 	const scrollLeft = useRef(0);
-	const hasDragged = useRef(false); // phân biệt click vs drag
+	const hasDragged = useRef(false);
 
 	const onMouseDown = (e: React.MouseEvent) => {
 		isDragging.current = true;
@@ -85,7 +83,7 @@ const Testimonials: React.FC = () => {
 		e.preventDefault();
 		const x = e.pageX - scrollRef.current.offsetLeft;
 		const walk = (x - startX.current) * 1.2;
-		if (Math.abs(walk) > 5) hasDragged.current = true; // đủ xa mới tính là drag
+		if (Math.abs(walk) > 5) hasDragged.current = true;
 		scrollRef.current.scrollLeft = scrollLeft.current - walk;
 	};
 
@@ -118,7 +116,7 @@ const Testimonials: React.FC = () => {
 						</h2>
 						<p className="text-sm text-gray-500 mt-1">Hơn 50.000 khách hàng tin tưởng lựa chọn</p>
 					</div>
-					{/* Arrow buttons */}
+
 					<div className="hidden md:flex items-center gap-2">
 						<button
 							onClick={() => scrollTo(activeIdx - 1)}
@@ -137,7 +135,7 @@ const Testimonials: React.FC = () => {
 					</div>
 				</div>
 
-				{/* Skeleton */}
+
 				{isLoading ? (
 					<div className="flex gap-4">
 						{Array.from({ length: 3 }).map((_, i) => (
@@ -157,7 +155,7 @@ const Testimonials: React.FC = () => {
 					>
 						{displayReviews.map((r, idx) => {
 							const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
-							const isReal = r.id > 0; // fallback có id âm
+							const isReal = r.id > 0;
 							const handleCardClick = () => {
 								if (!isReal || !r.productId || hasDragged.current) return;
 								router.push(`/products/${r.productId}#reviews`);
@@ -173,13 +171,13 @@ const Testimonials: React.FC = () => {
 											: "cursor-default"
 									}`}
 								>
-									{/* Quote */}
+
 									<span className="text-3xl text-gray-200 font-serif leading-none">"</span>
 									<p className="text-sm text-gray-600 leading-relaxed flex-1 -mt-3 line-clamp-4">
 										{r.comment || "Sản phẩm rất tốt!"}
 									</p>
 
-									{/* Product name + link hint */}
+
 									{r.productName && (
 										<p className="text-xs text-gray-400 italic flex items-center gap-1">
 											Đã mua: {r.productName}
@@ -189,7 +187,7 @@ const Testimonials: React.FC = () => {
 										</p>
 									)}
 
-									{/* Stars */}
+
 									<div className="flex items-center gap-1">
 										{Array.from({ length: 5 }).map((_, i) => (
 											<span
@@ -204,7 +202,7 @@ const Testimonials: React.FC = () => {
 										)}
 									</div>
 
-									{/* Author */}
+
 									<div className="flex items-center gap-3 pt-2 border-t border-gray-50">
 										<div className={`w-10 h-10 rounded-full ${color.bg} flex items-center justify-center flex-shrink-0`}>
 											<span className={`text-sm font-bold ${color.text}`}>
@@ -222,7 +220,7 @@ const Testimonials: React.FC = () => {
 					</div>
 				)}
 
-				{/* Dots */}
+
 				{!isLoading && (
 					<div className="flex justify-center gap-2 mt-4">
 						{displayReviews.map((_, idx) => (

@@ -20,7 +20,7 @@ export default function YouMayAlsoLike() {
 
 	return (
 		<div className="w-full">
-			<h2 className="text-lg md:text-[24px] font-medium text-black mb-6">You may also like</h2>
+			<h2 className="text-lg md:text-[24px] font-medium text-black mb-6">Có thể bạn sẽ thích</h2>
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-[16px]">
 				{products.map(product => (
 					<ProductCard key={product.id} product={product} />

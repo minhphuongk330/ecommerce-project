@@ -1,18 +1,25 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "~/stores/useAuth";
 import UserAvatar from "~/components/atoms/UserAvatar";
 import { ADMIN_NAV_ITEMS } from "~/utils/admin/navItems";
+import WebNotificationMenu from "~/components/atoms/WebNotificationMenu";
 
 export default function AdminHeader() {
 	const { user } = useAuthStore();
 	const pathname = usePathname();
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	return (
 		<div className="h-15 md:h-15 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 shadow-sm flex-shrink-0 sticky top-0 z-30">
 			<div className="flex items-center">
-				<h2 className="hidden md:block text-lg font-semibold text-gray-800">Management System</h2>
+				<h2 className="hidden md:block text-lg font-semibold text-gray-800">Hệ thống quản lý</h2>
 			</div>
 
 			<div className="flex md:hidden items-center gap-6">
@@ -31,9 +38,11 @@ export default function AdminHeader() {
 			</div>
 
 			<div className="flex items-center gap-4">
+				<WebNotificationMenu isAdmin={true} iconColorClass="text-gray-600 hover:text-gray-800" />
+
 				<div className="hidden md:block text-right">
 					<p className="text-sm font-medium text-gray-900">{user?.fullName || "Admin"}</p>
-					<p className="text-xs text-gray-500">Administrator</p>
+					<p className="text-xs text-gray-500">Quản trị viên</p>
 				</div>
 
 				<UserAvatar alt={user?.fullName || "Admin"} size={40} bgColor="#dbeafe" textColor="#2563eb" />

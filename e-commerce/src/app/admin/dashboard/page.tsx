@@ -67,32 +67,32 @@ export default function DashboardPage() {
 
 	return (
 		<div>
-			<h1 className="text-2xl font-bold text-gray-800 mb-[20px]">Dashboard Overview</h1>
+			<h1 className="text-2xl font-bold text-gray-800 mb-[20px]">Tổng quan hệ thống</h1>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-[40px]">
 				<DashboardMetricCard
-					title="Total Earnings"
+					title="Tổng doanh thu"
 					icon={<AttachMoney />}
 					color="bg-teal-500"
 					data={allOrders}
 					type="revenue"
 				/>
 				<DashboardMetricCard
-					title="Total Orders"
+					title="Tổng đơn hàng"
 					icon={<ShoppingCartOutlined />}
 					color="bg-orange-500"
 					data={allOrders}
 					type="count"
 				/>
 				<DashboardMetricCard
-					title="Customers"
+					title="Khách hàng"
 					icon={<GroupOutlined />}
 					color="bg-blue-500"
 					data={allCustomers}
 					type="count"
 				/>
 				<DashboardMetricCard
-					title="Pending Orders"
+					title="Đơn chờ xử lý"
 					icon={<PendingActionsOutlined />}
 					color="bg-rose-500"
 					data={allOrders}

@@ -14,17 +14,27 @@ import { OrderStatus } from "~/types/order";
 import Dropdown, { DropdownOption } from "../atoms/Dropdown";
 const STATUS_COLORS: Record<string, ChipColor> = {
 	Pending: "warning",
+	Processing: "info",
 	Shipped: "primary",
 	Completed: "success",
 	Cancelled: "error",
 };
 
 const STATUS_OPTIONS: DropdownOption[] = [
-	{ value: "Pending", label: "Pending" },
-	{ value: "Shipped", label: "Shipped" },
-	{ value: "Completed", label: "Completed" },
-	{ value: "Cancelled", label: "Cancelled" },
+	{ value: "Pending", label: "Chờ xác nhận" },
+	{ value: "Processing", label: "Đang chuẩn bị hàng" },
+	{ value: "Shipped", label: "Đang giao hàng" },
+	{ value: "Completed", label: "Đã hoàn thành" },
+	{ value: "Cancelled", label: "Đã hủy" },
 ];
+
+const STATUS_LABELS: Record<string, string> = {
+	Pending: "Chờ xác nhận",
+	Processing: "Đang chuẩn bị hàng",
+	Shipped: "Đang giao hàng",
+	Completed: "Đã hoàn thành",
+	Cancelled: "Đã hủy",
+};
 
 interface Props {
 	orders: AdminOrder[];
@@ -118,11 +128,11 @@ export default function OrdersTable({
 		},
 		{
 			field: "customerName",
-			headerName: "Customer",
+			headerName: "Khách hàng",
 			flex: 1,
 			minWidth: 150,
 			renderCell: (params: GridRenderCellParams<AdminOrder>) => {
-				const name = params.row.customer?.fullName || "Retail customer";
+				const name = params.row.customer?.fullName || "Khách vãng lai";
 				return (
 					<div className="flex items-center gap-3 h-full">
 						<span className="font-medium text-gray-900 truncate" title={name}>
@@ -146,14 +156,14 @@ export default function OrdersTable({
 		},
 		{
 			field: "createdAt",
-			headerName: "Order date",
+			headerName: "Ngày đặt",
 			flex: 0.8,
 			minWidth: 120,
 			valueFormatter: value => formatDate(value as string),
 		},
 		{
 			field: "totalAmount",
-			headerName: "Total amount",
+			headerName: "Tổng tiền",
 			flex: 0.8,
 			minWidth: 120,
 			type: "number",
@@ -164,7 +174,7 @@ export default function OrdersTable({
 		},
 		{
 			field: "actions",
-			headerName: "Status",
+			headerName: "Trạng thái",
 			flex: 1,
 			minWidth: 150,
 			sortable: false,
@@ -175,7 +185,7 @@ export default function OrdersTable({
 				return (
 					<div className="flex items-center h-full w-full">
 						{isFinalStatus ? (
-							<StatusChip label={currentStatus} color={STATUS_COLORS[currentStatus] || "default"} />
+							<StatusChip label={STATUS_LABELS[currentStatus] || currentStatus} color={STATUS_COLORS[currentStatus] || "default"} />
 						) : (
 							<Dropdown
 								value={currentStatus}
@@ -198,7 +208,7 @@ export default function OrdersTable({
 						rows={orders}
 						columns={columns}
 						rowHeight={60}
-						noRowsLabel="No orders yet."
+						noRowsLabel="Chưa có đơn hàng nào."
 						paginationModel={paginationModel}
 						onPaginationModelChange={setPaginationModel}
 					/>
@@ -208,7 +218,7 @@ export default function OrdersTable({
 			<div className="md:hidden flex flex-col pb-20">
 				<div className="flex flex-col gap-4">
 					{orders.length === 0 ? (
-						<div className="text-center text-gray-500 py-10">No orders yet.</div>
+						<div className="text-center text-gray-500 py-10">Chưa có đơn hàng nào.</div>
 					) : (
 						orders
 							.slice(mobilePage * MOBILE_ROWS_PER_PAGE, mobilePage * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
@@ -248,7 +258,7 @@ export default function OrdersTable({
 										<div className="flex flex-col gap-1">
 											<div className="flex justify-between items-center">
 												<span className="text-sm font-bold text-gray-900 truncate">
-													{order.customer?.fullName || "Retail customer"}
+													{order.customer?.fullName || "Khách vãng lai"}
 												</span>
 											</div>
 											<span className="text-xs text-gray-500 truncate">{order.customer?.email || "---"}</span>
@@ -259,7 +269,7 @@ export default function OrdersTable({
 
 											<div className="w-[130px]">
 												{isFinalStatus ? (
-													<StatusChip label={order.status} color={STATUS_COLORS[order.status] || "default"} />
+													<StatusChip label={STATUS_LABELS[order.status] || order.status} color={STATUS_COLORS[order.status] || "default"} />
 												) : (
 													<Dropdown
 														value={order.status}

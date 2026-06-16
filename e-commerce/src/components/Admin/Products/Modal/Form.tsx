@@ -26,6 +26,7 @@ const initialValues: ProductFormValues = {
 	stock: 0,
 	categoryId: undefined,
 	description: "",
+	color: "",
 	mainImageUrl: "",
 	extraImage1: "",
 	extraImage2: "",
@@ -62,18 +63,33 @@ export default function ProductFormModal({
 		try {
 			const fullProduct = await adminService.getProductById(id);
 
+			const specs = fullProduct.specifications || {};
+			if (fullProduct.color && !specs.colorStock) {
+				const colors = fullProduct.color.split(",").map((c: any) => c.trim()).filter(Boolean);
+				const stockVal = Number(fullProduct.stock) || 0;
+				specs.colorStock = {};
+				if (colors.length === 1) {
+					specs.colorStock[colors[0]] = stockVal;
+				} else {
+					colors.forEach((c: any) => {
+						specs.colorStock[c] = 0;
+					});
+				}
+			}
+
 			const formData = {
 				...initialValues,
 				...defaultValues,
 				...fullProduct,
-				// Handle both cases: Backend returns categoryId directly or nested category object (TypeORM relations)
+
 				categoryId: fullProduct.categoryId
 					? Number(fullProduct.categoryId)
 					: (fullProduct.category?.id ? Number(fullProduct.category.id) : undefined),
 				price: Number(fullProduct.price),
 				stock: Number(fullProduct.stock),
-				// Ensure specifications is loaded correctly instead of attributes
-				specifications: fullProduct.specifications || {},
+				color: fullProduct.color || "",
+
+				specifications: specs,
 			};
 
 			reset(formData);
@@ -95,6 +111,17 @@ export default function ProductFormModal({
 	}, [isOpen, defaultValues?.id, reset]);
 
 	const handleFormSubmit = async (data: ProductFormOutput) => {
+
+		if (data.color && (data.specifications as any)?.colorStock) {
+			const colors = data.color.split(",").map(c => c.trim()).filter(Boolean);
+			const cleanColorStock: Record<string, number> = {};
+			colors.forEach(c => {
+				cleanColorStock[c] = Number((data.specifications as any).colorStock[c]) || 0;
+			});
+			(data.specifications as any).colorStock = cleanColorStock;
+		} else if (data.specifications) {
+			delete (data.specifications as any).colorStock;
+		}
 		console.log('Final Submit Data:', data);
 		console.log('Specifications:', data.specifications);
 		await onSubmit(data);
@@ -109,7 +136,7 @@ export default function ProductFormModal({
 			{isFetchingDetail ? (
 				<div className="h-[400px] flex flex-col items-center justify-center gap-3 text-gray-500">
 					<CircularProgress size={40} color="inherit" />
-					<p className="text-sm">Loading product details...</p>
+					<p className="text-sm">Đang tải chi tiết sản phẩm...</p>
 				</div>
 			) : (
 				<div className="flex flex-col gap-6">
@@ -117,7 +144,7 @@ export default function ProductFormModal({
 
 					<div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
 						<Button variant="outline" theme="dark" onClick={onClose} className="!w-[100px]" disabled={isSubmitting}>
-							Cancel
+							Huỷ
 						</Button>
 						<Button
 							variant="solid"

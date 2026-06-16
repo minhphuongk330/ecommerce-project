@@ -32,7 +32,7 @@ const CheckoutStepper: React.FC = () => {
 						</div>
 
 						<div className="flex flex-col justify-center">
-							<span className="text-[11px] lg:text-[12px] font-medium leading-none mb-1">Step {step.stepNumber}</span>
+							<span className="text-[11px] lg:text-[12px] font-medium leading-none mb-1">Bước {step.stepNumber}</span>
 							<span className="text-[14px] lg:text-[16px] font-bold leading-none">{step.label}</span>
 						</div>
 					</div>

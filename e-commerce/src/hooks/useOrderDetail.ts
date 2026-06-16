@@ -18,7 +18,7 @@ export const useOrderDetail = (orderId: number | null) => {
 			setOrder(data);
 		} catch (error) {
 			console.error("Failed to fetch order detail:", error);
-			showNotification("Unable to load order details.", "error");
+			showNotification("Không thể tải chi tiết đơn hàng.", "error");
 		} finally {
 			setIsLoading(false);
 		}
@@ -35,9 +35,9 @@ export const useOrderDetail = (orderId: number | null) => {
 			setIsCancelling(true);
 			const updatedOrder = await orderService.cancelOrder(orderId);
 			setOrder(updatedOrder);
-			showNotification("Order cancelled successfully.", "success");
+			showNotification("Huỷ đơn hàng thành công.", "success");
 		} catch (error) {
-			showNotification("Failed to cancel order.", "error");
+			showNotification("Huỷ đơn hàng thất bại.", "error");
 		} finally {
 			setIsCancelling(false);
 		}

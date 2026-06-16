@@ -11,10 +11,20 @@ dayjs.extend(isBetween);
 
 const COLORS: Record<string, string> = {
 	pending: "#FFA726",
-	processing: "#42A5F5",
-	shipped: "#66BB6A",
-	delivered: "#29B6F6",
-	cancelled: "#EF5350",
+	processing: "#FF9800",
+	shipped: "#2196F3",
+	completed: "#4CAF50",
+	delivered: "#4CAF50",
+	cancelled: "#F44336",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	pending: "Chờ xác nhận",
+	processing: "Đang chuẩn bị hàng",
+	shipped: "Đang giao hàng",
+	completed: "Đã hoàn thành",
+	delivered: "Đã giao",
+	cancelled: "Đã hủy",
 };
 
 export default function OrderStatusChart({ allOrders }: { allOrders: AdminOrder[] }) {
@@ -33,7 +43,8 @@ export default function OrderStatusChart({ allOrders }: { allOrders: AdminOrder[
 		);
 
 		return Object.entries(statusCount).map(([status, count]) => ({
-			name: status.charAt(0).toUpperCase() + status.slice(1),
+			key: status,
+			name: STATUS_LABELS[status] || status.charAt(0).toUpperCase() + status.slice(1),
 			value: count,
 		}));
 	}, [period, allOrders]);
@@ -41,13 +52,13 @@ export default function OrderStatusChart({ allOrders }: { allOrders: AdminOrder[
 	return (
 		<div className="bg-white p-6 rounded-xl shadow-md h-full flex flex-col">
 			<div className="flex justify-between items-start mb-6 relative">
-				<h2 className="text-2xl font-bold text-gray-900">Order Status Distribution</h2>
+				<h2 className="text-2xl font-bold text-gray-900">Phân bổ trạng thái đơn hàng</h2>
 				<PeriodDropdown period={period} onPeriodChange={setPeriod} />
 			</div>
 
 			{data.length === 0 ? (
 				<div className="flex items-center justify-center min-h-[350px]">
-					<p className="text-gray-500 text-lg">No data in this period</p>
+					<p className="text-gray-500 text-lg">Không có dữ liệu trong thời gian này</p>
 				</div>
 			) : (
 				<ResponsiveContainer width="100%" height={350}>
@@ -63,11 +74,11 @@ export default function OrderStatusChart({ allOrders }: { allOrders: AdminOrder[
 							fill="#8884d8"
 							dataKey="value"
 						>
-							{data.map((entry, index) => (
-								<Cell key={`cell-${index}`} fill={COLORS[entry.name.toLowerCase()] || "#8884d8"} />
+							{data.map((entry: any, index: number) => (
+								<Cell key={`cell-${index}`} fill={COLORS[entry.key] || "#8884d8"} />
 							))}
 						</Pie>
-						<Tooltip formatter={(value: number | undefined) => `${value ?? 0} orders`} />
+						<Tooltip formatter={(value: number | undefined) => `${value ?? 0} đơn`} />
 						<Legend />
 					</PieChart>
 				</ResponsiveContainer>

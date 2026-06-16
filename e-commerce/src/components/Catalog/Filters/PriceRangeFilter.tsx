@@ -15,15 +15,11 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
-
-	// Ensure we have valid numbers (fallback if API hasn't loaded yet)
 	const safeMin = Math.max(0, Number(minPrice) || 0);
 	const safeMax = Math.max(safeMin + 1000000, Number(maxPrice) || 100000000);
-
 	const urlMin = searchParams.get("minPrice");
 	const urlMax = searchParams.get("maxPrice");
 
-	// Use URL values if present, otherwise use the dynamic range
 	const initMin = urlMin ? Number(urlMin) : safeMin;
 	const initMax = urlMax ? Number(urlMax) : safeMax;
 
@@ -33,20 +29,17 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 	const [inputMin, setInputMin] = useState(String(initMin));
 	const [inputMax, setInputMax] = useState(String(initMax));
 
-	// Reset slider when min/max price range changes (e.g., when category changes)
 	useEffect(() => {
 		const urlMinPrice = searchParams.get("minPrice");
 		const urlMaxPrice = searchParams.get("maxPrice");
 
 		if (urlMinPrice || urlMaxPrice) {
-			// User has set filters, respect them but clamp to valid range
 			const min = Math.max(safeMin, Number(urlMinPrice) || safeMin);
 			const max = Math.min(safeMax, Number(urlMaxPrice) || safeMax);
 			setSliderValues([min, max]);
 			setInputMin(String(min));
 			setInputMax(String(max));
 		} else {
-			// No URL filters, reset to full range
 			setSliderValues([safeMin, safeMax]);
 			setInputMin(String(safeMin));
 			setInputMax(String(safeMax));
@@ -83,7 +76,7 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 	};
 
 	return (
-		<FiltersAccordion title="Price Range" defaultOpen={true}>
+		<FiltersAccordion title="Khoảng giá" defaultOpen={true}>
 			<div className="flex flex-col gap-4 px-1">
 				<div className="mx-3">
 					<MuiSlider
@@ -130,7 +123,7 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ minPrice, maxPrice 
 				</div>
 
 				<Button onClick={handleApply} theme="dark" variant="solid" className="!w-full !rounded-lg !h-10">
-					Apply
+					Áp dụng
 				</Button>
 			</div>
 		</FiltersAccordion>

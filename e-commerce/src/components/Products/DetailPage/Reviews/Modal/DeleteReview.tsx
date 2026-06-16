@@ -17,11 +17,11 @@ export default function DeleteReview({ id, onSuccess }: DeleteReviewProps) {
 	const handleDelete = async () => {
 		try {
 			await reviewService.deleteReview(id);
-			showNotification("Review deleted.", "success");
+			showNotification("Đã xoá đánh giá.", "success");
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
-			showNotification("Delete failed.", "error");
+			showNotification("Xoá thất bại.", "error");
 		}
 	};
 
@@ -46,8 +46,8 @@ export default function DeleteReview({ id, onSuccess }: DeleteReviewProps) {
 			<ConfirmationModal
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Delete Review"
-				message="Are you sure you want to delete this review? This action cannot be undone."
+				title="Xóa đánh giá"
+				message="Bạn có chắc chắn muốn xóa đánh giá này?"
 				onConfirm={handleDelete}
 				onError={handleError}
 			/>

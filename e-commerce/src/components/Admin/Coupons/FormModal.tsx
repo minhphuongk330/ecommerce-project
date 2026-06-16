@@ -48,7 +48,7 @@ const toLocalDatetime = (iso?: string) => {
 
 interface Props {
 	open: boolean;
-	coupon?: any | null; // null = tạo mới, có giá trị = chỉnh sửa
+	coupon?: any | null;  
 	onClose: () => void;
 	onSuccess: () => void;
 }
@@ -59,7 +59,7 @@ export default function CouponFormModal({ open, coupon, onClose, onSuccess }: Pr
 	const [submitting, setSubmitting] = useState(false);
 	const isEdit = !!coupon;
 
-	// Điền data khi edit
+ 
 	useEffect(() => {
 		if (coupon) {
 			setForm({

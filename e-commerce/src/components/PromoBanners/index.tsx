@@ -2,7 +2,7 @@
 import Link from "next/link";
 import React from "react";
 
-// Simple SVG icons to replace lucide-react
+
 const LaptopIcon = () => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 		<rect x="2" y="4" width="20" height="12" rx="2" ry="2"></rect>
@@ -60,7 +60,6 @@ interface PromoBanner {
 	icon: React.ComponentType<any>;
 }
 
-// Dữ liệu tĩnh — bạn thay bằng data thật sau hoặc kéo từ banners API
 const PROMO_BANNERS: PromoBanner[] = [
 	{
 		id: 1,
@@ -103,7 +102,7 @@ const PROMO_BANNERS: PromoBanner[] = [
 	},
 ];
 
-// Badge styling component
+
 const Badge: React.FC<{ type?: "hot" | "new" | "limited"; children: string }> = ({ type, children }) => {
 	const baseClasses = "flex-shrink-0 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1";
 
@@ -137,7 +136,7 @@ const Badge: React.FC<{ type?: "hot" | "new" | "limited"; children: string }> = 
 const PromoBanners: React.FC = () => {
 	return (
 		<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-8">
-			{/* Section header */}
+
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex items-center gap-2">
 					<div className="w-6 h-6 text-gray-700">
@@ -160,17 +159,17 @@ const PromoBanners: React.FC = () => {
 						href={banner.href}
 						className={`${banner.bg} rounded-2xl p-5 md:p-6 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group relative overflow-hidden`}
 					>
-						{/* Background decoration */}
+
 						<div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
 
-						{/* Icon container */}
+
 						<div className="relative flex-shrink-0">
 							<div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
 								<banner.icon className="w-6 h-6 md:w-7 md:h-7 text-white group-hover:scale-110 transition-transform" />
 							</div>
 						</div>
 
-						{/* Text content */}
+
 						<div className="flex-1 min-w-0">
 							<p className={`text-xs font-medium opacity-90 mb-1 ${banner.textColor} uppercase tracking-wider`}>
 								{banner.label}
@@ -183,7 +182,7 @@ const PromoBanners: React.FC = () => {
 							</p>
 						</div>
 
-						{/* Badge */}
+
 						{banner.badge && (
 							<div className="flex-shrink-0">
 								<Badge type={banner.badgeType}>
@@ -192,7 +191,7 @@ const PromoBanners: React.FC = () => {
 							</div>
 						)}
 
-						{/* Hover arrow indicator */}
+
 						<div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
 							<div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
 								<span className="text-white text-xs">→</span>

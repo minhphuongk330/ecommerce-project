@@ -4,6 +4,12 @@ import { useState } from "react";
 
 export type Period = "yearly" | "monthly" | "weekly";
 
+const PERIOD_LABELS: Record<Period, string> = {
+	weekly: "Tuần này",
+	monthly: "Tháng này",
+	yearly: "Năm nay"
+};
+
 interface PeriodDropdownProps {
 	period: Period;
 	onPeriodChange: (newPeriod: Period) => void;
@@ -18,7 +24,7 @@ export default function PeriodDropdown({ period, onPeriodChange }: PeriodDropdow
 				onClick={() => setShowDropdown(!showDropdown)}
 				className="flex items-center gap-1.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition"
 			>
-				<span>{period.charAt(0).toUpperCase() + period.slice(1)}</span>
+				<span>{PERIOD_LABELS[period]}</span>
 				<ExpandMoreIcon
 					fontSize="small"
 					sx={{
@@ -42,7 +48,7 @@ export default function PeriodDropdown({ period, onPeriodChange }: PeriodDropdow
 								period === p ? "bg-teal-50 text-teal-600 font-medium" : "text-gray-700 hover:bg-gray-50"
 							}`}
 						>
-							{p.charAt(0).toUpperCase() + p.slice(1)}
+							{PERIOD_LABELS[p]}
 						</button>
 					))}
 				</div>

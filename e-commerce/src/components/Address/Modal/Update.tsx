@@ -43,7 +43,7 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 	const handleUpdate = async (data: AddressFormData) => {
 		try {
 			await addressService.updateAddress(address.id, data);
-			showNotification("Update successful!", "success");
+			showNotification("Cập nhật thành công!", "success");
 			setIsOpen(false);
 			onSuccess();
 		} catch (error: any) {
@@ -61,7 +61,7 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 					setIsOpen(true);
 				}}
 				className="text-black hover:opacity-60 transition-opacity p-2"
-				title="Edit Address"
+				title="Chỉnh sửa địa chỉ"
 			>
 				<EditOutlined sx={{ fontSize: 24 }} />
 			</button>
@@ -69,7 +69,7 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 			<BaseDialog
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Update Address"
+				title="Chỉnh sửa địa chỉ"
 				showCloseIcon={true}
 				width={600}
 			>
@@ -82,9 +82,9 @@ export default function UpdateAddress({ address, onSuccess }: UpdateAddressProps
 						<StepButton
 							layout="full"
 							type="submit"
-							primaryLabel="Update"
+							primaryLabel="Cập nhật"
 							isLoading={isSubmitting}
-							secondaryLabel="Cancel"
+							secondaryLabel="Hủy"
 							onSecondaryClick={() => setIsOpen(false)}
 							className="!h-[48px]"
 							onPrimaryClick={handleSubmit(handleUpdate)}

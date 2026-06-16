@@ -26,7 +26,7 @@ export class CategoriesService {
   async findOne(id: number): Promise<Category> {
     const category = await this.categoryRepository.findOne({ where: { id } });
     if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy Danh mục với ID ${id}`);
     }
     return category;
   }

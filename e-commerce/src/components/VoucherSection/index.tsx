@@ -7,6 +7,12 @@ import { useAuthStore } from "~/stores/useAuth";
 import { useCollectedCoupons } from "~/stores/useCollectedCoupons";
 import { Coupon } from "~/types/coupon";
 import { routerPaths } from "~/utils/router";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/navigation";
 
 const formatDiscount = (coupon: Coupon): string => {
 	if (coupon.discountType === "percent") return `-${coupon.discountValue}%`;
@@ -100,30 +106,21 @@ const VoucherSection: React.FC = () => {
 	const isCollected = (id: string) => localCollectedIds.includes(id);
 
 	useEffect(() => {
-		// Bước 1: Đọc localStorage ngay lập tức (client-side)
 		try {
 			const raw = localStorage.getItem("collected-coupons");
-			console.log("[VoucherSection] localStorage raw:", raw);
 			if (raw) {
 				const ids = JSON.parse(raw)?.state?.collectedIds ?? [];
-				console.log("[VoucherSection] ids from localStorage:", ids);
 				if (ids.length > 0) setLocalCollectedIds(ids);
 			}
 		} catch (e) {
-			console.log("[VoucherSection] localStorage error:", e);
 		}
 
-		// Bước 2: Sync với server nếu đã đăng nhập
 		const { isAuthenticated: isAuth } = useAuthStore.getState();
-		console.log("[VoucherSection] isAuth:", isAuth);
 		if (!isAuth) return;
 		couponService.getCollectedIds().then((ids) => {
-			console.log("[VoucherSection] API ids:", ids);
 			setLocalCollectedIds(ids);
-			// Dùng setState trực tiếp thay vì clear() + addId() để tránh persist [] tạm thời
 			useCollectedCoupons.setState({ collectedIds: ids, lastFetched: Date.now() });
-		}).catch((e) => {
-			console.log("[VoucherSection] API error:", e);
+		}).catch(() => {
 		});
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -150,6 +147,8 @@ const VoucherSection: React.FC = () => {
 
 	if (!isLoading && coupons.length === 0) return null;
 
+	const isSwiperActive = coupons.length > 1;
+
 	return (
 		<div className="w-full max-w-[1440px] mx-auto px-4 md:px-[160px] py-6">
 			<div className="flex items-center justify-between mb-4">
@@ -157,22 +156,56 @@ const VoucherSection: React.FC = () => {
 					<span className="text-xl">🎁</span>
 					<h2 className="text-lg md:text-xl font-bold text-gray-900">Mã giảm giá</h2>
 				</div>
+				{!isLoading && coupons.length > 0 && isSwiperActive && (
+					<div className="flex items-center gap-2">
+						<button className="voucher-prev w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-40 [&.swiper-button-disabled]:opacity-40 [&.swiper-button-disabled]:pointer-events-none [&.swiper-button-disabled]:cursor-not-allowed">
+							<ChevronLeft className="w-5 h-5" />
+						</button>
+						<button className="voucher-next w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-40 [&.swiper-button-disabled]:opacity-40 [&.swiper-button-disabled]:pointer-events-none [&.swiper-button-disabled]:cursor-not-allowed">
+							<ChevronRight className="w-5 h-5" />
+						</button>
+					</div>
+				)}
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-				{isLoading
-					? Array.from({ length: 3 }).map((_, i) => <VoucherSkeleton key={i} />)
-					: coupons.map((coupon, idx) => (
-						<VoucherCard
-							key={coupon.id}
-							coupon={coupon}
-							colorIdx={idx}
-							isCollected={isCollected(coupon.id)}
-							onCollect={handleCollect}
-						/>
+
+			{isLoading ? (
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+					{Array.from({ length: 3 }).map((_, i) => <VoucherSkeleton key={i} />)}
+				</div>
+			) : (
+				<Swiper
+					modules={[Navigation]}
+					spaceBetween={16}
+					slidesPerView={1}
+					navigation={{
+						nextEl: ".voucher-next",
+						prevEl: ".voucher-prev",
+					}}
+					breakpoints={{
+						640: {
+							slidesPerView: 2,
+						},
+						1024: {
+							slidesPerView: 3,
+						},
+					}}
+					className="w-full"
+				>
+					{coupons.map((coupon, idx) => (
+						<SwiperSlide key={coupon.id} className="py-1">
+							<VoucherCard
+								coupon={coupon}
+								colorIdx={idx}
+								isCollected={isCollected(coupon.id)}
+								onCollect={handleCollect}
+							/>
+						</SwiperSlide>
 					))}
-			</div>
+				</Swiper>
+			)}
 		</div>
 	);
 };
 
 export default VoucherSection;
+

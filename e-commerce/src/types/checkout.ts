@@ -14,21 +14,21 @@ export interface CheckoutStep {
 export const CHECKOUT_STEPS: CheckoutStep[] = [
 	{
 		key: "address",
-		label: "Address",
+		label: "Địa chỉ",
 		stepNumber: 1,
 		href: "/checkout/address",
 		icon: LocationOn,
 	},
 	{
 		key: "shipping",
-		label: "Shipping",
+		label: "Vận chuyển",
 		stepNumber: 2,
 		href: "/checkout/shipping",
 		icon: LocalShipping,
 	},
 	{
 		key: "payment",
-		label: "Payment",
+		label: "Thanh toán",
 		stepNumber: 3,
 		href: "/checkout/payment",
 		icon: Payment,

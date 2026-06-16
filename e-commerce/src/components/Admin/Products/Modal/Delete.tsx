@@ -18,15 +18,15 @@ export default function DeleteProduct({ id, onSuccess }: Props) {
 	const handleDelete = async () => {
 		try {
 			await adminService.deleteProduct(id);
-			showNotification("Product deleted successfully", "success");
+			showNotification("Xoá sản phẩm thành công", "success");
 			onSuccess();
 		} catch (error) {
-			showNotification("Deletion failed. Please try again.", "error");
+			showNotification("Xoá thất bại. Vui lòng thử lại.", "error");
 		}
 	};
 
 	const handleError = (error: any) => {
-		const message = error?.response?.data?.message || "Deletion failed. Please try again.";
+		const message = error?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.";
 		showNotification(message, "error");
 	};
 
@@ -48,9 +48,9 @@ export default function DeleteProduct({ id, onSuccess }: Props) {
 				onClose={() => setIsOpen(false)}
 				onConfirm={handleDelete}
 				onError={handleError}
-				title="Delete product"
-				message="Are you sure you want to delete this product? This action cannot be undone."
-				confirmLabel="Delete!"
+				title="Xóa sản phẩm"
+				message="Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
+				confirmLabel="Xóa"
 				confirmButtonColor="!bg-red-600 hover:!bg-red-700"
 			/>
 		</>

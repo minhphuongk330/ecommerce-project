@@ -1,12 +1,16 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { cartService } from "~/services/cart";
+import { flashSaleService } from "~/services/flashSale";
 import { Product } from "~/types/product";
 
 export interface CartItem extends Product {
 	cartItemId?: number;
 	quantity: number;
 	selectedColor?: string;
+	isFlashSale?: boolean;
+	originalPrice?: number;
+	flashSaleRemaining?: number;
 }
 
 interface CartState {
@@ -42,15 +46,25 @@ export const useCartStore = create<CartState>()(
 				if (!force && cartItems.length > 0 && now - lastFetched < 15000) return;
 				fetchPromise = (async () => {
 					try {
-						const data = await cartService.getAll();
+						const [data, flashSaleData] = await Promise.all([
+							cartService.getAll(),
+							flashSaleService.getActive(),
+						]);
 						const mappedItems: CartItem[] = data.map((item: any) => {
 							const baseProduct = item.product;
+							const fsItem = flashSaleData?.items?.find(
+								(fsi: any) => Number(fsi.productId) === Number(baseProduct.id)
+							);
+							const isSaleActive = fsItem && Number(fsItem.soldQuantity) < Number(fsItem.quantity);
 							return {
 								...baseProduct,
 								cartItemId: item.id,
 								quantity: item.quantity,
 								selectedColor: item.color,
-								price: baseProduct.price,
+								price: isSaleActive ? Number(fsItem.salePrice) : Number(baseProduct.price),
+								originalPrice: isSaleActive ? Number(fsItem.originalPrice) : undefined,
+								isFlashSale: isSaleActive,
+								flashSaleRemaining: fsItem ? Number(fsItem.quantity) - Number(fsItem.soldQuantity) : undefined,
 							};
 						});
 

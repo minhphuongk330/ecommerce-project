@@ -5,12 +5,10 @@ export const useShippingMethod = () => {
 	const getFutureDate = (daysToAdd: number): string => {
 		const date = new Date();
 		date.setDate(date.getDate() + daysToAdd);
-
-		return date.toLocaleDateString("en-US", {
-			day: "numeric",
-			month: "short",
-			year: "numeric",
-		});
+		const y = date.getFullYear();
+		const m = String(date.getMonth() + 1).padStart(2, "0");
+		const d = String(date.getDate()).padStart(2, "0");
+		return `${y}-${m}-${d}`;
 	};
 
 	const shippingMethods: ShippingMethod[] = useMemo(
@@ -19,24 +17,24 @@ export const useShippingMethod = () => {
 				id: "free",
 				type: "regular",
 				price: 0,
-				name: "Regular Shipment",
-				description: "Regular shipment",
+				name: "Giao hàng thường",
+				description: "Giao hàng thường",
 				estimatedDate: getFutureDate(7),
 			},
 			{
 				id: "express",
 				type: "express",
 				price: 30000,
-				name: "Get your delivery as soon as possible",
-				description: "Get your delivery as soon as possible",
+				name: "Giao hàng nhanh (Nhận hàng sớm nhất có thể)",
+				description: "Giao hàng nhanh (Nhận hàng sớm nhất có thể)",
 				estimatedDate: getFutureDate(2),
 			},
 			{
 				id: "schedule",
 				type: "schedule",
 				price: 0,
-				name: "Schedule",
-				description: "Pick a date when you want to get your delivery",
+				name: "Lên lịch nhận hàng",
+				description: "Chọn ngày bạn muốn nhận hàng",
 			},
 		],
 		[],

@@ -23,7 +23,7 @@ export class UploadController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UploadResponseDto> {
     if (!file) {
-      throw new BadRequestException('No image file provided');
+      throw new BadRequestException('Không có file ảnh nào được cung cấp');
     }
 
     const result = await this.uploadService.uploadImage(file);
@@ -40,7 +40,7 @@ export class UploadController {
     @UploadedFiles() files: Express.Multer.File[],
   ): Promise<UploadMultipleResponseDto> {
     if (!files || files.length === 0) {
-      throw new BadRequestException('No image files provided');
+      throw new BadRequestException('Không có file ảnh nào được cung cấp');
     }
 
     const results = await this.uploadService.uploadMultipleImages(files);

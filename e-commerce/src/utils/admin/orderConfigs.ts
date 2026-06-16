@@ -7,30 +7,30 @@ export const ORDER_FILTER_CONFIG: FilterConfig = {
 	fields: [
 		{
 			name: "search",
-			label: "Search",
+			label: "Tìm kiếm",
 			type: "text",
-			placeholder: "Search by order #, customer name, or email...",
+			placeholder: "Tìm kiếm theo mã đơn, tên khách hàng hoặc email...",
 		},
 		{
 			name: "status",
-			label: "Status",
+			label: "Trạng thái",
 			type: "select",
 			options: [
-				{ label: "Pending", value: "Pending" },
-				{ label: "Shipped", value: "Shipped" },
-				{ label: "Completed", value: "Completed" },
-				{ label: "Cancelled", value: "Cancelled" },
+				{ label: "Chờ xác nhận", value: "Pending" },
+				{ label: "Đang giao hàng", value: "Shipped" },
+				{ label: "Đã hoàn thành", value: "Completed" },
+				{ label: "Đã hủy", value: "Cancelled" },
 			],
 		},
 		{
 			name: "price",
-			label: "Price",
+			label: "Giá",
 			type: "numberrange",
-			placeholder: "e.g. 100 - 500",
+			placeholder: "Ví dụ: 100k - 500k",
 		},
 		{
 			name: "createdAt",
-			label: "Order Date",
+			label: "Ngày đặt hàng",
 			type: "daterange",
 		},
 	],
@@ -101,46 +101,46 @@ export const ORDER_FILTER_PREDICATES = {
 };
 
 export const ORDER_EXPORT_COLUMNS: ExportColumn<AdminOrder>[] = [
-	{ key: "orderNo", label: "Order #" },
+	{ key: "orderNo", label: "Mã đơn hàng" },
 	{
 		key: "customer.fullName",
-		label: "Customer Name",
+		label: "Tên khách hàng",
 		formatter: value => value || "---",
 	},
 	{
 		key: "customer.email",
-		label: "Customer Email",
+		label: "Email khách hàng",
 		formatter: value => value || "---",
 	},
-	{ key: "status", label: "Status" },
+	{ key: "status", label: "Trạng thái" },
 	{
 		key: "totalAmount",
-		label: "Total Amount",
+		label: "Tổng tiền",
 		formatter: value => (value != null ? formatPrice(value) : ""),
 	},
 	{
 		key: "createdAt",
-		label: "Order Date",
+		label: "Ngày đặt hàng",
 		formatter: value => (value != null ? formatDate(value) : ""),
 	},
 	{
 		key: "scheduledDeliveryDate",
-		label: "Scheduled Delivery Date",
+		label: "Ngày hẹn giao",
 		formatter: value => (value ? formatDate(value) : "---"),
 	},
 	{
 		key: "address.receiverName",
-		label: "Receiver Name",
+		label: "Tên người nhận",
 		formatter: value => value || "---",
 	},
 	{
 		key: "address.address",
-		label: "Delivery Address",
+		label: "Địa chỉ giao hàng",
 		formatter: value => value || "---",
 	},
 	{
 		key: "address.phone",
-		label: "Phone",
+		label: "Số điện thoại",
 		formatter: value => value || "---",
 	},
 ];

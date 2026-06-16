@@ -33,10 +33,10 @@ export const useCollectedCoupons = create<CollectedCouponsState>()(
 				fetchPromise = (async () => {
 					try {
 						const ids = await couponService.getCollectedIds();
-						// Set trực tiếp — không dùng clear() để tránh persist [] tạm thời
+
 						set({ collectedIds: ids, lastFetched: Date.now() });
 					} catch {
-						// silent — giữ nguyên data cũ
+
 					} finally {
 						fetchPromise = null;
 					}

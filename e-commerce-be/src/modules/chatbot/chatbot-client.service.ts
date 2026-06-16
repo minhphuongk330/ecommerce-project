@@ -28,60 +28,122 @@ export class ChatbotClientService {
       this.lastCacheTime = now;
     }
 
-    const productsResponse = await this.productsService.findAll();
-    const allProducts = productsResponse.items || [];
-
     const stopWords = [
-      'co',
-      'khong',
-      'ko',
-      'ban',
-      'cai',
-      'bao',
-      'nhieu',
-      'la',
-      'gi',
-      'cho',
-      'toi',
-      're',
-      'nhat',
-      'dat',
-      'mua',
-      'tim',
-      'xem',
+      'co', 'khong', 'ko', 'ban', 'cai', 'bao', 'nhieu',
+      'la', 'gi', 'cho', 'toi', 're', 'nhat', 'dat', 'mua', 'tim', 'xem',
+      'san', 'pham', 'hang', 'cac', 'chiec', 'mau', 'dong', 'loai', 'nhung', 'de'
     ];
+
+    const removeAccents = (str: string) =>
+      str.normalize('NFD')
+         .replace(/[\u0300-\u036f]/g, '')
+         .replace(/đ/g, 'd')
+         .replace(/Đ/g, 'd');
+
     const keywords = searchQuery
       .toLowerCase()
       .split(' ')
-      .filter((word) => word.length >= 2 && !stopWords.includes(word));
-
-    const scoredProducts = allProducts.map((p) => {
-      let score = 0;
-      const productName = p.name.toLowerCase();
-      const categoryName = p.category ? p.category.name.toLowerCase() : '';
-      keywords.forEach((kw) => {
-        if (productName.includes(kw)) score += 3;
-        else if (categoryName.includes(kw)) score += 1;
+      .filter((word) => {
+        const cleanWord = removeAccents(word);
+        return cleanWord.length >= 2 && !stopWords.includes(cleanWord);
       });
-      return { product: p, score };
-    });
 
-    let finalProducts = scoredProducts
-      .filter((sp) => sp.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 20)
-      .map((sp) => sp.product);
+    // Chạy song song: tìm sản phẩm + lấy bảng giá sale đang active (1 query mỗi loại)
+    const [rawMatchedProducts, salePriceMap] = await Promise.all([
+      this.productsService.searchByKeywords(keywords),
+      this.productsService.getActiveSalePriceMap(),
+    ]);
 
-    if (finalProducts.length === 0) finalProducts = allProducts.slice(0, 20);
+    let matchedProducts = rawMatchedProducts;
 
-    const productsList = finalProducts
-      .map(
-        (p) =>
-          `- [ID: ${p.id}] ${p.name} (Gia: ${p.price} VND) - ${p.stock > 0 ? 'Con hang' : 'Het hang'}`,
-      )
+    // Kiểm tra xem khách có đang hỏi về khuyến mãi, giảm giá hay Flash Sale không
+    const isAskingForPromo = keywords.some((kw) =>
+      ['flash', 'sale', 'giam', 'khuyen', 'mai', 'uu', 'dai'].includes(removeAccents(kw)),
+    );
+
+    // Nếu người dùng hỏi về khuyến mãi/Flash Sale, luôn lấy toàn bộ sản phẩm Flash Sale và gộp vào kết quả
+    if (isAskingForPromo) {
+      const promoResult = await this.productsService.findAll({ flashSale: true, limit: 100 });
+      const promoProducts = promoResult.items;
+
+      const merged = [...matchedProducts];
+      for (const p of promoProducts) {
+        if (!merged.some((mp) => mp.id === p.id)) {
+          merged.push(p);
+        }
+      }
+      matchedProducts = merged;
+    }
+
+    const productsList = matchedProducts
+      .map((p) => {
+        const saleInfo = salePriceMap.get(Number(p.id));
+        const stockText = p.stock > 0 ? 'Con hang' : 'Het hang';
+
+        if (saleInfo && p.stock > 0) {
+          const isSaleSoldOut = saleInfo.soldQuantity >= saleInfo.quantity;
+          if (isSaleSoldOut) {
+            // Giá ưu đãi Flash Sale đã bán hết, khách chỉ mua được giá gốc
+            return `- [ID: ${p.id}] ${p.name} (Gia goc: ${p.price} VND | GIA FLASH SALE UU DAI DA BAN HET) - ${stockText}`;
+          } else {
+            // Còn suất mua giá Flash Sale
+            const saleRemaining = saleInfo.quantity - saleInfo.soldQuantity;
+            return `- [ID: ${p.id}] ${p.name} (Gia goc: ${p.price} VND | GIA FLASH SALE UU DAI: ${saleInfo.salePrice} VND - CON LAI ${saleRemaining} SUAT SALE) - ${stockText}`;
+          }
+        }
+        return `- [ID: ${p.id}] ${p.name} (Gia: ${p.price} VND) - ${stockText}`;
+      })
       .join('\n');
 
-    return `Danh muc SP: ${this.cachedCategories}\n\nBANG GIA REALTIME:\n${productsList}`;
+    // --- Phát hiện intent "gợi ý sản phẩm" ---
+    // Nếu người dùng hỏi gợi ý/nên mua gì, ta tra cứu sản phẩm bán chạy nhất để AI có dữ liệu chính xác.
+    const suggestionKeywords = ['goi y', 'de xuat', 'nen mua', 'nen chon', 'muon mua', 'recommend', 'chon gi', 'mua gi'];
+    const isAskingForSuggestion = keywords.some((kw) =>
+      suggestionKeywords.some((sk) => removeAccents(kw).includes(sk) || sk.includes(removeAccents(kw))),
+    );
+
+    let bestSellerContext = '';
+    if (isAskingForSuggestion) {
+      // Trích xuất tên danh mục từ keywords (nếu có) bằng cách so khớp với danh sách categories
+      const categoryNames = this.cachedCategories.split(', ');
+      const matchedCategory = categoryNames.find((cat) =>
+        keywords.some((kw) => removeAccents(cat.toLowerCase()).includes(removeAccents(kw))),
+      );
+
+      const bestSellers = await this.productsService.getBestSellers(matchedCategory, 1);
+
+      if (bestSellers.length > 0) {
+        const { product: bp, totalSold } = bestSellers[0];
+        const saleInfo = salePriceMap.get(Number(bp.id));
+        const categoryLabel = matchedCategory ? ` TRONG DANH MUC ${matchedCategory.toUpperCase()}` : '';
+        let priceText = `Gia: ${bp.price} VND`;
+        if (saleInfo && bp.stock > 0) {
+          const isSaleSoldOut = saleInfo.soldQuantity >= saleInfo.quantity;
+          if (!isSaleSoldOut) {
+            priceText = `Gia goc: ${bp.price} VND | GIA FLASH SALE: ${saleInfo.salePrice} VND`;
+          }
+        }
+        bestSellerContext = `\n\nSAN PHAM BAN CHAY NHAT${categoryLabel} (DANH GIA DE GOI Y):\n- [ID: ${bp.id}] ${bp.name} (${priceText}) - Da ban: ${totalSold} chiec`;
+      }
+    }
+
+    return `Danh muc SP: ${this.cachedCategories}\n\nBANG GIA REALTIME:\n${productsList}${bestSellerContext}`;
+  }
+
+  async getProductById(id: number) {
+    try {
+      return await this.productsService.findOne(id);
+    } catch {
+      return null;
+    }
+  }
+
+  async getActiveFlashSale(productId: number) {
+    try {
+      return await this.productsService.getActiveFlashSaleItem(productId);
+    } catch {
+      return null;
+    }
   }
 
   async getPersonalContext(customerId: number): Promise<string> {
@@ -100,8 +162,14 @@ export class ChatbotClientService {
         : 'Trong';
       const orderSummary = orders
         .slice(0, 3)
-        .map((o) => `Ma #${o.id} (${o.status})`)
-        .join(', ');
+        .map((o) => {
+          const products = o.orderItems
+            ?.map((item) => item.product?.name)
+            .filter(Boolean)
+            .join(', ') || 'Chua xac dinh';
+          return `Don hang ID ${o.id} (Trang thai: ${o.status}) co cac san pham: [${products}]`;
+        })
+        .join('; ');
 
       return `
         THONG TIN KHACH HANG:

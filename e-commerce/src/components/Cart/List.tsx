@@ -41,8 +41,13 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 								<h3 className="text-sm sm:text-base font-medium text-black line-clamp-2 leading-tight sm:leading-6">
 									{item.name}
 								</h3>
-								<div className="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-1">
+								<div className="text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-1.5 mt-0.5">
 									{item.selectedColor && <span>Color: {item.selectedColor}</span>}
+									{item.isFlashSale && (
+										<span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600">
+											⚡ Flash Sale
+										</span>
+									)}
 								</div>
 							</div>
 
@@ -52,9 +57,16 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 									onIncrease={() => onIncrease(item.cartItemId!)}
 									onDecrease={() => (item.quantity > 1 ? onDecrease(item.cartItemId!) : setDeleteId(item.cartItemId!))}
 								/>
-								<span className="text-base sm:text-xl font-medium text-black">
-									{formatPrice(item.price)}
-								</span>
+								<div className="relative flex flex-col items-end sm:items-start">
+									{item.isFlashSale && item.originalPrice && (
+										<span className="absolute -top-[18px] right-0 sm:right-auto sm:left-0 text-xs text-gray-400 line-through whitespace-nowrap">
+											{formatPrice(item.originalPrice)}
+										</span>
+									)}
+									<span className={`text-base sm:text-xl font-medium ${item.isFlashSale ? "text-red-600 font-bold" : "text-black"}`}>
+										{formatPrice(item.price)}
+									</span>
+								</div>
 								<div className="absolute top-4 right-0 sm:static">
 									<CommonIconButton
 										onClick={() => setDeleteId(item.cartItemId!)}
@@ -73,9 +85,9 @@ const CartList = ({ items, onRemove, onIncrease, onDecrease }: CartListProps) =>
 				onClose={() => setDeleteId(null)}
 				onConfirm={handleConfirmDelete}
 				onError={handleDeleteError}
-				title="Remove Product"
-				message="Do you want to remove this item from your cart?"
-				confirmLabel="Remove"
+				title="Xóa sản phẩm khỏi giỏ hàng"
+				message="Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?"
+				confirmLabel="Xóa"
 				confirmButtonColor="!bg-red-600 hover:!bg-red-700"
 			/>
 		</div>

@@ -22,12 +22,12 @@ interface Props {
 }
 
 const BannerSlider = ({ items }: Props) => {
-	if (!items || items.length === 0) return <div className="h-[400px] md:h-[632px] bg-[#211c24]" />;
+	if (!items || items.length === 0) return <div className="w-full aspect-[12/5] bg-[#211c24]" />;
 
 	return (
 		<CommonSwiper
 			data={items}
-			className="h-[400px] md:h-[632px] bg-[#211c24]"
+			className="w-full aspect-[12/5] bg-[#211c24]"
 			autoplayDelay={4000}
 			renderItem={item => {
 				if (item.type === "split") {
@@ -90,21 +90,48 @@ const BannerSlider = ({ items }: Props) => {
 							link={router.product(Number(item.data.id))}
 							buttonClass="w-[190px] h-[56px] flex items-center justify-center text-base font-medium !p-0 mt-8"
 							imageClass="bottom-[50px]"
-						/>
+							buttonText=""
+						>
+							<div className="flex flex-col items-center gap-6 mt-4 z-10">
+								<h2 className="text-white text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-wider uppercase bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+									Nâng Tầm Trải Nghiệm Công Nghệ
+								</h2>
+								<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-gray-300 text-sm md:text-base font-medium">
+									<div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 transition-colors">
+										<span className="text-green-400">✓</span>
+										<span>Trả góp 0% lãi suất</span>
+									</div>
+									<div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 transition-colors">
+										<span className="text-green-400">✓</span>
+										<span>Bảo hành chính hãng 2 năm</span>
+									</div>
+									<div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 transition-colors">
+										<span className="text-green-400">✓</span>
+										<span>Giao hàng hoả tốc 2h</span>
+									</div>
+								</div>
+							</div>
+						</Banner>
 					);
 				}
+
+				const isFullImage = !item.data.title;
 
 				return (
 					<Banner
 						data={item.data}
+						buttonText={isFullImage ? "" : "Shop Now"}
 						className="h-full w-full relative overflow-hidden"
 						contentClass="max-w-[1440px] mx-auto px-4 md:px-40 items-start text-left h-full flex flex-col justify-center"
 						titleClass="text-white text-3xl md:text-7xl lg:text-8xl font-medium mb-6 w-[60%] md:w-full"
 						descClass="text-[#909090] text-sm md:text-base mb-8 max-w-[300px] md:max-w-md font-medium md:font-normal"
-						imageClass="absolute bottom-[-110px] right-[-200px] h-[100%] w-[100%] object-contain pointer-events-none
-                        md:right-[-200px] md:h-[100%] md:w-auto md:translate-x-150 md:bottom-auto md:right-auto"
+						imageClass={
+							isFullImage
+								? "absolute left-0 top-0 w-full h-full object-cover pointer-events-none"
+								: "absolute bottom-[-110px] right-[-200px] h-[100%] w-[100%] object-contain pointer-events-none md:right-[-200px] md:h-[100%] md:w-auto md:translate-x-150 md:bottom-auto md:right-auto"
+						}
 						link={router.product(Number(item.data.id))}
-						buttonClass="w-[190px] h-[56px] flex items-center justify-center text-base font-medium !p-0 mt-8"
+						buttonClass={isFullImage ? "hidden" : "w-[190px] h-[56px] flex items-center justify-center text-base font-medium !p-0 mt-8"}
 					/>
 				);
 			}}

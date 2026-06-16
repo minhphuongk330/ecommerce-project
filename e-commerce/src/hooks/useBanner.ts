@@ -31,12 +31,13 @@ export const useBanners = () => {
 		fetchBanners();
 	}, [fetchBanners]);
 
-	const { heroBanner, splitBanners, gridBanners, bottomBanner } = useMemo(() => {
+	const { heroBanner, splitBanners, gridBanners, bottomBanner, sideBanners } = useMemo(() => {
 		return {
 			heroBanner: banners.find(b => b.displayType === "1" && b.isActive),
 			splitBanners: banners.filter(b => b.displayType === "2" && b.isActive).slice(0, 2),
-			gridBanners: banners.filter(b => b.displayType === "3" && b.isActive).slice(0, 4),
+			gridBanners: banners.filter(b => b.displayType === "3" && b.isActive),
 			bottomBanner: banners.find(b => b.displayType === "4" && b.isActive),
+			sideBanners: banners.filter(b => b.displayType === "5" && b.isActive),
 		};
 	}, [banners]);
 
@@ -46,6 +47,7 @@ export const useBanners = () => {
 		splitBanners,
 		gridBanners,
 		bottomBanner,
+		sideBanners,
 		isLoading,
 	};
 };

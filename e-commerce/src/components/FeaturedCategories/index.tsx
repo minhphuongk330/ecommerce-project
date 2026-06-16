@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 
-// Featured categories data - bạn có thể thay bằng data thật từ API
+
 const FEATURED_CATEGORIES = [
 	{
 		id: 1,
@@ -64,7 +64,7 @@ const FeaturedCategories: React.FC = () => {
 	return (
 		<div className="w-full py-12">
 			<div className="max-w-[1440px] mx-auto px-4 md:px-[160px]">
-				{/* Header */}
+
 				<div className="flex items-center justify-between mb-8">
 					<div>
 						<h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
@@ -86,7 +86,7 @@ const FeaturedCategories: React.FC = () => {
 					</Link>
 				</div>
 
-				{/* Categories Grid */}
+
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{FEATURED_CATEGORIES.map((category, index) => (
 						<Link
@@ -95,10 +95,10 @@ const FeaturedCategories: React.FC = () => {
 							className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
 							style={{ animationDelay: `${index * 100}ms` }}
 						>
-							{/* Gradient Background */}
+
 							<div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
 
-							{/* Content */}
+
 							<div className="relative p-6">
 								<div className="flex items-start justify-between mb-4">
 									<div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -118,7 +118,7 @@ const FeaturedCategories: React.FC = () => {
 									</p>
 								</div>
 
-								{/* Hover indicator */}
+
 								<div className="flex items-center gap-2 text-gray-400 group-hover:text-gray-600 transition-colors">
 									<span className="text-sm font-medium">Khám phá</span>
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="group-hover:translate-x-1 transition-transform">
@@ -128,13 +128,13 @@ const FeaturedCategories: React.FC = () => {
 								</div>
 							</div>
 
-							{/* Decorative corner */}
+
 							<div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${category.color} opacity-10 rounded-bl-full group-hover:opacity-20 transition-opacity duration-300`} />
 						</Link>
 					))}
 				</div>
 
-				{/* Bottom Stats */}
+
 				<div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
 					<div className="text-center p-6 bg-gray-50 rounded-xl">
 						<div className="text-3xl font-bold text-gray-900 mb-2">1,103</div>

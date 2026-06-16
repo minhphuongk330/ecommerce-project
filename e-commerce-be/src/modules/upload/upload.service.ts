@@ -63,7 +63,7 @@ export class UploadService {
 
   async uploadImage(file: Express.Multer.File): Promise<ImgbbResponse> {
     if (!file) {
-      throw new BadRequestException('No file provided');
+      throw new BadRequestException('Không có file nào được cung cấp');
     }
 
     const allowedMimeTypes = [
@@ -81,7 +81,7 @@ export class UploadService {
 
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      throw new BadRequestException('File size exceeds 10MB limit');
+      throw new BadRequestException('Kích thước file vượt quá giới hạn 10MB');
     }
 
     try {
@@ -103,7 +103,7 @@ export class UploadService {
       );
 
       if (!response.data.success) {
-        throw new BadRequestException('Failed to upload image to ImgBB');
+        throw new BadRequestException('Lỗi khi tải ảnh lên ImgBB');
       }
 
       return response.data;
@@ -123,7 +123,7 @@ export class UploadService {
     files: Express.Multer.File[],
   ): Promise<ImgbbResponse[]> {
     if (!files || files.length === 0) {
-      throw new BadRequestException('No files provided');
+      throw new BadRequestException('Không có file nào được cung cấp');
     }
 
     const uploadPromises = files.map((file) => this.uploadImage(file));

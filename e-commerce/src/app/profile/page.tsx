@@ -63,9 +63,9 @@ export default function ProfilePage() {
 			setIsSaving(true);
 			const updatedUser = await authService.updateProfile(data);
 			setUser(updatedUser);
-			showNotification("Update successful!", "success");
+			showNotification("Cập nhật thành công!", "success");
 		} catch (error) {
-			showNotification("Update failed.", "error");
+			showNotification("Cập nhật thất bại!", "error");
 		} finally {
 			setIsSaving(false);
 		}
@@ -76,15 +76,15 @@ export default function ProfilePage() {
 			await authService.deactivateAccount();
 			logout();
 			router.push(routerPaths.index);
-			showNotification("Your account has been deleted.", "success");
+			showNotification("Tài khoản của bạn đã được xóa!", "success");
 		} catch (error) {
-			showNotification("Failed to delete account.", "error");
+			showNotification("Không thể xóa tài khoản!", "error");
 		}
 	};
 
 	if (isLoading || !user) {
 		return (
-			<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
+			<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8 font-sans">
 				<div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-6 py-8">
 					<ProfileSkeleton />
 				</div>
@@ -93,12 +93,12 @@ export default function ProfilePage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8">
+		<div className="min-h-screen bg-gray-50 py-[40px] px-4 sm:px-6 lg:px-8 font-sans">
 			<div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden px-6 py-8">
 				<ProfileHeader fullName={user.fullName} />
 
 				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
-					<h3 className="text-lg font-semibold text-gray-900">My Profile</h3>
+					<h3 className="text-lg font-semibold text-gray-900">Thông tin của tôi</h3>
 					<ChangePasswordModal />
 				</div>
 
@@ -112,7 +112,7 @@ export default function ProfilePage() {
 							theme="light"
 							className="!w-full sm:!w-[160px] !h-11 !border-red-300 !text-red-600 hover:!bg-red-50"
 						>
-							Delete Account
+							Xóa tài khoản
 						</Button>
 						<Button
 							type="button"
@@ -122,7 +122,7 @@ export default function ProfilePage() {
 							theme="dark"
 							className="!w-full sm:!w-[160px] !h-11"
 						>
-							{isSaving ? "Saving..." : "Save changes"}
+							{isSaving ? "Đang lưu..." : "Lưu thay đổi"}
 						</Button>
 					</div>
 				</div>
@@ -131,11 +131,11 @@ export default function ProfilePage() {
 			<ConfirmationModal
 				isOpen={isDeleteModalOpen}
 				onClose={() => setIsDeleteModalOpen(false)}
-				title="Delete Account"
-				message="Are you sure you want to delete your account? This action cannot be undone."
-				confirmLabel="Delete Account"
+				title="Xóa tài khoản"
+				message="Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể được hoàn tác."
+				confirmLabel="Xóa tài khoản"
 				onConfirm={handleDeleteAccount}
-				onError={() => showNotification("Failed to delete account.", "error")}
+				onError={() => showNotification("Không thể xóa tài khoản.", "error")}
 			/>
 		</div>
 	);

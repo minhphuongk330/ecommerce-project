@@ -1,12 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Đảm bảo bạn đã cài axios hoặc dùng fetch
+import axios from "axios";
 
 interface Brand {
   id: number;
   name: string;
-  logoUrl: string; // Lấy từ cột logoUrl trong DB
+  logoUrl: string;
 }
 
 const BrandPartners: React.FC = () => {
@@ -14,11 +14,10 @@ const BrandPartners: React.FC = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [showAll, setShowAll] = useState(false);
 
-  // Lấy dữ liệu Brand từ Backend
   useEffect(() => {
     const fetchBrands = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/brands"); // Link API của bạn
+        const response = await axios.get("http://localhost:3001/brands");
         setBrands(response.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách brand:", error);

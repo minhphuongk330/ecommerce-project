@@ -14,13 +14,13 @@ export default function OrderEmptyState() {
 					/>
 				</svg>
 			</div>
-			<h3 className="text-lg font-bold text-gray-900 mb-2">No orders yet</h3>
-			<p className="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+			<h3 className="text-lg font-bold text-gray-900 mb-2">Chưa có đơn hàng nào</h3>
+			<p className="text-gray-500 mb-6">Bạn chưa thực hiện đơn hàng nào.</p>
 			<Link
 				href={routerPaths.index}
 				className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium"
 			>
-				Start Shopping
+				Bắt đầu mua sắm
 			</Link>
 		</div>
 	);

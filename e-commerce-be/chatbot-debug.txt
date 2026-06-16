@@ -1,0 +1,6 @@
+
+--- CHATBOT DEBUG ---
+Time: 2026-06-09T03:57:02.426Z
+Search Query: tìm cho tôi các sản phẩm hãng samsung
+Keywords: ["samsung"]
+Matched Products: [{"id":6,"name":"Điện thoại Samsung Galaxy A57 5G 8GB/128GB","category":"Điện thoại"},{"id":7,"name":"Điện thoại Samsung Galaxy S26 Ultra 5G 12GB/256GB","category":"Điện thoại"},{"id":15,"name":"Điện thoại Samsung Galaxy A37 5G 6GB/128GB","category":"Điện thoại"},{"id":46,"name":"Máy tính bảng Samsung Galaxy Tab A11+ WiFi 6GB/128GB","category":"Tablet"},{"id":56,"name":"Máy tính bảng Samsung Galaxy Tab S11 5G 12GB/128GB","category":"Tablet"},{"id":68,"name":"Samsung Galaxy Watch8 Classic 46mm dây da","category":"Smartwatch"},{"id":70,"name":"Samsung Galaxy Watch8 LTE 40mm dây silicone","category":"Smartwatch"},{"id":82,"name":"Tai nghe Bluetooth True Wireless Samsung Galaxy Buds4 Pro R640N","category":"Tai nghe"}]

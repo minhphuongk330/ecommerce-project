@@ -14,8 +14,8 @@ export default function AddressForm({ control }: AddressFormProps) {
 			<CommonInput
 				name="receiverName"
 				control={control}
-				label="Receiver Name"
-				placeholder="Ex: John Doe"
+				label="Tên người nhận"
+				placeholder="Ex: Nguyễn Văn A"
 				required
 				className="text-base lg:text-sm"
 			/>
@@ -23,7 +23,7 @@ export default function AddressForm({ control }: AddressFormProps) {
 			<CommonInput
 				name="phone"
 				control={control}
-				label="Phone Number"
+				label="Số điện thoại"
 				placeholder="Ex: 0912345678"
 				required
 				className="text-base lg:text-sm"
@@ -32,8 +32,8 @@ export default function AddressForm({ control }: AddressFormProps) {
 			<CommonInput
 				name="address"
 				control={control}
-				label="Address"
-				placeholder="Ex: 123 Street..."
+				label="Địa chỉ chi tiết"
+				placeholder="Ex: 123 ĐườngABC, Phường XYZ, Quận..."
 				required
 				multiline
 				rows={3}
@@ -47,7 +47,7 @@ export default function AddressForm({ control }: AddressFormProps) {
 					<div className="mt-2 lg:mt-0">
 						<Checkbox
 							id="is-default-address"
-							label="Set as default address"
+							label="Đặt làm địa chỉ mặc định"
 							checked={field.value}
 							onChange={field.onChange}
 						/>

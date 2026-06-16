@@ -36,10 +36,10 @@ export default function ChangePasswordModal() {
 	const onSubmit = async (data: ChangePasswordForm) => {
 		try {
 			await authService.changePassword(data);
-			showNotification("Password changed successfully!", "success");
+			showNotification("Đổi mật khẩu thành công!", "success");
 			setIsOpen(false);
 		} catch (error: any) {
-			const msg = error?.response?.data?.message || "Failed to change password.";
+			const msg = error?.response?.data?.message || "Không thể đổi mật khẩu!";
 			showNotification(msg, "error");
 		}
 	};
@@ -53,13 +53,13 @@ export default function ChangePasswordModal() {
 				className="!w-auto flex items-center gap-2 !px-4 !py-2 !border-gray-300 hover:!bg-gray-50 !text-black"
 			>
 				<LockReset sx={{ fontSize: 20 }} />
-				<span>Change Password</span>
+				<span>Đổi mật khẩu</span>
 			</Button>
 
 			<BaseDialog
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Change Password"
+				title="Đổi mật khẩu"
 				showCloseIcon={true}
 				width={500}
 			>
@@ -67,8 +67,8 @@ export default function ChangePasswordModal() {
 					<CommonInput
 						name="currentPassword"
 						control={control}
-						label="Current Password"
-						placeholder="Enter current password"
+						label="Mật khẩu hiện tại"
+						placeholder="Nhập mật khẩu hiện tại"
 						type="password"
 						required
 					/>
@@ -76,8 +76,8 @@ export default function ChangePasswordModal() {
 					<CommonInput
 						name="newPassword"
 						control={control}
-						label="New Password"
-						placeholder="Enter new password"
+						label="Mật khẩu mới"
+						placeholder="Nhập mật khẩu mới"
 						type="password"
 						required
 					/>
@@ -85,8 +85,8 @@ export default function ChangePasswordModal() {
 					<CommonInput
 						name="confirmPassword"
 						control={control}
-						label="Confirm New Password"
-						placeholder="Re-enter new password"
+						label="Xác nhận mật khẩu mới"
+						placeholder="Nhập lại mật khẩu mới"
 						type="password"
 						required
 					/>
@@ -95,9 +95,9 @@ export default function ChangePasswordModal() {
 						<StepButton
 							layout="full"
 							type="submit"
-							primaryLabel="Update Password"
+							primaryLabel="Đổi mật khẩu"
 							isLoading={isSubmitting}
-							secondaryLabel="Cancel"
+							secondaryLabel="Hủy"
 							onSecondaryClick={() => setIsOpen(false)}
 							onPrimaryClick={handleSubmit(onSubmit)}
 							className="w-full"

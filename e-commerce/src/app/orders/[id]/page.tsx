@@ -20,7 +20,7 @@ export default function OrderDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="w-full max-w-[1120px] mx-auto py-8 px-4">
+			<div className="w-full max-w-[1120px] mx-auto py-8 px-4 font-sans">
 				<div className="mb-6">
 					<div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
 				</div>
@@ -28,13 +28,13 @@ export default function OrderDetailPage() {
 			</div>
 		);
 	}
-	if (!order) return <div className="p-10 text-center text-red-500">Order not found.</div>;
+	if (!order) return <div className="p-10 text-center text-red-500 font-sans">Không tìm thấy đơn hàng</div>;
 
 	return (
-		<div className="w-full max-w-[1120px] mx-auto py-8 px-4">
+		<div className="w-full max-w-[1120px] mx-auto py-8 px-4 font-sans">
 			<div className="inline-flex items-center mb-6 gap-2 cursor-pointer group" onClick={handleBack}>
 				<SingleBtn direction="left" onClick={handleBack} />
-				<span className="text-gray-500 group-hover:text-black transition-colors">Back to My Orders</span>
+				<span className="text-gray-500 group-hover:text-black transition-colors">Quay lại danh sách đơn hàng</span>
 			</div>
 
 			<div className="flex flex-col lg:flex-row gap-8">

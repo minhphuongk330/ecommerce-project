@@ -16,7 +16,7 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 
 	const handleDelete = async () => {
 		await addressService.deleteAddress(id);
-		showNotification("Address deleted.", "success");
+		showNotification("Đã xóa địa chỉ.", "success");
 		setIsOpen(false);
 		onSuccess();
 	};
@@ -34,7 +34,7 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 					setIsOpen(true);
 				}}
 				className="text-black hover:opacity-60 transition-opacity"
-				title="Delete Address"
+				title="Xóa địa chỉ"
 			>
 				<Close sx={{ fontSize: 24 }} />
 			</button>
@@ -42,8 +42,8 @@ export default function DeleteAddress({ id, onSuccess }: DeleteAddressProps) {
 			<ConfirmationModal
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Delete Address"
-				message="Are you sure you want to delete this address?"
+				title="Xóa địa chỉ"
+				message="Bạn có chắc chắn muốn xóa địa chỉ này?"
 				onConfirm={handleDelete}
 				onError={handleError}
 			/>

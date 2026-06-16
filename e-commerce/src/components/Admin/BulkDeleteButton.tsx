@@ -16,7 +16,7 @@ interface BulkDeleteButtonProps {
 export default function BulkDeleteButton({
 	selectedIds,
 	onDelete,
-	label = "Delete",
+	label = "Xóa",
 	className,
 	hideIcon = false,
 }: BulkDeleteButtonProps) {
@@ -28,12 +28,12 @@ export default function BulkDeleteButton({
 
 	const handleConfirm = async () => {
 		await onDelete(Array.from(selectedIds).map(Number));
-		showNotification(`Deleted ${count} items successfully`, "success");
+		showNotification(`Đã xoá ${count} mục thành công`, "success");
 		setIsOpen(false);
 	};
 
 	const handleError = (error: any) => {
-		const message = error?.response?.data?.message || "Some deletions failed. Please try again.";
+		const message = error?.response?.data?.message || "Xóa thất bại. Vui lòng thử lại.";
 		showNotification(message, "error");
 	};
 
@@ -41,12 +41,12 @@ export default function BulkDeleteButton({
 		<>
 			<Button
 				onClick={() => setIsOpen(true)}
-				className={`!w-auto !h-auto px-4 py-2 !bg-red-600 hover:!bg-red-700 ${className ?? ""}`}
+				className={`!w-auto !h-auto !px-4 !py-2 !text-sm !bg-red-600 hover:!bg-red-700 ${className ?? ""}`}
 				theme="dark"
 				variant="solid"
 				type="button"
 			>
-				{!hideIcon && <DeleteIcon sx={{ fontSize: 18 }} />}
+				{!hideIcon && <DeleteIcon sx={{ fontSize: 16 }} />}
 				<span>
 					{label} ({count})
 				</span>
@@ -57,9 +57,9 @@ export default function BulkDeleteButton({
 				onClose={() => setIsOpen(false)}
 				onConfirm={handleConfirm}
 				onError={handleError}
-				title={`Delete ${count} items`}
-				message={`Are you sure you want to delete ${count} selected items? This action cannot be undone.`}
-				confirmLabel="Delete"
+				title={`Xóa ${count} mục`}
+				message={`Bạn có chắc chắn muốn xóa ${count} mục đã chọn? Hành động này không thể hoàn tác.`}
+				confirmLabel="Xóa"
 				confirmButtonColor="!bg-red-600 hover:!bg-red-700"
 			/>
 		</>

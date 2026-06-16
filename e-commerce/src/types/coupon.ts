@@ -11,6 +11,7 @@ export interface Coupon {
 	minOrderValue: number;
 	maxDiscountAmount?: number;
 	usageLimit?: number;
+	usageLimitPerUser?: number;
 	usedCount: number;
 	expiresAt?: string;
 	isActive: boolean;
@@ -24,9 +25,10 @@ export interface ValidateCouponResult {
 	discountAmount: number;
 }
 
-// For API responses that include customer coupon IDs
+
 export interface CustomerCoupon {
 	id: string;
 	coupon: Coupon;
 	collectedAt: string;
+	usedCount: number;
 }

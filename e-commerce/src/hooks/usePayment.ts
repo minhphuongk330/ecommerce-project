@@ -48,21 +48,21 @@ export const usePayment = () => {
 
 	const handlePay = async () => {
 		if (!user) {
-			showNotification("Please sign in to checkout.", "warning");
+			showNotification("Vui lòng đăng nhập để thanh toán.", "warning");
 			return;
 		}
 		if (!selectedAddress) {
-			showNotification("Please select a shipping address.", "warning");
+			showNotification("Vui lòng chọn địa chỉ giao hàng.", "warning");
 			return;
 		}
 		if (cartItems.length === 0) {
-			showNotification("Your cart is empty.", "warning");
+			showNotification("Giỏ hàng của bạn đang trống.", "warning");
 			return;
 		}
 		setIsProcessing(true);
 
 		try {
-			const newOrder = await orderService.createFullOrder({
+			const checkoutParams = {
 				userId: Number(user.id),
 				addressId: selectedAddress.id,
 				totalAmount: total,
@@ -76,19 +76,20 @@ export const usePayment = () => {
 				shippingDiscount,
 				appliedCouponCode: appliedCoupon?.coupon.code,
 				appliedShippingCouponCode: appliedShippingCoupon?.coupon.code,
-			});
-
-			clearCart();
+			};
 
 			if (paymentMethod === "VNPAY") {
-				// Gọi API tạo URL VNPay rồi redirect
-				const { paymentUrl } = await orderService.createVnpayUrl(newOrder.id);
-				setIsPaid(true); // tránh redirect loop
+
+				const { paymentUrl } = await orderService.createVnpayCheckout(checkoutParams);
+				clearCart();
+				setIsPaid(true);
 				window.location.href = paymentUrl;
 			} else {
-				// COD — Chuyển hướng sang trang kết quả chung
+
+				const newOrder = await orderService.createFullOrder(checkoutParams);
+				clearCart();
 				setIsPaid(true);
-				router.push(`/payment/result?status=success&orderNo=${newOrder.orderNo}`);
+				router.push(`/payment/result?status=success&orderNo=${newOrder.orderNo}&orderId=${newOrder.id}`);
 			}
 		} catch (error: any) {
 			console.error("Payment Error:", error);
@@ -96,12 +97,13 @@ export const usePayment = () => {
 			if (errorMessage.includes("Insufficient stock")) {
 				showNotification(errorMessage, "error");
 			} else {
-				showNotification("Payment failed. Please try again.", "error");
+				showNotification("Thanh toán thất bại. Vui lòng thử lại.", "error");
 			}
 		} finally {
 			setIsProcessing(false);
 		}
 	};
+
 
 	const handleRedirectHome = () => {
 		setIsSuccessModalOpen(false);

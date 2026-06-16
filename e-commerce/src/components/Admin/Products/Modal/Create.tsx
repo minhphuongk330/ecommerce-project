@@ -20,12 +20,12 @@ export default function CreateProduct({ categories, onSuccess }: Props) {
 	const handleCreate = async (data: ProductFormOutput) => {
 		try {
 			await adminService.createProduct(data);
-			showNotification("Product created successfully", "success");
+			showNotification("Tạo sản phẩm thành công", "success");
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
 			console.error(error);
-			showNotification("Failed to create product", "error");
+			showNotification("Lỗi khi tạo sản phẩm", "error");
 		}
 	};
 
@@ -37,16 +37,16 @@ export default function CreateProduct({ categories, onSuccess }: Props) {
 				className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white border border-black rounded-md text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-[#333] active:scale-95"
 			>
 				<Add sx={{ fontSize: 18 }} />
-				<span>Add Product</span>
+				<span>Thêm sản phẩm</span>
 			</button>
 
 			<ProductFormModal
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Create New Product"
+				title="Tạo sản phẩm mới"
 				categories={categories}
 				onSubmit={handleCreate}
-				submitLabel="Create"
+				submitLabel="Tạo mới"
 			/>
 		</>
 	);

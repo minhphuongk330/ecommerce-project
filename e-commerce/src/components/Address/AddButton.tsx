@@ -24,7 +24,7 @@ export default function AddButton({ onClick }: AddButtonProps) {
 			</div>
 
 			<span className="mt-2 text-sm font-medium text-black group-hover:text-gray-600 transition-colors">
-				Add New Address
+				Thêm địa chỉ mới
 			</span>
 		</button>
 	);

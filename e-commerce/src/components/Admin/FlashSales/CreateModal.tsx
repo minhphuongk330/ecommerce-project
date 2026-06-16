@@ -19,7 +19,7 @@ interface FlashSaleItem {
 	salePrice: number;
 	discountPct: number;
 	quantity: number;
-	maxQuantity: number; // stock thực tế của sản phẩm
+	maxQuantity: number;  
 }
 
 interface Props {
@@ -54,8 +54,8 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 	const addProduct = (product: any) => {
 		const originalPrice = Number(product.price);
 		const stock = Number(product.stock) || 0;
-		const discountPct = 10;
-		const salePrice = Math.round(originalPrice * (1 - discountPct / 100));
+		const discountPct = 0;
+		const salePrice = originalPrice;
 		setItems((prev) => [
 			...prev,
 			{
@@ -65,7 +65,7 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 				originalPrice,
 				salePrice,
 				discountPct,
-				quantity: Math.min(10, stock), // default 10 nhưng không vượt stock
+				quantity: Math.min(10, stock),
 				maxQuantity: stock,
 			},
 		]);
@@ -73,7 +73,7 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 		setSearchTerm("");
 	};
 
-	// Khi đổi % → tính lại salePrice
+
 	const updateDiscountPct = (idx: number, pct: number) => {
 		setItems((prev) =>
 			prev.map((item, i) => {
@@ -85,7 +85,7 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 		);
 	};
 
-	// Khi đổi salePrice → tính lại %
+
 	const updateSalePrice = (idx: number, salePrice: number) => {
 		setItems((prev) =>
 			prev.map((item, i) => {
@@ -108,7 +108,7 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 					return { ...item, originalPrice: value, salePrice };
 				}
 				if (field === "quantity") {
-					// Không cho vượt quá stock
+
 					const clamped = Math.min(Math.max(1, value), item.maxQuantity);
 					return { ...item, quantity: clamped };
 				}
@@ -126,7 +126,7 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 		if (!endsAt) return showNotification("Vui lòng chọn thời gian kết thúc", "error");
 		if (items.length === 0) return showNotification("Vui lòng thêm ít nhất 1 sản phẩm", "error");
 
-		// Validate stock
+		 
 		const outOfStock = items.find((i) => i.maxQuantity === 0);
 		if (outOfStock) {
 			return showNotification(`"${outOfStock.productName}" đã hết hàng`, "error");
@@ -154,7 +154,6 @@ export default function FlashSaleCreateModal({ open, onClose, onSuccess }: Props
 			});
 			showNotification("Tạo Flash Sale thành công!", "success");
 			onSuccess();
-			// Reset
 			setTitle("");
 			setEndsAt("");
 			setItems([]);

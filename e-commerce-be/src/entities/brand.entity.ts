@@ -9,6 +9,9 @@ export class Brand {
   @Column({ type: 'varchar', length: 255, unique: true })
   name: string;
 
+  @Column({ type: 'text', nullable: true })
+  logoUrl: string;
+
   // Quan hệ 1 Brand có nhiều Products
   @OneToMany(() => Product, (product) => product.brand)
   products: Product[];

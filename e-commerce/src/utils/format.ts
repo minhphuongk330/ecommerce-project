@@ -14,10 +14,23 @@ export const formatPrice = (value: number | string | undefined | null): string =
 	return num.toLocaleString("vi-VN") + "₫";
 };
 
+export const parseSafeDate = (dateVal: string | Date | undefined | null): Date => {
+	if (!dateVal) return new Date();
+	if (typeof dateVal === "string") {
+		if (/^\d+$/.test(dateVal)) {
+			return new Date(Number(dateVal));
+		}
+		if (!dateVal.endsWith("Z") && !dateVal.includes("+") && !dateVal.includes("GMT")) {
+			return new Date(dateVal.includes("T") ? dateVal + "Z" : dateVal.replace(" ", "T") + "Z");
+		}
+	}
+	return new Date(dateVal);
+};
+
 export const formatDate = (dateString: string | Date | undefined | null): string => {
 	if (!dateString) return "";
 	try {
-		return new Date(dateString).toLocaleDateString("vi-VN");
+		return parseSafeDate(dateString).toLocaleDateString("vi-VN");
 	} catch {
 		return "";
 	}

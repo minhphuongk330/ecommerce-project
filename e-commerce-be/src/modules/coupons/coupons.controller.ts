@@ -23,8 +23,8 @@ export class CouponsController {
 
   /** Public: validate mã giảm giá */
   @Post('validate')
-  validate(@Body() body: { code: string; orderValue: number; shippingCost?: number }) {
-    return this.couponsService.validate(body.code, body.orderValue, body.shippingCost ?? 0);
+  validate(@Body() body: { code: string; orderValue: number; shippingCost?: number; customerId?: number }) {
+    return this.couponsService.validate(body.code, body.orderValue, body.shippingCost ?? 0, body.customerId);
   }
 
   /** Admin: lấy tất cả */

@@ -9,6 +9,7 @@ import { useNotification } from "~/contexts/Notification";
 import { useAdminTableManager } from "~/hooks/useAdminTableManager";
 import { adminService } from "~/services/admin";
 import { AdminOrder } from "~/types/admin";
+import AdminEmptyState from "~/components/Admin/AdminEmptyState";
 import { ORDER_EXPORT_COLUMNS, ORDER_FILTER_CONFIG, ORDER_FILTER_PREDICATES } from "~/utils/admin/orderConfigs";
 
 export default function OrdersPage() {
@@ -27,7 +28,7 @@ export default function OrdersPage() {
 	const onFetchError = useCallback(
 		(error: any) => {
 			console.error("Failed to fetch orders", error);
-			showNotification("Unable to load the order list", "error");
+			showNotification("Không thể tải danh sách đơn hàng", "error");
 		},
 		[showNotification],
 	);
@@ -69,10 +70,10 @@ export default function OrdersPage() {
 			await adminService.updateOrderStatus(orderId, newStatus);
 			const updatedOrders = allOrders.map(order => (order.id === orderId ? { ...order, status: newStatus } : order));
 			setAllOrders(updatedOrders);
-			showNotification("Status updated successfully!", "success");
+			showNotification("Cập nhật trạng thái thành công!", "success");
 		} catch (error) {
 			console.error("Update status failed:", error);
-			showNotification("Update failed. Please try again.", "error");
+			showNotification("Cập nhật thất bại. Vui lòng thử lại.", "error");
 		} finally {
 			closeConfirmModal();
 		}
@@ -85,9 +86,9 @@ export default function OrdersPage() {
 	const handleBulkDelete = async (ids: number[]) => {
 		try {
 			await Promise.all(ids.map(id => adminService.deleteOrder(id)));
-			showNotification("Orders deleted successfully", "success");
+			showNotification("Đã xóa các đơn hàng thành công", "success");
 		} catch (error) {
-			showNotification("Failed to delete some orders", "error");
+			showNotification("Xóa một số đơn hàng thất bại", "error");
 		} finally {
 			clearSelection();
 			setIsMobileSelectMode(false);
@@ -98,7 +99,7 @@ export default function OrdersPage() {
 	if (loading) {
 		return (
 			<div className="space-y-6">
-				<h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
+				<h1 className="text-2xl font-bold text-gray-800">Quản lý đơn hàng</h1>
 				<TableSkeleton rows={8} columns={7} />
 			</div>
 		);
@@ -107,13 +108,13 @@ export default function OrdersPage() {
 	return (
 		<div className="space-y-6">
 			<AdminPageHeader
-				title="Order Management"
+				title="Quản lý đơn hàng"
 				selectCount={selectCount}
 				totalCount={filteredOrders.length}
 				allData={filteredOrders}
 				exportColumns={ORDER_EXPORT_COLUMNS}
 				exportFilename="orders"
-				exportLabel="Export"
+				exportLabel="Xuất Excel"
 				selectedIds={selectedIds}
 				onBulkDelete={handleBulkDelete}
 				isMobileSelectMode={isMobileSelectMode}
@@ -131,22 +132,36 @@ export default function OrdersPage() {
 				isFiltered={isFiltered}
 			/>
 
-			<OrdersTable
-				orders={filteredOrders}
-				onStatusChange={onRequestStatusChange}
-				selectedIds={selectedIds}
-				onSelectChange={handleSelectChange}
-				onSelectAll={handleSelectAllVisible}
-				isMobileSelectMode={isMobileSelectMode}
-			/>
+			{filteredOrders.length === 0 && isFiltered ? (
+				<AdminEmptyState title="Không tìm thấy đơn hàng phù hợp" />
+			) : (
+				<OrdersTable
+					orders={filteredOrders}
+					onStatusChange={onRequestStatusChange}
+					selectedIds={selectedIds}
+					onSelectChange={handleSelectChange}
+					onSelectAll={handleSelectAllVisible}
+					isMobileSelectMode={isMobileSelectMode}
+				/>
+			)}
 
 			<ConfirmationModal
 				isOpen={confirmModal.isOpen}
 				onClose={closeConfirmModal}
 				onConfirm={handleConfirmUpdate}
-				title="Update Order Status"
-				message={`Are you sure you want to change the status to "${confirmModal.newStatus}"?`}
-				confirmLabel="Update"
+				title="Cập nhật trạng thái đơn hàng"
+				message={`Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng sang "${
+					confirmModal.newStatus
+						? {
+								Pending: "Chờ xác nhận",
+								Processing: "Đang chuẩn bị hàng",
+								Shipped: "Đang giao hàng",
+								Completed: "Đã hoàn thành",
+								Cancelled: "Đã hủy",
+							}[confirmModal.newStatus] || confirmModal.newStatus
+						: ""
+				}"?`}
+				confirmLabel="Cập nhật"
 				confirmButtonColor="!bg-blue-600 hover:!bg-blue-700"
 			/>
 		</div>

@@ -27,7 +27,7 @@ export default function FavoriteBtn({ productId, variantId, className = "", icon
 		e.preventDefault();
 		e.stopPropagation();
 		if (!user) {
-			showNotification("Please log in to add to favorites.", "warning");
+			showNotification("Vui lòng đăng nhập để thêm vào yêu thích.", "warning");
 			return;
 		}
 		setIsLoading(true);
@@ -37,7 +37,7 @@ export default function FavoriteBtn({ productId, variantId, className = "", icon
 			setTimeout(() => setIsAnimating(false), 300);
 		} catch (error) {
 			console.error("Error toggling favorite:", error);
-			showNotification("Failed to add to favorites. Please try again.", "error");
+			showNotification("Thêm vào yêu thích thất bại. Vui lòng thử lại.", "error");
 			setIsAnimating(false);
 		} finally {
 			setIsLoading(false);

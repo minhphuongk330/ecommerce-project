@@ -232,7 +232,6 @@ export function CartPageSkeleton() {
 	return (
 		<div className="flex flex-col md:flex-row gap-8 w-full">
 			<div className="w-full md:w-[60%] flex flex-col gap-6">
-				<Skeleton width={192} height={32} />
 				<div className="flex flex-col gap-6">
 					{[1, 2, 3].map(i => (
 						<div key={i} className="flex gap-4 pb-6 border-b border-gray-100">

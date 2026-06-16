@@ -2,6 +2,7 @@
 import { TablePagination } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import DataTable from "~/components/Table/Data";
 import Checkbox from "~/components/atoms/Checkbox";
@@ -32,9 +33,42 @@ export default function ProductsTable({
 	onSelectAll,
 	isMobileSelectMode = false,
 }: Props) {
-	const [mobilePage, setMobilePage] = useState(0);
+	const router = useRouter();
+	const pathname = usePathname();
 	const [isDesktop, setIsDesktop] = useState(false);
-	const [paginationModel] = useState({ page: 0, pageSize: 5 });
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+	const [isInitialized, setIsInitialized] = useState(false);
+
+
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const params = new URLSearchParams(window.location.search);
+			const p = params.get("page");
+			if (p) {
+				const parsed = parseInt(p, 10);
+				if (!isNaN(parsed) && parsed > 0) {
+					setPaginationModel(prev => ({ ...prev, page: parsed - 1 }));
+				}
+			}
+			setIsInitialized(true);
+		}
+	}, []);
+
+
+	useEffect(() => {
+		if (!isInitialized) return;
+
+		if (typeof window !== "undefined") {
+			const currentParams = new URLSearchParams(window.location.search);
+			const urlPage = currentParams.get("page");
+			const targetPageStr = (paginationModel.page + 1).toString();
+
+			if (urlPage !== targetPageStr) {
+				currentParams.set("page", targetPageStr);
+				router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
+			}
+		}
+	}, [paginationModel.page, pathname, router, isInitialized]);
 
 	useEffect(() => {
 		const handleResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -49,7 +83,7 @@ export default function ProductsTable({
 	}, [products, paginationModel]);
 
 	const handleMobilePageChange = (_event: unknown, newPage: number) => {
-		setMobilePage(newPage);
+		setPaginationModel(prev => ({ ...prev, page: newPage }));
 	};
 
 	const columns: GridColDef[] = [
@@ -86,7 +120,7 @@ export default function ProductsTable({
 		},
 		{
 			field: "mainImageUrl",
-			headerName: "Image",
+			headerName: "Hình ảnh",
 			width: 100,
 			sortable: false,
 			align: "center" as const,
@@ -105,13 +139,13 @@ export default function ProductsTable({
 				</div>
 			),
 		},
-		{ field: "name", headerName: "Product name", flex: 1.5, minWidth: 180, cellClassName: "font-medium text-gray-800" },
+		{ field: "name", headerName: "Tên sản phẩm", flex: 1.5, minWidth: 180, cellClassName: "font-medium text-gray-800" },
 		{
 			field: "category",
-			headerName: "Category",
+			headerName: "Danh mục",
 			flex: 1,
 			minWidth: 120,
-			valueGetter: (_, row) => row.category?.name || "Uncategorized",
+			valueGetter: (_, row) => row.category?.name || "Chưa phân loại",
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center h-full">
 					<StatusChip label={params.value} className="text-gray-600" />
@@ -120,7 +154,7 @@ export default function ProductsTable({
 		},
 		{
 			field: "price",
-			headerName: "Price",
+			headerName: "Giá",
 			flex: 0.8,
 			minWidth: 100,
 			type: "number",
@@ -131,7 +165,7 @@ export default function ProductsTable({
 		},
 		{
 			field: "stock",
-			headerName: "Stock",
+			headerName: "Tồn kho",
 			flex: 0.6,
 			minWidth: 80,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
@@ -142,18 +176,18 @@ export default function ProductsTable({
 		},
 		{
 			field: "isActive",
-			headerName: "Status",
+			headerName: "Trạng thái",
 			flex: 0.7,
 			minWidth: 100,
 			renderCell: (params: GridRenderCellParams<AdminProduct>) => (
 				<div className="flex items-center h-full">
-					<StatusChip label={params.value ? "Active" : "Inactive"} color={params.value ? "success" : "default"} />
+					<StatusChip label={params.value ? "Hoạt động" : "Ẩn"} color={params.value ? "success" : "default"} />
 				</div>
 			),
 		},
 		{
 			field: "createdAt",
-			headerName: "Created At",
+			headerName: "Ngày tạo",
 			flex: 0.8,
 			minWidth: 110,
 			valueFormatter: value => formatDate(value),
@@ -161,7 +195,7 @@ export default function ProductsTable({
 		},
 		{
 			field: "actions",
-			headerName: "Actions",
+			headerName: "Thao tác",
 			flex: 0.5,
 			minWidth: 80,
 			sortable: false,
@@ -177,17 +211,24 @@ export default function ProductsTable({
 		<>
 			{isDesktop && (
 				<div className="hidden md:block w-full h-[600px]">
-					<DataTable rows={products} columns={columns} rowHeight={70} noRowsLabel="No products available yet." />
+					<DataTable
+						rows={products}
+						columns={columns}
+						rowHeight={70}
+						noRowsLabel="Chưa có sản phẩm nào."
+						paginationModel={paginationModel}
+						onPaginationModelChange={setPaginationModel}
+					/>
 				</div>
 			)}
 
 			<div className="md:hidden flex flex-col pb-20">
 				<div className="flex flex-col gap-4">
 					{products.length === 0 ? (
-						<div className="text-center text-gray-500 py-10">No products available.</div>
+						<div className="text-center text-gray-500 py-10">Chưa có sản phẩm nào.</div>
 					) : (
 						products
-							.slice(mobilePage * MOBILE_ROWS_PER_PAGE, mobilePage * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
+							.slice(paginationModel.page * MOBILE_ROWS_PER_PAGE, paginationModel.page * MOBILE_ROWS_PER_PAGE + MOBILE_ROWS_PER_PAGE)
 							.map(product => (
 								<div
 									key={product.id}
@@ -221,7 +262,7 @@ export default function ProductsTable({
 												<span
 													className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${product.stock < 10 ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}
 												>
-													Stock: {product.stock}
+													Tồn kho: {product.stock}
 												</span>
 											</div>
 											<h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-tight mb-1">
@@ -229,7 +270,7 @@ export default function ProductsTable({
 											</h3>
 											<div>
 												<span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-													{product.category?.name || "Uncategorized"}
+													{product.category?.name || "Chưa phân loại"}
 												</span>
 											</div>
 										</div>
@@ -241,7 +282,7 @@ export default function ProductsTable({
 										<span className="text-base font-bold text-black">{formatPrice(product.price)}</span>
 										<div className="flex items-center gap-3">
 											<StatusChip
-												label={product.isActive ? "Active" : "Inactive"}
+												label={product.isActive ? "Hoạt động" : "Ẩn"}
 												color={product.isActive ? "success" : "default"}
 												className="!h-6 !text-xs"
 											/>
@@ -260,7 +301,7 @@ export default function ProductsTable({
 							<TablePagination
 								component="div"
 								count={products.length}
-								page={mobilePage}
+								page={paginationModel.page}
 								onPageChange={handleMobilePageChange}
 								rowsPerPage={MOBILE_ROWS_PER_PAGE}
 								rowsPerPageOptions={[]}

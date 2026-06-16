@@ -6,7 +6,7 @@ import { useFlashSale } from "~/hooks/useFlashSale";
 import { FlashSaleItem } from "~/types/flashSale";
 import CountdownTimer from "./CountdownTimer";
 
-// Simple SVG icons
+
 const LightningIcon = () => (
 	<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 		<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -34,10 +34,10 @@ const FlashSaleSection: React.FC = () => {
 	const [activeTab, setActiveTab] = useState("Tất cả");
 	const [progress, setProgress] = useState(0);
 
-	// Calculate progress based on time left (assuming 24 hour flash sale)
+
 	useEffect(() => {
 		if (timeLeft) {
-			const totalSeconds = 24 * 60 * 60; // 24 hours in seconds
+	const totalSeconds = 24 * 60 * 60;
 			const elapsedSeconds = totalSeconds - (timeLeft.hours * 3600 + timeLeft.minutes * 60 + timeLeft.seconds);
 			const progressPercentage = (elapsedSeconds / totalSeconds) * 100;
 			setProgress(Math.min(progressPercentage, 100));
@@ -69,12 +69,19 @@ const FlashSaleSection: React.FC = () => {
 		activeTab === "Tất cả"
 			? flashSale.items
 			: flashSale.items.filter(item => {
-				const catId = TAB_CATEGORY_MAP[activeTab];
-				return catId === null || item.product?.categoryId === catId;
+				const categoryName = item.product?.category?.name?.toLowerCase() || "";
+				if (activeTab === "Điện thoại/Tablet") {
+					return categoryName.includes("điện thoại") || categoryName.includes("tablet") || categoryName.includes("máy tính bảng") || categoryName.includes("phone") || categoryName.includes("ipad");
+				}
+				if (activeTab === "Laptop") {
+					return categoryName.includes("laptop") || categoryName.includes("máy tính xách tay");
+				}
+				if (activeTab === "Âm thanh/Phụ kiện") {
+					return categoryName.includes("tai nghe") || categoryName.includes("loa") || categoryName.includes("âm thanh") || categoryName.includes("phụ kiện") || categoryName.includes("sạc") || categoryName.includes("cáp");
+				}
+				return false;
 			});
 
-	// Tính toán số lượng đã bán và tồn kho - Single Source of Truth
-	// Chỉ dùng product.soldCount để đảm bảo đồng bộ data
 	const totalSold = flashSale.items?.reduce((acc, item) => {
 		const soldCount = (item.product as any)?.soldCount || 0;
 		return acc + soldCount;
@@ -82,37 +89,19 @@ const FlashSaleSection: React.FC = () => {
 	const totalStock = flashSale.items?.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
 	const stockProgress = totalStock > 0 ? Math.min((totalSold / totalStock) * 100, 100) : 0;
 
-	// Debug log cho clean architecture
-	console.log("Flash Sale - Clean Architecture:", {
-		totalSold,
-		totalStock,
-		stockProgress,
-		items: flashSale.items?.map(item => ({
-			id: item.id,
-			productName: item.product.name,
-			productPrice: item.product.price,
-			productOriginalPrice: item.product.originalPrice,
-			productSoldCount: (item.product as any)?.soldCount,
-			flashSaleSoldQuantity: item.soldQuantity,
-			isSynced: ((item.product as any)?.soldCount || 0) === (item.soldQuantity || 0),
-			quantity: item.quantity,
-			// Clean architecture data
-			enrichedIsFlashSale: true,
-			enrichedFlashSaleDiscount: 10,
-			expectedSalePrice: typeof item.product.price === 'string' ? parseFloat(item.product.price) * 0.9 : item.product.price * 0.9
-		}))
-	});
+
+
 
 	return (
 		<div className="w-full bg-gradient-to-r from-red-600 to-orange-600 relative overflow-hidden">
-			{/* Background decoration */}
+
 			<div className="absolute inset-0 opacity-10">
 				<div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mt-16" />
 				<div className="absolute bottom-0 right-0 w-48 h-48 bg-white rounded-full -mr-24 -mb-24" />
 			</div>
 
 			<div className="relative max-w-[1440px] mx-auto px-4 md:px-[160px] py-6">
-				{/* Header */}
+
 				<div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
 					<div className="flex items-center gap-3">
 						<div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
@@ -149,7 +138,7 @@ const FlashSaleSection: React.FC = () => {
 				</div>
 
 
-				{/* Category Tabs */}
+
 				<div className="flex gap-2 mb-6 overflow-x-auto [&::-webkit-scrollbar]:hidden">
 					{CATEGORY_TABS.map(tab => (
 						<button
@@ -165,7 +154,7 @@ const FlashSaleSection: React.FC = () => {
 					))}
 				</div>
 
-				{/* Products */}
+
 				<div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 					{filteredItems.length === 0 ? (
 						<div className="w-full text-center py-8">
@@ -173,12 +162,11 @@ const FlashSaleSection: React.FC = () => {
 						</div>
 					) : (
 						filteredItems.map((item, index) => {
-							// Clean approach: Enrich product with flash sale data
-							// ProductCard sẽ auto-detect và hiển thị đúng
 							const enrichedProduct = {
 								...item.product,
 								isFlashSale: true,
-								flashSaleDiscount: 10, // 10% discount
+								flashSalePrice: Number(item.salePrice),
+								flashSaleOriginalPrice: Number(item.originalPrice),
 							};
 
 							return (

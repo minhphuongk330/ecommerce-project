@@ -16,6 +16,7 @@ interface ImageUploadInputProps<T extends FieldValues> {
 	required?: boolean;
 	setValue: UseFormSetValue<T>;
 	onRemove?: () => void;
+	skipCrop?: boolean;
 }
 
 const ImageUploadInput = <T extends FieldValues>({
@@ -25,6 +26,7 @@ const ImageUploadInput = <T extends FieldValues>({
 	required = false,
 	setValue,
 	onRemove,
+	skipCrop = false,
 }: ImageUploadInputProps<T>) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
@@ -34,9 +36,27 @@ const ImageUploadInput = <T extends FieldValues>({
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		const objectUrl = URL.createObjectURL(file);
-		setCropSrc(objectUrl);
+		if (skipCrop) {
+
+			handleDirectUpload(file);
+		} else {
+			const objectUrl = URL.createObjectURL(file);
+			setCropSrc(objectUrl);
+		}
 		if (fileInputRef.current) fileInputRef.current.value = "";
+	};
+
+	const handleDirectUpload = async (file: File) => {
+		setIsUploading(true);
+		try {
+			const response = await uploadService.upload(file);
+			const url = response?.data?.url || response?.data?.display_url;
+			if (url) setValue(name, url as PathValue<T, Path<T>>, { shouldValidate: true });
+		} catch (error) {
+			console.error("Upload error:", error);
+		} finally {
+			setIsUploading(false);
+		}
 	};
 
 	const handleCropConfirm = async (blob: Blob) => {

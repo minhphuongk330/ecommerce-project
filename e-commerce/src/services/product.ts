@@ -15,7 +15,7 @@ export interface ProductParams {
 	[key: string]: string | number | undefined;
 }
 
-export const PRODUCT_SYSTEM_PARAMS = ["sort", "categoryId", "name", "page", "minPrice", "maxPrice"];
+export const PRODUCT_SYSTEM_PARAMS = ["sort", "categoryId", "name", "page", "minPrice", "maxPrice", "flashSale"];
 
 export const productService = {
 	getAll: async (params?: ProductParams): Promise<ProductResponse> => {
@@ -55,11 +55,9 @@ export const productService = {
 
 	getBestSellers: async (limit: number = 8): Promise<Product[]> => {
 		try {
-			// Use createdAt desc by default since we just reset the database
-			// and have no sales data yet
-			console.log("Fetching best sellers (using createdAt since no sales data yet)...");
+			console.log("Fetching best sellers (using Bestseller collection)...");
 			const response: ProductResponse = await axiosClient.get("/products", {
-				params: { sort: "createdAt", order: "desc", limit }
+				params: { collection: "Bestseller", limit }
 			});
 
 			const items = Array.isArray(response) ? response : response?.items || [];

@@ -15,7 +15,7 @@ export default function CreateReview({ productId, onSuccess }: CreateReviewProps
 
 	const handlePostReview = async (rating: number, content: string) => {
 		if (!user) {
-			showNotification("Please log in to write a review.", "warning");
+			showNotification("Vui lòng đăng nhập để viết đánh giá.", "warning");
 			return;
 		}
 
@@ -26,11 +26,11 @@ export default function CreateReview({ productId, onSuccess }: CreateReviewProps
 				rating,
 				comment: content,
 			});
-			showNotification("Evaluate success!", "success");
+			showNotification("Đánh giá thành công!", "success");
 			onSuccess();
 		} catch (error) {
 			console.error(error);
-			showNotification("Failed to submit review. Please try again.", "error");
+			showNotification("Gửi đánh giá thất bại. Vui lòng thử lại.", "error");
 		}
 	};
 

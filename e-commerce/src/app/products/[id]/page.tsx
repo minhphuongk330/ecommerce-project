@@ -2,7 +2,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import DetailsSection from "~/components/Products/DetailPage/DetailsSection";
-import MainInfo from "~/components/Products/DetailPage/MainInfo";
+import MainInfo, { COLOR_MAP } from "~/components/Products/DetailPage/MainInfo";
 import ProductReviews from "~/components/Products/DetailPage/Reviews/Index";
 import SectionProductList from "~/components/Products/SectionProductList";
 import { ProductDetailSkeleton } from "~/components/Skeletons";
@@ -33,7 +33,6 @@ export default function ProductDetailsPage() {
 	const uiProduct: ProductDetailUI | null = useMemo(() => {
 		if (!product) return null;
 
-		// Build images array from mainImageUrl and extra images
 		const images: string[] = [];
 		if (product.mainImageUrl) images.push(product.mainImageUrl);
 		if (product.extraImage1) images.push(product.extraImage1);
@@ -41,9 +40,17 @@ export default function ProductDetailsPage() {
 		if (product.extraImage3) images.push(product.extraImage3);
 		if (product.extraImage4) images.push(product.extraImage4);
 
-		// Build colors array from single color string
-		const colors = product.color ? [{ id: 1, name: product.color, hex: "#000000" }] : [];
-
+		const colorHexMap = product.specifications?.colorHex || {};
+		const colors = product.color
+			? product.color.split(",").map((c, idx) => {
+				const trimmed = c.trim();
+				return {
+					id: idx + 1,
+					name: trimmed,
+					hex: colorHexMap[trimmed] || COLOR_MAP[trimmed] || "#CCCCCC",
+				};
+			})
+			: [];
 		return {
 			...product,
 			images,
@@ -54,22 +61,22 @@ export default function ProductDetailsPage() {
 
 	if (isLoading) {
 		return (
-			<div className="w-full bg-white min-h-screen flex flex-col items-center">
+			<div className="w-full bg-white min-h-screen flex flex-col items-center font-sans">
 				<ProductDetailSkeleton />
 			</div>
 		);
 	}
 
 	if (!product || !uiProduct) {
-		return <div className="min-h-screen flex items-center justify-center">Product not found</div>;
+		return <div className="min-h-screen flex items-center justify-center font-sans">Không tìm thấy sản phẩm</div>;
 	}
 
 	return (
-		<div className="w-full bg-white min-h-screen flex flex-col items-center pt-8 md:px-0 pb-8">
+		<div className="w-full bg-white min-h-screen flex flex-col items-center pt-8 md:px-0 pb-8 font-sans">
 			<MainInfo product={uiProduct} />
 			<DetailsSection product={product} />
 			<ProductReviews productId={product.id} />
-			<SectionProductList title="Related Products" products={relatedProducts} />
+			<SectionProductList title="Sản phẩm tương tự" products={relatedProducts} />
 		</div>
 	);
 }

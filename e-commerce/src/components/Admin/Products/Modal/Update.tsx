@@ -21,12 +21,12 @@ export default function UpdateProduct({ product, categories, onSuccess }: Props)
 	const handleUpdate = async (data: ProductFormOutput) => {
 		try {
 			await adminService.updateProduct(product.id, data);
-			showNotification("Update successful", "success");
+			showNotification("Cập nhật thành công", "success");
 			setIsOpen(false);
 			onSuccess();
 		} catch (error) {
 			console.error(error);
-			showNotification("Update failed", "error");
+			showNotification("Cập nhật thất bại", "error");
 		}
 	};
 
@@ -38,10 +38,10 @@ export default function UpdateProduct({ product, categories, onSuccess }: Props)
 			<ProductFormModal
 				isOpen={isOpen}
 				onClose={() => setIsOpen(false)}
-				title="Update product"
+				title="Cập nhật sản phẩm"
 				categories={categories}
 				onSubmit={handleUpdate}
-				submitLabel="Update"
+				submitLabel="Cập nhật"
 				defaultValues={{ ...product, id: product.id }}
 			/>
 		</>
