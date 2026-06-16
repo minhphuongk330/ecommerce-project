@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import axiosClient from "~/services/axiosClient";
 
-export default function PaymentResultPage() {
+function PaymentResultContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const status = searchParams.get("status");
@@ -117,5 +117,22 @@ export default function PaymentResultPage() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+export default function PaymentResultPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="min-h-[60vh] flex items-center justify-center">
+					<div className="flex flex-col items-center gap-4">
+						<div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin" />
+						<p className="text-gray-500">Đang tải...</p>
+					</div>
+				</div>
+			}
+		>
+			<PaymentResultContent />
+		</Suspense>
 	);
 }
