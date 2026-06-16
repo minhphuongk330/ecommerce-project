@@ -33,7 +33,9 @@ export default function DataTable({ noRowsLabel = "Không có dữ liệu", sx, 
 				disableDensitySelector
 				localeText={{
 					noRowsLabel: noRowsLabel,
-					MuiTablePagination: {
+				}}
+				slotProps={{
+					pagination: {
 						labelRowsPerPage: "Số hàng mỗi trang:",
 						labelDisplayedRows: ({ from, to, count }) => `${from}-${to} trong số ${count}`,
 					},
