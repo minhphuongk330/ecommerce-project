@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '../../entities/category.entity';
@@ -13,7 +13,17 @@ export class CategoriesService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = this.categoryRepository.create(createCategoryDto);
+    const trimmedName = createCategoryDto.name?.trim();
+    const existing = await this.categoryRepository.findOne({
+      where: { name: trimmedName },
+    });
+    if (existing) {
+      throw new ConflictException('Tên danh mục đã tồn tại');
+    }
+    const category = this.categoryRepository.create({
+      ...createCategoryDto,
+      name: trimmedName,
+    });
     return await this.categoryRepository.save(category);
   }
 
@@ -36,6 +46,18 @@ export class CategoriesService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<Category> {
     const category = await this.findOne(id);
+    if (updateCategoryDto.name) {
+      const trimmedName = updateCategoryDto.name.trim();
+      if (trimmedName !== category.name) {
+        const existing = await this.categoryRepository.findOne({
+          where: { name: trimmedName },
+        });
+        if (existing) {
+          throw new ConflictException('Tên danh mục đã tồn tại');
+        }
+      }
+      updateCategoryDto.name = trimmedName;
+    }
     Object.assign(category, updateCategoryDto);
     return await this.categoryRepository.save(category);
   }

@@ -40,9 +40,6 @@ export class ChatbotService {
     currentProductId?: number,
   ) {
     try {
-      // Chỉ lấy tin nhắn của người dùng (bỏ qua phản hồi của bot) để tìm sản phẩm.
-      // Lý do: phản hồi của bot rất dài, chứa nhiều tên sản phẩm dễ gây nhiễu cho kết quả tìm kiếm.
-      // Lịch sử đầy đủ đã được truyền cho AI qua formattedHistory, không cần đưa vào searchQuery.
       const recentUserMessages = (history || []).slice(-6).filter((h: any) => h.sender === 'user');
       const searchQuery = [...recentUserMessages.map((h: any) => h.text), message].join(' ');
 
@@ -199,7 +196,6 @@ export class ChatbotService {
       order: { createdAt: 'DESC' },
       take: limit,
     });
-    // Đảo ngược để trả về đúng thứ tự thời gian
     return rows.reverse().map((row) => ({
       sender: row.role === 'user' ? 'user' : 'bot',
       text: row.message,

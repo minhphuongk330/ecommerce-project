@@ -34,6 +34,7 @@ export default function CategoryFormModal({ open, category, onClose, onSuccess }
 		control,
 		handleSubmit,
 		reset,
+		setError,
 		formState: { isSubmitting },
 	} = useForm<CategoryFormValues>({
 		resolver: zodResolver(categorySchema),
@@ -70,7 +71,18 @@ export default function CategoryFormModal({ open, category, onClose, onSuccess }
 			onSuccess();
 		} catch (err: any) {
 			const msg = err?.response?.data?.message || (isEdit ? "Cập nhật thất bại" : "Thêm thất bại");
-			showNotification(msg, "error");
+			const isDuplicateError = 
+				(typeof msg === 'string' && msg.includes("Tên danh mục đã tồn tại")) ||
+				(Array.isArray(msg) && msg.some(m => typeof m === 'string' && m.includes("Tên danh mục đã tồn tại")));
+
+			if (isDuplicateError) {
+				setError("name", {
+					type: "manual",
+					message: "Tên danh mục đã tồn tại",
+				});
+			} else {
+				showNotification(Array.isArray(msg) ? msg.join(", ") : msg, "error");
+			}
 		}
 	};
 

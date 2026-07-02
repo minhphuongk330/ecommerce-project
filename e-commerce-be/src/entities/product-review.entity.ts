@@ -12,7 +12,7 @@ import { Product } from './product.entity';
 import { Customer } from './customer.entity';
 
 @Entity('product_reviews')
-// @Unique(['productId', 'customerId'])
+@Unique(['productId', 'customerId'])
 export class ProductReview {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
